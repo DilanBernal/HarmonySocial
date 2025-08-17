@@ -73,6 +73,15 @@ const LoginScreen = () => {
               </View>
             </TouchableHighlight>
           </View>
+          <View style={styles.forgetButton}>
+            <TouchableHighlight>
+              <View>
+                <Text style={styles.forgetButtonText}>
+                  ¿Olvidaste tu contraseña?
+                </Text>
+              </View>
+            </TouchableHighlight>
+          </View>
         </View>
       )}
     </Formik>
@@ -101,7 +110,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     color: 'white',
     borderColor: '#ffffff',
-    paddingStart: 10
+    paddingStart: 10,
   },
   label: {
     textAlign: 'center',
@@ -132,6 +141,12 @@ const styles = StyleSheet.create({
   registerButtonContentText: {
     textAlign: 'center',
     fontWeight: 'bold',
+  },
+  forgetButton: {},
+  forgetButtonText: {
+    color: 'white',
+    textAlign: 'center',
+    fontWeight: 'semibold',
   },
 });
 
