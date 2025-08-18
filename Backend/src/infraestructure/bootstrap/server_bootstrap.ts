@@ -12,7 +12,7 @@ export default class ServerBootstrap {
   init(): Promise<boolean> {
     return new Promise((resolve, reject) => {
       const server = http.createServer(this.app);
-      const PORT = envs.PORT | 4100;
+      const PORT = envs.PORT ?? 4100;
 
       server
         .listen(PORT)
