@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   SafeAreaView,
   StatusBar,
@@ -17,15 +17,10 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-
-// ---- Navegación ----
 import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../App'; // export type en src/App.tsx
-type Nav = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
 /* eslint-disable react-native/no-inline-styles */
-const LOGO = require('../assets/img/HarmonyImgNueva.png');
+const LOGO = require('../../assets/img/HarmonyImgNueva.png');
 
 const validationSchema = Yup.object().shape({
   userOrEmail: Yup.string().required('El nombre de usuario es obligatorio'),
@@ -33,7 +28,6 @@ const validationSchema = Yup.object().shape({
     .min(6, 'La contraseña debe tener al menos 6 dígitos')
     .required('La contraseña es obligatoria'),
 });
-
 
 /** ==== Equalizer decorativo (solo UI) ==== */
 function EqBars({
@@ -49,7 +43,7 @@ function EqBars({
 }) {
   const anims = useMemo(
     () => Array.from({ length: bars }, () => new Animated.Value(0)),
-    [bars]
+    [bars],
   );
 
   useEffect(() => {
@@ -61,7 +55,7 @@ function EqBars({
             duration: 800 + (i % 3) * 150,
             delay: i * 90,
             easing: Easing.inOut(Easing.quad),
-            useNativeDriver: false, // height no soporta native driver
+            useNativeDriver: false,
           }),
           Animated.timing(v, {
             toValue: 0,
@@ -69,7 +63,7 @@ function EqBars({
             easing: Easing.inOut(Easing.quad),
             useNativeDriver: false,
           }),
-        ])
+        ]),
       ).start();
     });
   }, [anims]);
@@ -84,7 +78,10 @@ function EqBars({
         return (
           <Animated.View
             key={i}
-            style={[styles.eqBar, { height: h, opacity: 0.9, backgroundColor: color }]}
+            style={[
+              styles.eqBar,
+              { height: h, opacity: 0.9, backgroundColor: color },
+            ]}
           />
         );
       })}
@@ -93,11 +90,10 @@ function EqBars({
 }
 
 export default function LoginScreen() {
-  const navigation = useNavigation<Nav>();
+  const navigation = useNavigation();
   const [showPassword, setShowPassword] = useState(false);
   const [focus, setFocus] = useState<'user' | 'pass' | null>(null);
 
-  // Refs para UX
   const userRef = useRef<TextInput>(null);
   const passRef = useRef<TextInput>(null);
 
@@ -140,19 +136,17 @@ export default function LoginScreen() {
               </View>
 
               <Text style={styles.title}>Harmony Social</Text>
-              <Text style={styles.subtitle}>Tu mundo musical, comparte y descubre.</Text>
+              <Text style={styles.subtitle}>
+                Tu mundo musical, comparte y descubre.
+              </Text>
 
               <Formik
                 initialValues={{ userOrEmail: '', password: '' }}
                 validationSchema={validationSchema}
                 onSubmit={async (values, { setSubmitting }) => {
                   try {
-
-                    await new Promise((r) => setTimeout(r, 600));
-
-
+                    await new Promise(r => setTimeout(r, 600));
                     navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
-
                   } finally {
                     setSubmitting(false);
                   }
@@ -178,7 +172,9 @@ export default function LoginScreen() {
                       style={[
                         styles.input,
                         focus === 'user' ? styles.inputFocus : null,
-                        touched.userOrEmail && errors.userOrEmail ? styles.inputError : null,
+                        touched.userOrEmail && errors.userOrEmail
+                          ? styles.inputError
+                          : null,
                       ]}
                       onChangeText={handleChange('userOrEmail')}
                       onBlur={() => {
@@ -208,7 +204,9 @@ export default function LoginScreen() {
                           styles.input,
                           styles.inputWithAffix,
                           focus === 'pass' ? styles.inputFocus : null,
-                          touched.password && errors.password ? styles.inputError : null,
+                          touched.password && errors.password
+                            ? styles.inputError
+                            : null,
                         ]}
                         value={values.password}
                         secureTextEntry={!showPassword}
@@ -225,8 +223,11 @@ export default function LoginScreen() {
                       />
                       <Pressable
                         style={styles.affix}
-                        onPress={() => setShowPassword((v) => !v)}
-                        android_ripple={{ color: '#ffffff22', borderless: true }}
+                        onPress={() => setShowPassword(v => !v)}
+                        android_ripple={{
+                          color: '#ffffff22',
+                          borderless: true,
+                        }}
                       >
                         <Text style={styles.affixText}>
                           {showPassword ? 'Ocultar' : 'Mostrar'}
@@ -250,24 +251,34 @@ export default function LoginScreen() {
                           disabled={!isValid || isSubmitting}
                           style={({ pressed }) => [
                             styles.btn,
-                            (!isValid || isSubmitting) ? styles.btnDisabled : null,
+                            !isValid || isSubmitting
+                              ? styles.btnDisabled
+                              : null,
                             pressed ? styles.btnPressed : null,
                           ]}
                         >
-                          <Text style={styles.btnPrimaryText}>Iniciar sesión</Text>
+                          <Text style={styles.btnPrimaryText}>
+                            Iniciar sesión
+                          </Text>
                         </Pressable>
                       </LinearGradient>
 
                       <Pressable
                         onPress={() => navigation.navigate('Register')}
-                        style={({ pressed }) => [styles.btn, styles.btnSecondary, pressed && styles.btnSecondaryPressed]}
+                        style={({ pressed }) => [
+                          styles.btn,
+                          styles.btnSecondary,
+                          pressed && styles.btnSecondaryPressed,
+                        ]}
                       >
                         <Text style={styles.btnSecondaryText}>Registrarse</Text>
                       </Pressable>
-
                     </View>
 
-                    <Pressable onPress={() => navigation.navigate('ResetPassword')} style={styles.mt18}>
+                    <Pressable
+                      onPress={() => navigation.navigate('ResetPassword')}
+                      style={styles.mt18}
+                    >
                       <Text style={styles.link}>¿Olvidaste tu contraseña?</Text>
                     </Pressable>
                   </>

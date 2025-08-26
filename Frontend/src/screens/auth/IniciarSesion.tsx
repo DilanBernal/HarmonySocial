@@ -14,67 +14,74 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import type { ImageSourcePropType } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import type { MainTabsParamList } from '../navigation/MainTabs';
+import type { MainTabsParamList } from '../../navigation/MainTabs';
+import User from '../../models/User';
+import Playlist from '../../models/Playlist';
+import Post from '../../models/Post';
 
+const AVATAR: ImageSourcePropType = require('../../assets/img/yoxd.jpg');
+// 'https://images.unsplash.com/photo-1544006659-f0b21884ce1d?q=80&w=256&fit=crop';
 
+const IMG_CHINACOTA: ImageSourcePropType = require('../../assets/img/chinacotaxd.jpg');
 
-const AVATAR: ImageSourcePropType = require ('../assets/img/yoxd.jpg')
-  // 'https://images.unsplash.com/photo-1544006659-f0b21884ce1d?q=80&w=256&fit=crop';
-
-const IMG_CHINACOTA: ImageSourcePropType = require('../assets/img/chinacotaxd.jpg')
-
-type Friend = { id: string; name: string; avatar: ImageSourcePropType };
-type Playlist = { id: string; title: string; cover: ImageSourcePropType };
-
-
-
-
-const FRIENDS: Friend[] = [
+const FRIENDS: User[] = [
   { id: 's1', name: 'Chinacota', avatar: IMG_CHINACOTA }, // local
-  { id: 's2', name: 'Sarah',      avatar: { uri: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=256&q=80' } },
-  { id: 's3', name: 'Daniel',       avatar: { uri: 'https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?w=256&q=80' } },
-  { id: 's4', name: 'Leo',       avatar: { uri: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=256&q=80' } },
+  {
+    id: 's2',
+    name: 'Sarah',
+    avatar: {
+      uri: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=256&q=80',
+    },
+  },
+  {
+    id: 's3',
+    name: 'Daniel',
+    avatar: {
+      uri: 'https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?w=256&q=80',
+    },
+  },
+  {
+    id: 's4',
+    name: 'Leo',
+    avatar: {
+      uri: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=256&q=80',
+    },
+  },
 ];
 
-const PLAYLISTS: Playlist [] = [
+const PLAYLISTS: Playlist[] = [
   {
     id: 'p1',
     title: 'Mezcla diaria',
-    cover: {uri: 'https://images.unsplash.com/photo-1458560871784-56d23406c091?w=800&q=80'},
+    cover: {
+      uri: 'https://images.unsplash.com/photo-1458560871784-56d23406c091?w=800&q=80',
+    },
   },
   {
     id: 'p2',
     title: 'Lo-Fi Beats',
-    cover: {uri:'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=800&q=80'},
+    cover: {
+      uri: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=800&q=80',
+    },
   },
   {
     id: 'p3',
     title: 'Éxitos Latinos',
-    cover: {uri:'https://images.unsplash.com/photo-1499428665502-503f6c608263?w=800&q=80'},
+    cover: {
+      uri: 'https://images.unsplash.com/photo-1499428665502-503f6c608263?w=800&q=80',
+    },
   },
 ];
-
-type Post = {
-  id: string;
-  user: string;
-  avatar: ImageSourcePropType;
-  time: string;
-  title: string;
-  artist: string;
-  cover: ImageSourcePropType;
-  likes: number;
-  comments: number;
-};
 
 const FEED: Post[] = [
   {
     id: '1',
     user: 'Chinacota',
-    avatar: FRIENDS[0]?.avatar ?? AVATAR,   
+    avatar: FRIENDS[0]?.avatar ?? AVATAR,
     time: '2 h',
     title: 'Night Drive',
     artist: 'Midnight Crew',
-    cover: require('../assets/img/imgmusica.jpg'),
+    cover: require('../../assets/img/imgmusica.jpg'),
     likes: 128,
     comments: 24,
   },
@@ -85,7 +92,9 @@ const FEED: Post[] = [
     time: '5 h',
     title: 'Ocean Eyes',
     artist: 'Blue Coast',
-    cover: { uri: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=1200&q=80' },
+    cover: {
+      uri: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=1200&q=80',
+    },
     likes: 84,
     comments: 10,
   },
@@ -99,13 +108,12 @@ function useGreeting() {
 }
 
 /* ----------  saludo + buscador + historias + playlists ---------- */
-function IniciarSesion() {
+const IniciarSesion = () => {
   const tabNav = useNavigation<BottomTabNavigationProp<MainTabsParamList>>();
   const greet = useGreeting();
 
   return (
     <View>
-      {/* Top bar */}
       <View style={s.topbar}>
         <Text style={s.logoText}>Harmony</Text>
 
@@ -120,7 +128,9 @@ function IniciarSesion() {
 
       {/* Saludo */}
       <Text style={s.greeting}>{greet} 👋</Text>
-      <Text style={s.subtitle}>Explora música nueva y lo que comparten tus amigos.</Text>
+      <Text style={s.subtitle}>
+        Explora música nueva y lo que comparten tus amigos.
+      </Text>
 
       {/* Search */}
       <View style={s.searchWrap}>
@@ -137,7 +147,7 @@ function IniciarSesion() {
       <Text style={s.sectionTitle}>Historias</Text>
       <FlatList
         data={FRIENDS}
-        keyExtractor={(i) => i.id}
+        keyExtractor={i => i.id}
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ paddingHorizontal: 16 }}
@@ -147,7 +157,9 @@ function IniciarSesion() {
             <LinearGradient colors={['#7C4DFF', '#4C63F2']} style={s.storyRing}>
               <Image source={item.avatar} style={s.storyImg} />
             </LinearGradient>
-            <Text numberOfLines={1} style={s.storyName}>{item.name}</Text>
+            <Text numberOfLines={1} style={s.storyName}>
+              {item.name}
+            </Text>
           </Pressable>
         )}
       />
@@ -156,7 +168,7 @@ function IniciarSesion() {
       <Text style={[s.sectionTitle, { marginTop: 14 }]}>Para ti</Text>
       <FlatList
         data={PLAYLISTS}
-        keyExtractor={(i) => i.id}
+        keyExtractor={i => i.id}
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 12 }}
@@ -181,7 +193,7 @@ function IniciarSesion() {
       />
     </View>
   );
-}
+};
 
 /* ---------- Card del feed ---------- */
 function PostCard({ p }: { p: Post }) {
@@ -208,15 +220,25 @@ function PostCard({ p }: { p: Post }) {
 
       {/* acciones */}
       <View style={s.cardActions}>
-        <View style={s.row}>
+        <View>
           <Ionicons name="heart-outline" size={22} color="#C9D0E3" />
           <Text style={s.actionText}>{p.likes}</Text>
-          <Ionicons name="chatbubble-outline" size={22} color="#C9D0E3" style={{ marginLeft: 14 }} />
+          <Ionicons
+            name="chatbubble-outline"
+            size={22}
+            color="#C9D0E3"
+            style={{ marginLeft: 14 }}
+          />
           <Text style={s.actionText}>{p.comments}</Text>
         </View>
-        <View style={s.row}>
+        <View>
           <Ionicons name="share-social-outline" size={22} color="#C9D0E3" />
-          <Ionicons name="play-circle-outline" size={26} color="#C9D0E3" style={{ marginLeft: 14 }} />
+          <Ionicons
+            name="play-circle-outline"
+            size={26}
+            color="#C9D0E3"
+            style={{ marginLeft: 14 }}
+          />
         </View>
       </View>
     </View>
@@ -250,11 +272,28 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  logoText: { color: '#E6EAF2', fontSize: 22, fontWeight: '800', letterSpacing: 0.5 },
+  logoText: {
+    color: '#E6EAF2',
+    fontSize: 22,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
   avatar: { width: 34, height: 34, borderRadius: 17 },
 
-  greeting: { color: '#E6EAF2', fontSize: 20, fontWeight: '800', paddingHorizontal: 16, marginTop: 6 },
-  subtitle: { color: '#A8B0C3', fontSize: 13, paddingHorizontal: 16, marginTop: 2, marginBottom: 12 },
+  greeting: {
+    color: '#E6EAF2',
+    fontSize: 20,
+    fontWeight: '800',
+    paddingHorizontal: 16,
+    marginTop: 6,
+  },
+  subtitle: {
+    color: '#A8B0C3',
+    fontSize: 13,
+    paddingHorizontal: 16,
+    marginTop: 2,
+    marginBottom: 12,
+  },
 
   searchWrap: {
     marginHorizontal: 16,
@@ -270,21 +309,56 @@ const s = StyleSheet.create({
   },
   searchInput: { flex: 1, color: '#DDE3F0', paddingVertical: 0 },
 
-  sectionTitle: { color: '#E6EAF2', fontWeight: '800', fontSize: 16, paddingHorizontal: 16, marginTop: 12, marginBottom: 8 },
+  sectionTitle: {
+    color: '#E6EAF2',
+    fontWeight: '800',
+    fontSize: 16,
+    paddingHorizontal: 16,
+    marginTop: 12,
+    marginBottom: 8,
+  },
 
   /* historias */
   storyRing: {
-    width: 64, height: 64, borderRadius: 999, padding: 2,
-    alignItems: 'center', justifyContent: 'center',
+    width: 64,
+    height: 64,
+    borderRadius: 999,
+    padding: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  storyImg: { width: 60, height: 60, borderRadius: 999, backgroundColor: '#222' },
-  storyName: { color: '#C8CFDD', fontSize: 11, textAlign: 'center', marginTop: 6, width: 64 },
+  storyImg: {
+    width: 60,
+    height: 60,
+    borderRadius: 999,
+    backgroundColor: '#222',
+  },
+  storyName: {
+    color: '#C8CFDD',
+    fontSize: 11,
+    textAlign: 'center',
+    marginTop: 6,
+    width: 64,
+  },
 
   /* playlists */
   plItem: { width: 160, height: 120, borderRadius: 14, overflow: 'hidden' },
   plImage: { width: '100%', height: '100%', borderRadius: 14 },
-  plOverlay: { position: 'absolute', left: 0, right: 0, bottom: 0, top: 0, borderRadius: 14 },
-  plTitle: { position: 'absolute', left: 10, bottom: 10, color: '#F1F4FF', fontWeight: '800' },
+  plOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    top: 0,
+    borderRadius: 14,
+  },
+  plTitle: {
+    position: 'absolute',
+    left: 10,
+    bottom: 10,
+    color: '#F1F4FF',
+    fontWeight: '800',
+  },
 
   /* feed cards */
   card: {
@@ -296,8 +370,18 @@ const s = StyleSheet.create({
     borderColor: '#242b37',
     marginTop: 14,
   },
-  cardHead: { flexDirection: 'row', alignItems: 'center', padding: 12, gap: 10 },
-  cardAvatar: { width: 34, height: 34, borderRadius: 17, backgroundColor: '#222' },
+  cardHead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    gap: 10,
+  },
+  cardAvatar: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: '#222',
+  },
   cardUser: { color: '#E6EAF2', fontWeight: '700' },
   cardTime: { color: '#9AA3B2', fontSize: 12 },
 
@@ -315,6 +399,11 @@ const s = StyleSheet.create({
   actionText: { color: '#C9D0E3', marginLeft: 6, fontWeight: '600' },
 
   /* page base */
-  page: { flex: 1, backgroundColor: '#0b0c16', alignItems: 'center', justifyContent: 'center' },
+  page: {
+    flex: 1,
+    backgroundColor: '#0b0c16',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   text: { color: '#E6EAF2', fontSize: 20, fontWeight: '700' },
 });
