@@ -3,6 +3,7 @@ import { ImageSourcePropType } from 'react-native';
 type Post = {
   id: string;
   user: string;
+  songId: number;
   avatar: ImageSourcePropType;
   time: string;
   title: string;

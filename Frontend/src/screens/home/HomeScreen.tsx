@@ -1,12 +1,13 @@
-import React, { useMemo } from 'react';
-import { FlatList, ImageSourcePropType } from 'react-native';
-import IniciarSesion from '../auth/IniciarSesion';
+import { FlatList, ImageSourcePropType, StyleSheet, View } from 'react-native';
+import HomeHeader from '../../components/home/HomeHeaderComponent';
+import PostCard from '../../components/home/PostCard';
 import Post from '../../models/Post';
-import PostCard from '../../components/PostCard';
 import User from '../../models/User';
+import { useMemo } from 'react';
+import defaultColors from '../../assets/style/colors';
 
-const AVATAR: ImageSourcePropType = require('../assets/img/yoxd.jpg');
-const IMG_CHINACOTA: ImageSourcePropType = require('../assets/img/chinacotaxd.jpg');
+const AVATAR: ImageSourcePropType = require('../../assets/img/yoxd.jpg');
+const IMG_CHINACOTA: ImageSourcePropType = require('../../assets/img/chinacotaxd.jpg');
 
 const FRIENDS: User[] = [
   { id: 's1', name: 'Chinacota', avatar: IMG_CHINACOTA }, // local
@@ -41,7 +42,7 @@ const FEED: Post[] = [
     time: '2 h',
     title: 'Night Drive',
     artist: 'Midnight Crew',
-    cover: require('../assets/img/imgmusica.jpg'),
+    cover: require('../../assets/img/imgmusica.jpg'),
     likes: 128,
     comments: 24,
   },
@@ -60,19 +61,29 @@ const FEED: Post[] = [
   },
 ];
 
-/* ---------- Home principal ---------- */
-export default function IniciarSesionPrincipal() {
-  const header = useMemo(() => <IniciarSesion />, []);
+const HomeScreen = () => {
+  const header = useMemo(() => <HomeHeader />, []);
 
   return (
-    <FlatList
-      style={{ flex: 1, backgroundColor: '#0b0c16' }}
-      data={FEED}
-      keyExtractor={i => i.id}
-      ListHeaderComponent={header}
-      contentContainerStyle={{ paddingBottom: 24 }}
-      renderItem={({ item }) => <PostCard p={item} />}
-      showsVerticalScrollIndicator={false}
-    />
+    <View style={styles.homeContainer}>
+      <FlatList
+        style={{ flex: 1, backgroundColor: '#0b0c16' }}
+        data={FEED}
+        ListHeaderComponent={header}
+        keyExtractor={i => i.id}
+        contentContainerStyle={{ paddingBottom: 24 }}
+        renderItem={({ item }) => <PostCard p={item} />}
+        showsVerticalScrollIndicator={true}
+      />
+    </View>
   );
-}
+};
+
+const styles = StyleSheet.create({
+  homeContainer: {
+    flex: 1,
+    backgroundColor: defaultColors.background,
+  },
+});
+
+export default HomeScreen;

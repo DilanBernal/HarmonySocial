@@ -3,8 +3,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { View, Text, StyleSheet } from 'react-native';
 
-import IniciarSesion from '../screens/auth/IniciarSesion';
+import HomeHeader from '../components/home/HomeHeaderComponent';
 import ProfileScreen from '../screens/auth/ProfileScreen';
+import HomeScreen from '../screens/home/HomeScreen';
 
 function SearchScreen() {
   return (
@@ -23,6 +24,11 @@ function LibraryScreen() {
 // function ProfileScreen() { return <View style={s.page}><Text style={s.text}>Perfil</Text></View>; }
 
 export type MainTabsParamList = {
+  Home: undefined;
+  Main: undefined;
+  Register: undefined;
+  Login: undefined;
+  ResetPassword: undefined;
   Feed: undefined;
   Search: undefined;
   Library: undefined;
@@ -53,7 +59,7 @@ export default function MainTabs() {
       {/* TU HOME dentro de las tabs */}
       <Tab.Screen
         name="Feed"
-        component={IniciarSesion}
+        component={HomeScreen}
         options={{ title: 'Inicio' }}
       />
       <Tab.Screen

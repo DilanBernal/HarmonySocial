@@ -25,12 +25,12 @@ const LOGO = require('../../assets/img/HarmonyImgNueva.png');
 const validationSchema = Yup.object().shape({
   userOrEmail: Yup.string().required('El nombre de usuario es obligatorio'),
   password: Yup.string()
-    .min(6, 'La contraseña debe tener al menos 6 dígitos')
+    .min(2, 'La contraseña debe tener al menos 6 dígitos')
     .required('La contraseña es obligatoria'),
 });
 
 /** ==== Equalizer decorativo (solo UI) ==== */
-function EqBars({
+const EqBars = ({
   bars = 12,
   color = '#6F9BFF',
   heightMin = 8,
@@ -40,7 +40,7 @@ function EqBars({
   color?: string;
   heightMin?: number;
   heightMax?: number;
-}) {
+}) => {
   const anims = useMemo(
     () => Array.from({ length: bars }, () => new Animated.Value(0)),
     [bars],
@@ -87,9 +87,9 @@ function EqBars({
       })}
     </View>
   );
-}
+};
 
-export default function LoginScreen() {
+const LoginScreen = () => {
   const navigation = useNavigation();
   const [showPassword, setShowPassword] = useState(false);
   const [focus, setFocus] = useState<'user' | 'pass' | null>(null);
@@ -290,7 +290,9 @@ export default function LoginScreen() {
       </LinearGradient>
     </SafeAreaView>
   );
-}
+};
+
+export default LoginScreen;
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#0b0c16' },
