@@ -2,17 +2,16 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import LoginScreen from './screens/LoginScreen';
 import MainTabs from './navigation/MainTabs';
-import RegisterScreen from '../src/screens/RegisterScreen'; 
-import ResetPasswordScreen from '../src/screens/ResetPasswordScreen'; 
+import RegisterScreen from './screens/auth/RegisterScreen';
+import ResetPasswordScreen from './screens/auth/ResetPasswordScreen';
+import LoginScreen from './screens/auth/LoginScreen';
 
 export type RootStackParamList = {
   Login: undefined;
-  Main: undefined; 
+  Main: undefined;
   Register: undefined;
-  ResetPassword: undefined; 
-
+  ResetPassword: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -20,7 +19,10 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Login">
+      <Stack.Navigator
+        screenOptions={{ headerShown: false }}
+        initialRouteName="Login"
+      >
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Main" component={MainTabs} />
         <Stack.Screen

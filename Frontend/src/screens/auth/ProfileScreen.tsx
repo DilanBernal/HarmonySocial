@@ -1,12 +1,11 @@
-
 import React from 'react';
 import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NavigationProp } from '@react-navigation/native';
-import type { RootStackParamList } from '../App';
+import type { RootStackParamList } from '../../App';
 import type { ImageSourcePropType } from 'react-native';
 
-const AVATAR: ImageSourcePropType = require('../assets/img/yoxd.jpg');
+const AVATAR: ImageSourcePropType = require('../../assets/img/yoxd.jpg');
 
 export default function ProfileScreen() {
   const rootNav = useNavigation<NavigationProp<RootStackParamList>>();
@@ -30,12 +29,20 @@ export default function ProfileScreen() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0b0c16', alignItems: 'center', paddingTop: 40 },
+  container: {
+    flex: 1,
+    backgroundColor: '#0b0c16',
+    alignItems: 'center',
+    paddingTop: 40,
+  },
   avatar: { width: 96, height: 96, borderRadius: 48, marginBottom: 12 },
   name: { color: '#E6EAF2', fontSize: 20, fontWeight: '800' },
   muted: { color: '#9AA3B2', marginTop: 4, marginBottom: 24 },
   btn: {
-    marginTop: 16, backgroundColor: '#EF4444', paddingHorizontal: 18, paddingVertical: 12,
+    marginTop: 16,
+    backgroundColor: '#EF4444',
+    paddingHorizontal: 18,
+    paddingVertical: 12,
     borderRadius: 12,
   },
   btnText: { color: 'white', fontWeight: '800' },

@@ -3,14 +3,32 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { View, Text, StyleSheet } from 'react-native';
 
-import IniciarSesion from '../screens/IniciarSesion';
-import ProfileScreen from '../screens/ProfileScreen';
+import HomeHeader from '../components/home/HomeHeaderComponent';
+import ProfileScreen from '../screens/auth/ProfileScreen';
+import HomeScreen from '../screens/home/HomeScreen';
 
-function SearchScreen() { return <View style={s.page}><Text style={s.text}>Buscar</Text></View>; }
-function LibraryScreen() { return <View style={s.page}><Text style={s.text}>Biblioteca</Text></View>; }
+function SearchScreen() {
+  return (
+    <View style={s.page}>
+      <Text style={s.text}>Buscar</Text>
+    </View>
+  );
+}
+function LibraryScreen() {
+  return (
+    <View style={s.page}>
+      <Text style={s.text}>Biblioteca</Text>
+    </View>
+  );
+}
 // function ProfileScreen() { return <View style={s.page}><Text style={s.text}>Perfil</Text></View>; }
 
 export type MainTabsParamList = {
+  Home: undefined;
+  Main: undefined;
+  Register: undefined;
+  Login: undefined;
+  ResetPassword: undefined;
   Feed: undefined;
   Search: undefined;
   Library: undefined;
@@ -18,8 +36,6 @@ export type MainTabsParamList = {
 };
 
 const Tab = createBottomTabNavigator<MainTabsParamList>();
-
-
 
 export default function MainTabs() {
   return (
@@ -41,16 +57,42 @@ export default function MainTabs() {
       })}
     >
       {/* TU HOME dentro de las tabs */}
-      <Tab.Screen name="Feed" component={IniciarSesion} options={{ title: 'Inicio' }} />
-      <Tab.Screen name="Search" component={SearchScreen} options={{ title: 'Buscar' }} />
-      <Tab.Screen name="Library" component={LibraryScreen} options={{ title: 'Biblioteca' }} />
-      <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: 'Perfil' }} />
-      
+      <Tab.Screen
+        name="Feed"
+        component={HomeScreen}
+        options={{ title: 'Inicio' }}
+      />
+      <Tab.Screen
+        name="Search"
+        component={SearchScreen}
+        options={{ title: 'Buscar' }}
+      />
+      <Tab.Screen
+        name="Library"
+        component={LibraryScreen}
+        options={{ title: 'Biblioteca' }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{ title: 'Perfil' }}
+      />
     </Tab.Navigator>
   );
 }
 
+declare global {
+  namespace ReactNavigation {
+    interface RootParamList extends MainTabsParamList {}
+  }
+}
+
 const s = StyleSheet.create({
-  page: { flex: 1, backgroundColor: '#0b0c16', alignItems: 'center', justifyContent: 'center' },
+  page: {
+    flex: 1,
+    backgroundColor: '#0b0c16',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   text: { color: '#E6EAF2', fontSize: 20, fontWeight: '700' },
 });
