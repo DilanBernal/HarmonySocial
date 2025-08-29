@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -36,8 +36,9 @@ const CircleOfFifths = () => {
     'Am', 'Em', 'Bm', 'F#m', 'C#m', 'G#m', 'Ebm', 'Bbm', 'Fm', 'Cm', 'Gm', 'Dm'
   ];
   
-  // Estructura de escalas con acordes completos (versión simplificada para el ejemplo)
+  // Estructura de escalas con acordes completos
   const scaleData = [
+    // Escalas mayores
     {
       key: 'C',
       values: [
@@ -62,7 +63,127 @@ const CircleOfFifths = () => {
         { position: 'vii°', note: 'F#°' }
       ]
     },
-    // Agrega todas las demás escalas como en la versión web...
+    {
+      key: 'D',
+      values: [
+        { position: 'I', note: 'D' },
+        { position: 'ii', note: 'Em' },
+        { position: 'iii', note: 'F#m' },
+        { position: 'IV', note: 'G' },
+        { position: 'V', note: 'A' },
+        { position: 'vi', note: 'Bm' },
+        { position: 'vii°', note: 'C#°' }
+      ]
+    },
+    {
+      key: 'A',
+      values: [
+        { position: 'I', note: 'A' },
+        { position: 'ii', note: 'Bm' },
+        { position: 'iii', note: 'C#m' },
+        { position: 'IV', note: 'D' },
+        { position: 'V', note: 'E' },
+        { position: 'vi', note: 'F#m' },
+        { position: 'vii°', note: 'G#°' }
+      ]
+    },
+    {
+      key: 'E',
+      values: [
+        { position: 'I', note: 'E' },
+        { position: 'ii', note: 'F#m' },
+        { position: 'iii', note: 'G#m' },
+        { position: 'IV', note: 'A' },
+        { position: 'V', note: 'B' },
+        { position: 'vi', note: 'C#m' },
+        { position: 'vii°', note: 'D#°' }
+      ]
+    },
+    {
+      key: 'B',
+      values: [
+        { position: 'I', note: 'B' },
+        { position: 'ii', note: 'C#m' },
+        { position: 'iii', note: 'D#m' },
+        { position: 'IV', note: 'E' },
+        { position: 'V', note: 'F#' },
+        { position: 'vi', note: 'G#m' },
+        { position: 'vii°', note: 'A#°' }
+      ]
+    },
+    {
+      key: 'F#/Gb',
+      values: [
+        { position: 'I', note: 'F#' },
+        { position: 'ii', note: 'G#m' },
+        { position: 'iii', note: 'A#m' },
+        { position: 'IV', note: 'B' },
+        { position: 'V', note: 'C#' },
+        { position: 'vi', note: 'D#m' },
+        { position: 'vii°', note: 'E#°' }
+      ]
+    },
+    {
+      key: 'Db',
+      values: [
+        { position: 'I', note: 'Db' },
+        { position: 'ii', note: 'Ebm' },
+        { position: 'iii', note: 'Fm' },
+        { position: 'IV', note: 'Gb' },
+        { position: 'V', note: 'Ab' },
+        { position: 'vi', note: 'Bbm' },
+        { position: 'vii°', note: 'C°' }
+      ]
+    },
+    {
+      key: 'Ab',
+      values: [
+        { position: 'I', note: 'Ab' },
+        { position: 'ii', note: 'Bbm' },
+        { position: 'iii', note: 'Cm' },
+        { position: 'IV', note: 'Db' },
+        { position: 'V', note: 'Eb' },
+        { position: 'vi', note: 'Fm' },
+        { position: 'vii°', note: 'G°' }
+      ]
+    },
+    {
+      key: 'Eb',
+      values: [
+        { position: 'I', note: 'Eb' },
+        { position: 'ii', note: 'Fm' },
+        { position: 'iii', note: 'Gm' },
+        { position: 'IV', note: 'Ab' },
+        { position: 'V', note: 'Bb' },
+        { position: 'vi', note: 'Cm' },
+        { position: 'vii°', note: 'D°' }
+      ]
+    },
+    {
+      key: 'Bb',
+      values: [
+        { position: 'I', note: 'Bb' },
+        { position: 'ii', note: 'Cm' },
+        { position: 'iii', note: 'Dm' },
+        { position: 'IV', note: 'Eb' },
+        { position: 'V', note: 'F' },
+        { position: 'vi', note: 'Gm' },
+        { position: 'vii°', note: 'A°' }
+      ]
+    },
+    {
+      key: 'F',
+      values: [
+        { position: 'I', note: 'F' },
+        { position: 'ii', note: 'Gm' },
+        { position: 'iii', note: 'Am' },
+        { position: 'IV', note: 'Bb' },
+        { position: 'V', note: 'C' },
+        { position: 'vi', note: 'Dm' },
+        { position: 'vii°', note: 'E°' }
+      ]
+    },
+    // Escalas menores
     {
       key: 'Am',
       values: [
@@ -74,8 +195,139 @@ const CircleOfFifths = () => {
         { position: 'VI', note: 'F' },
         { position: 'VII', note: 'G' }
       ]
+    },
+    {
+      key: 'Em',
+      values: [
+        { position: 'i', note: 'Em' },
+        { position: 'ii°', note: 'F#°' },
+        { position: 'III', note: 'G' },
+        { position: 'iv', note: 'Am' },
+        { position: 'v', note: 'Bm' },
+        { position: 'VI', note: 'C' },
+        { position: 'VII', note: 'D' }
+      ]
+    },
+    {
+      key: 'Bm',
+      values: [
+        { position: 'i', note: 'Bm' },
+        { position: 'ii°', note: 'C#°' },
+        { position: 'III', note: 'D' },
+        { position: 'iv', note: 'Em' },
+        { position: 'v', note: 'F#m' },
+        { position: 'VI', note: 'G' },
+        { position: 'VII', note: 'A' }
+      ]
+    },
+    {
+      key: 'F#m',
+      values: [
+        { position: 'i', note: 'F#m' },
+        { position: 'ii°', note: 'G#°' },
+        { position: 'III', note: 'A' },
+        { position: 'iv', note: 'Bm' },
+        { position: 'v', note: 'C#m' },
+        { position: 'VI', note: 'D' },
+        { position: 'VII', note: 'E' }
+      ]
+    },
+    {
+      key: 'C#m',
+      values: [
+        { position: 'i', note: 'C#m' },
+        { position: 'ii°', note: 'D#°' },
+        { position: 'III', note: 'E' },
+        { position: 'iv', note: 'F#m' },
+        { position: 'v', note: 'G#m' },
+        { position: 'VI', note: 'A' },
+        { position: 'VII', note: 'B' }
+      ]
+    },
+    {
+      key: 'G#m',
+      values: [
+        { position: 'i', note: 'G#m' },
+        { position: 'ii°', note: 'A#°' },
+        { position: 'III', note: 'B' },
+        { position: 'iv', note: 'C#m' },
+        { position: 'v', note: 'D#m' },
+        { position: 'VI', note: 'E' },
+        { position: 'VII', note: 'F#' }
+      ]
+    },
+    {
+      key: 'Ebm',
+      values: [
+        { position: 'i', note: 'Ebm' },
+        { position: 'ii°', note: 'F°' },
+        { position: 'III', note: 'Gb' },
+        { position: 'iv', note: 'Abm' },
+        { position: 'v', note: 'Bbm' },
+        { position: 'VI', note: 'B' },
+        { position: 'VII', note: 'Db' }
+      ]
+    },
+    {
+      key: 'Bbm',
+      values: [
+        { position: 'i', note: 'Bbm' },
+        { position: 'ii°', note: 'C°' },
+        { position: 'III', note: 'Db' },
+        { position: 'iv', note: 'Ebm' },
+        { position: 'v', note: 'Fm' },
+        { position: 'VI', note: 'Gb' },
+        { position: 'VII', note: 'Ab' }
+      ]
+    },
+    {
+      key: 'Fm',
+      values: [
+        { position: 'i', note: 'Fm' },
+        { position: 'ii°', note: 'G°' },
+        { position: 'III', note: 'Ab' },
+        { position: 'iv', note: 'Bbm' },
+        { position: 'v', note: 'Cm' },
+        { position: 'VI', note: 'Db' },
+        { position: 'VII', note: 'Eb' }
+      ]
+    },
+    {
+      key: 'Cm',
+      values: [
+        { position: 'i', note: 'Cm' },
+        { position: 'ii°', note: 'D°' },
+        { position: 'III', note: 'Eb' },
+        { position: 'iv', note: 'Fm' },
+        { position: 'v', note: 'Gm' },
+        { position: 'VI', note: 'Ab' },
+        { position: 'VII', note: 'Bb' }
+      ]
+    },
+    {
+      key: 'Gm',
+      values: [
+        { position: 'i', note: 'Gm' },
+        { position: 'ii°', note: 'A°' },
+        { position: 'III', note: 'Bb' },
+        { position: 'iv', note: 'Cm' },
+        { position: 'v', note: 'Dm' },
+        { position: 'VI', note: 'Eb' },
+        { position: 'VII', note: 'F' }
+      ]
+    },
+    {
+      key: 'Dm',
+      values: [
+        { position: 'i', note: 'Dm' },
+        { position: 'ii°', note: 'E°' },
+        { position: 'III', note: 'F' },
+        { position: 'iv', note: 'Gm' },
+        { position: 'v', note: 'Am' },
+        { position: 'VI', note: 'Bb' },
+        { position: 'VII', note: 'C' }
+      ]
     }
-    // ... continúa con todas las escalas
   ];
   
   const noteEquals = (note1, note2) => {
