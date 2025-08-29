@@ -1,0 +1,79 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.container {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    max-width: 800px;
+    width: 90%;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    font-weight: 300;
+}
+
+.canvas-container {
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: center;
+}
+
+#circleCanvas {
+    cursor: pointer;
+    max-width: 100%;
+    height: auto;
+    /* Removido: border-radius y box-shadow que causaban el círculo extra */
+}
+
+.info-panel {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+#selectedKey {
+    color: #4a5568;
+    margin-bottom: 15px;
+    font-size: 1.8em;
+}
+
+#scaleNotes {
+    color: #666;
+    font-size: 1.2em;
+    line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+        padding: 20px;
+    }
+    
+    h1 {
+        font-size: 2em;
+    }
+    
+    #circleCanvas {
+        width: 100%;
+        max-width: 400px;
+    }
+}
