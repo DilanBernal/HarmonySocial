@@ -573,6 +573,7 @@ class CircleOfFifths {
   }
 }
 
+console.log("hola")
 // Inicializar cuando se carga la página
 document.addEventListener('DOMContentLoaded', () => {
   new CircleOfFifths('circleCanvas');
