@@ -36,296 +36,295 @@ const CircleOfFifths = () => {
     'Am', 'Em', 'Bm', 'F#m', 'C#m', 'G#m', 'Ebm', 'Bbm', 'Fm', 'Cm', 'Gm', 'Dm'
   ];
   
-  // Estructura de escalas con acordes completos
+  // Estructura de escalas con acordes completos y idPosition
   const scaleData = [
-    // Escalas mayores
     {
       key: 'C',
       values: [
-        { position: 'I', note: 'C' },
-        { position: 'ii', note: 'Dm' },
-        { position: 'iii', note: 'Em' },
-        { position: 'IV', note: 'F' },
-        { position: 'V', note: 'G' },
-        { position: 'vi', note: 'Am' },
-        { position: 'vii°', note: 'B°' }
+        { position: 'I', note: 'C', idPosition: '0e' },
+        { position: 'ii', note: 'Dm', idPosition: '11i' },
+        { position: 'iii', note: 'Em', idPosition: '1i' },
+        { position: 'IV', note: 'F', idPosition: '11e' },
+        { position: 'V', note: 'G', idPosition: '1e' },
+        { position: 'vi', note: 'Am', idPosition: '0i' },
+        { position: 'vii°', note: 'Bm', idPosition: '2i' }
       ]
     },
     {
       key: 'G',
       values: [
-        { position: 'I', note: 'G' },
-        { position: 'ii', note: 'Am' },
-        { position: 'iii', note: 'Bm' },
-        { position: 'IV', note: 'C' },
-        { position: 'V', note: 'D' },
-        { position: 'vi', note: 'Em' },
-        { position: 'vii°', note: 'F#°' }
+        { position: 'I', note: 'G', idPosition: '1e' },
+        { position: 'ii', note: 'Am', idPosition: '0i' },
+        { position: 'iii', note: 'Bm', idPosition: '2i' },
+        { position: 'IV', note: 'C', idPosition: '0e' },
+        { position: 'V', note: 'D', idPosition: '2e' },
+        { position: 'vi', note: 'Em', idPosition: '1i' },
+        { position: 'vii', note: 'F#', idPosition: '3i' }
       ]
     },
     {
       key: 'D',
       values: [
-        { position: 'I', note: 'D' },
-        { position: 'ii', note: 'Em' },
-        { position: 'iii', note: 'F#m' },
-        { position: 'IV', note: 'G' },
-        { position: 'V', note: 'A' },
-        { position: 'vi', note: 'Bm' },
-        { position: 'vii°', note: 'C#°' }
+        { position: 'I', note: 'D', idPosition: '2e' },
+        { position: 'ii', note: 'Em', idPosition: '1i' },
+        { position: 'iii', note: 'F#m', idPosition: '3i' },
+        { position: 'IV', note: 'G', idPosition: '1e' },
+        { position: 'V', note: 'A', idPosition: '3e' },
+        { position: 'vi', note: 'Bm', idPosition: '2i' },
+        { position: 'vii°', note: 'C#°', idPosition: '4i' }
       ]
     },
     {
       key: 'A',
       values: [
-        { position: 'I', note: 'A' },
-        { position: 'ii', note: 'Bm' },
-        { position: 'iii', note: 'C#m' },
-        { position: 'IV', note: 'D' },
-        { position: 'V', note: 'E' },
-        { position: 'vi', note: 'F#m' },
-        { position: 'vii°', note: 'G#°' }
+        { position: 'I', note: 'A', idPosition: '3e' },
+        { position: 'ii', note: 'Bm', idPosition: '2i' },
+        { position: 'iii', note: 'C#m', idPosition: '4i' },
+        { position: 'IV', note: 'D', idPosition: '2e' },
+        { position: 'V', note: 'E', idPosition: '4e' },
+        { position: 'vi', note: 'F#m', idPosition: '3i' },
+        { position: 'vii°', note: 'G#°', idPosition: '5i' }
       ]
     },
     {
       key: 'E',
       values: [
-        { position: 'I', note: 'E' },
-        { position: 'ii', note: 'F#m' },
-        { position: 'iii', note: 'G#m' },
-        { position: 'IV', note: 'A' },
-        { position: 'V', note: 'B' },
-        { position: 'vi', note: 'C#m' },
-        { position: 'vii°', note: 'D#°' }
+        { position: 'I', note: 'E', idPosition: '4e' },
+        { position: 'ii', note: 'F#m', idPosition: '3i' },
+        { position: 'iii', note: 'G#m', idPosition: '5i' },
+        { position: 'IV', note: 'A', idPosition: '3e' },
+        { position: 'V', note: 'B', idPosition: '5e' },
+        { position: 'vi', note: 'C#m', idPosition: '4i' },
+        { position: 'vii°', note: 'D#°', idPosition: '6i' }
       ]
     },
     {
       key: 'B',
       values: [
-        { position: 'I', note: 'B' },
-        { position: 'ii', note: 'C#m' },
-        { position: 'iii', note: 'D#m' },
-        { position: 'IV', note: 'E' },
-        { position: 'V', note: 'F#' },
-        { position: 'vi', note: 'G#m' },
-        { position: 'vii°', note: 'A#°' }
+        { position: 'I', note: 'B', idPosition: '5e' },
+        { position: 'ii', note: 'C#m', idPosition: '4i' },
+        { position: 'iii', note: 'D#m', idPosition: '6i' },
+        { position: 'IV', note: 'E', idPosition: '4e' },
+        { position: 'V', note: 'F#', idPosition: '6e' },
+        { position: 'vi', note: 'G#m', idPosition: '5i' },
+        { position: 'vii°', note: 'A#°', idPosition: '7i' }
       ]
     },
     {
       key: 'F#/Gb',
       values: [
-        { position: 'I', note: 'F#' },
-        { position: 'ii', note: 'G#m' },
-        { position: 'iii', note: 'A#m' },
-        { position: 'IV', note: 'B' },
-        { position: 'V', note: 'C#' },
-        { position: 'vi', note: 'D#m' },
-        { position: 'vii°', note: 'E#°' }
+        { position: 'I', note: 'F#', idPosition: '6e' },
+        { position: 'ii', note: 'G#m', idPosition: '5i' },
+        { position: 'iii', note: 'A#m', idPosition: '7i' },
+        { position: 'IV', note: 'B', idPosition: '5e' },
+        { position: 'V', note: 'C#', idPosition: '7e' },
+        { position: 'vi', note: 'D#m', idPosition: '6i' },
+        { position: 'vii°', note: 'Fm°', idPosition: '8i' }
       ]
     },
     {
       key: 'Db',
       values: [
-        { position: 'I', note: 'Db' },
-        { position: 'ii', note: 'Ebm' },
-        { position: 'iii', note: 'Fm' },
-        { position: 'IV', note: 'Gb' },
-        { position: 'V', note: 'Ab' },
-        { position: 'vi', note: 'Bbm' },
-        { position: 'vii°', note: 'C°' }
+        { position: 'I', note: 'Db', idPosition: '7e' },
+        { position: 'ii', note: 'Ebm', idPosition: '6i' },
+        { position: 'iii', note: 'Fm', idPosition: '8i' },
+        { position: 'IV', note: 'Gb', idPosition: '6e' },
+        { position: 'V', note: 'Ab', idPosition: '8e' },
+        { position: 'vi', note: 'Bbm', idPosition: '7i' },
+        { position: 'vii°', note: 'Cm°', idPosition: '9i' }
       ]
     },
     {
       key: 'Ab',
       values: [
-        { position: 'I', note: 'Ab' },
-        { position: 'ii', note: 'Bbm' },
-        { position: 'iii', note: 'Cm' },
-        { position: 'IV', note: 'Db' },
-        { position: 'V', note: 'Eb' },
-        { position: 'vi', note: 'Fm' },
-        { position: 'vii°', note: 'G°' }
+        { position: 'I', note: 'Ab', idPosition: '8e' },
+        { position: 'ii', note: 'Bbm', idPosition: '7i' },
+        { position: 'iii', note: 'Cm', idPosition: '9i' },
+        { position: 'IV', note: 'Db', idPosition: '7e' },
+        { position: 'V', note: 'Eb', idPosition: '9e' },
+        { position: 'vi', note: 'Fm', idPosition: '8i' },
+        { position: 'vii°', note: 'Gm°', idPosition: '10i' }
       ]
     },
     {
       key: 'Eb',
       values: [
-        { position: 'I', note: 'Eb' },
-        { position: 'ii', note: 'Fm' },
-        { position: 'iii', note: 'Gm' },
-        { position: 'IV', note: 'Ab' },
-        { position: 'V', note: 'Bb' },
-        { position: 'vi', note: 'Cm' },
-        { position: 'vii°', note: 'D°' }
+        { position: 'I', note: 'Eb', idPosition: '9e' },
+        { position: 'ii', note: 'Fm', idPosition: '8i' },
+        { position: 'iii', note: 'Gm', idPosition: '10i' },
+        { position: 'IV', note: 'Ab', idPosition: '8e' },
+        { position: 'V', note: 'Bb', idPosition: '10e' },
+        { position: 'vi', note: 'Cm', idPosition: '9i' },
+        { position: 'vii°', note: 'Dm°', idPosition: '11i' }
       ]
     },
     {
       key: 'Bb',
       values: [
-        { position: 'I', note: 'Bb' },
-        { position: 'ii', note: 'Cm' },
-        { position: 'iii', note: 'Dm' },
-        { position: 'IV', note: 'Eb' },
-        { position: 'V', note: 'F' },
-        { position: 'vi', note: 'Gm' },
-        { position: 'vii°', note: 'A°' }
+        { position: 'I', note: 'Bb', idPosition: '10e' },
+        { position: 'ii', note: 'Cm', idPosition: '9i' },
+        { position: 'iii', note: 'Dm', idPosition: '11i' },
+        { position: 'IV', note: 'Eb', idPosition: '9e' },
+        { position: 'V', note: 'F', idPosition: '11e' },
+        { position: 'vi', note: 'Gm', idPosition: '10i' },
+        { position: 'vii°', note: 'Am°', idPosition: '0i' }
       ]
     },
     {
       key: 'F',
       values: [
-        { position: 'I', note: 'F' },
-        { position: 'ii', note: 'Gm' },
-        { position: 'iii', note: 'Am' },
-        { position: 'IV', note: 'Bb' },
-        { position: 'V', note: 'C' },
-        { position: 'vi', note: 'Dm' },
-        { position: 'vii°', note: 'E°' }
+        { position: 'I', note: 'F', idPosition: '11e' },
+        { position: 'ii', note: 'Gm', idPosition: '10i' },
+        { position: 'iii', note: 'Am', idPosition: '0i' },
+        { position: 'IV', note: 'Bb', idPosition: '10e' },
+        { position: 'V', note: 'C', idPosition: '0e' },
+        { position: 'vi', note: 'Dm', idPosition: '11i' },
+        { position: 'vii°', note: 'E°', idPosition: '1i' }
       ]
     },
     // Escalas menores
     {
       key: 'Am',
       values: [
-        { position: 'i', note: 'Am' },
-        { position: 'ii°', note: 'B°' },
-        { position: 'III', note: 'C' },
-        { position: 'iv', note: 'Dm' },
-        { position: 'v', note: 'Em' },
-        { position: 'VI', note: 'F' },
-        { position: 'VII', note: 'G' }
+        { position: 'i', note: 'Am', idPosition: '0i' },
+        { position: 'ii°', note: 'B°', idPosition: '2i' },
+        { position: 'III', note: 'C', idPosition: '0e' },
+        { position: 'iv', note: 'Dm', idPosition: '11i' },
+        { position: 'v', note: 'Em', idPosition: '1i' },
+        { position: 'VI', note: 'F', idPosition: '11e' },
+        { position: 'VII', note: 'G', idPosition: '1e' }
       ]
     },
     {
       key: 'Em',
       values: [
-        { position: 'i', note: 'Em' },
-        { position: 'ii°', note: 'F#°' },
-        { position: 'III', note: 'G' },
-        { position: 'iv', note: 'Am' },
-        { position: 'v', note: 'Bm' },
-        { position: 'VI', note: 'C' },
-        { position: 'VII', note: 'D' }
+        { position: 'i', note: 'Em', idPosition: '1i' },
+        { position: 'ii°', note: 'Bm°', idPosition: '3i' },
+        { position: 'III', note: 'G', idPosition: '1e' },
+        { position: 'iv', note: 'Am', idPosition: '0i' },
+        { position: 'v', note: 'Bm', idPosition: '2i' },
+        { position: 'VI', note: 'C', idPosition: '0e' },
+        { position: 'VII', note: 'D', idPosition: '2e' }
       ]
     },
     {
       key: 'Bm',
       values: [
-        { position: 'i', note: 'Bm' },
-        { position: 'ii°', note: 'C#°' },
-        { position: 'III', note: 'D' },
-        { position: 'iv', note: 'Em' },
-        { position: 'v', note: 'F#m' },
-        { position: 'VI', note: 'G' },
-        { position: 'VII', note: 'A' }
+        { position: 'i', note: 'Bm', idPosition: '2i' },
+        { position: 'ii°', note: 'C#°', idPosition: '4i' },
+        { position: 'III', note: 'D', idPosition: '2e' },
+        { position: 'iv', note: 'Em', idPosition: '1i' },
+        { position: 'v', note: 'F#m', idPosition: '3i' },
+        { position: 'VI', note: 'G', idPosition: '1e' },
+        { position: 'VII', note: 'A', idPosition: '3e' }
       ]
     },
     {
       key: 'F#m',
       values: [
-        { position: 'i', note: 'F#m' },
-        { position: 'ii°', note: 'G#°' },
-        { position: 'III', note: 'A' },
-        { position: 'iv', note: 'Bm' },
-        { position: 'v', note: 'C#m' },
-        { position: 'VI', note: 'D' },
-        { position: 'VII', note: 'E' }
+        { position: 'i', note: 'F#m', idPosition: '3i' },
+        { position: 'ii°', note: 'G#°', idPosition: '5i' },
+        { position: 'III', note: 'A', idPosition: '3e' },
+        { position: 'iv', note: 'Bm', idPosition: '2i' },
+        { position: 'v', note: 'C#m', idPosition: '4i' },
+        { position: 'VI', note: 'D', idPosition: '2e' },
+        { position: 'VII', note: 'E', idPosition: '4e' }
       ]
     },
     {
       key: 'C#m',
       values: [
-        { position: 'i', note: 'C#m' },
-        { position: 'ii°', note: 'D#°' },
-        { position: 'III', note: 'E' },
-        { position: 'iv', note: 'F#m' },
-        { position: 'v', note: 'G#m' },
-        { position: 'VI', note: 'A' },
-        { position: 'VII', note: 'B' }
+        { position: 'i', note: 'C#m', idPosition: '4i' },
+        { position: 'ii°', note: 'D#°', idPosition: '6i' },
+        { position: 'III', note: 'E', idPosition: '4e' },
+        { position: 'iv', note: 'F#m', idPosition: '3i' },
+        { position: 'v', note: 'G#m', idPosition: '5i' },
+        { position: 'VI', note: 'A', idPosition: '3e' },
+        { position: 'VII', note: 'B', idPosition: '5e' }
       ]
     },
     {
       key: 'G#m',
       values: [
-        { position: 'i', note: 'G#m' },
-        { position: 'ii°', note: 'A#°' },
-        { position: 'III', note: 'B' },
-        { position: 'iv', note: 'C#m' },
-        { position: 'v', note: 'D#m' },
-        { position: 'VI', note: 'E' },
-        { position: 'VII', note: 'F#' }
+        { position: 'i', note: 'G#m', idPosition: '5i' },
+        { position: 'ii°', note: 'Fm°', idPosition: '7i' },
+        { position: 'III', note: 'B', idPosition: '5e' },
+        { position: 'iv', note: 'C#m', idPosition: '4i' },
+        { position: 'v', note: 'D#m', idPosition: '6i' },
+        { position: 'VI', note: 'E', idPosition: '4e' },
+        { position: 'VII', note: 'F#', idPosition: '6e' }
       ]
     },
     {
       key: 'Ebm',
       values: [
-        { position: 'i', note: 'Ebm' },
-        { position: 'ii°', note: 'F°' },
-        { position: 'III', note: 'Gb' },
-        { position: 'iv', note: 'Abm' },
-        { position: 'v', note: 'Bbm' },
-        { position: 'VI', note: 'B' },
-        { position: 'VII', note: 'Db' }
+        { position: 'i', note: 'Ebm', idPosition: '6i' },
+        { position: 'ii°', note: 'F°', idPosition: '8i' },
+        { position: 'III', note: 'Gb', idPosition: '6e' },
+        { position: 'iv', note: 'Abm', idPosition: '5i' },
+        { position: 'v', note: 'Bbm', idPosition: '7i' },
+        { position: 'VI', note: 'Cb', idPosition: '5e' },
+        { position: 'VII', note: 'Db', idPosition: '7e' }
       ]
     },
     {
       key: 'Bbm',
       values: [
-        { position: 'i', note: 'Bbm' },
-        { position: 'ii°', note: 'C°' },
-        { position: 'III', note: 'Db' },
-        { position: 'iv', note: 'Ebm' },
-        { position: 'v', note: 'Fm' },
-        { position: 'VI', note: 'Gb' },
-        { position: 'VII', note: 'Ab' }
+        { position: 'i', note: 'Bbm', idPosition: '7i' },
+        { position: 'ii°', note: 'C°', idPosition: '9i' },
+        { position: 'III', note: 'Db', idPosition: '7e' },
+        { position: 'iv', note: 'Ebm', idPosition: '6i' },
+        { position: 'v', note: 'Fm', idPosition: '8i' },
+        { position: 'VI', note: 'Gb', idPosition: '6e' },
+        { position: 'VII', note: 'Ab', idPosition: '8e' }
       ]
     },
     {
       key: 'Fm',
       values: [
-        { position: 'i', note: 'Fm' },
-        { position: 'ii°', note: 'G°' },
-        { position: 'III', note: 'Ab' },
-        { position: 'iv', note: 'Bbm' },
-        { position: 'v', note: 'Cm' },
-        { position: 'VI', note: 'Db' },
-        { position: 'VII', note: 'Eb' }
+        { position: 'i', note: 'Fm', idPosition: '8i' },
+        { position: 'ii°', note: 'G°', idPosition: '10i' },
+        { position: 'III', note: 'Ab', idPosition: '8e' },
+        { position: 'iv', note: 'Bbm', idPosition: '7i' },
+        { position: 'v', note: 'Cm', idPosition: '9i' },
+        { position: 'VI', note: 'Db', idPosition: '7e' },
+        { position: 'VII', note: 'Eb', idPosition: '9e' }
       ]
     },
     {
       key: 'Cm',
       values: [
-        { position: 'i', note: 'Cm' },
-        { position: 'ii°', note: 'D°' },
-        { position: 'III', note: 'Eb' },
-        { position: 'iv', note: 'Fm' },
-        { position: 'v', note: 'Gm' },
-        { position: 'VI', note: 'Ab' },
-        { position: 'VII', note: 'Bb' }
+        { position: 'i', note: 'Cm', idPosition: '9i' },
+        { position: 'ii°', note: 'D°', idPosition: '11i' },
+        { position: 'III', note: 'Eb', idPosition: '9e' },
+        { position: 'iv', note: 'Fm', idPosition: '8i' },
+        { position: 'v', note: 'Gm', idPosition: '10i' },
+        { position: 'VI', note: 'Ab', idPosition: '8e' },
+        { position: 'VII', note: 'Bb', idPosition: '10e' }
       ]
     },
     {
       key: 'Gm',
       values: [
-        { position: 'i', note: 'Gm' },
-        { position: 'ii°', note: 'A°' },
-        { position: 'III', note: 'Bb' },
-        { position: 'iv', note: 'Cm' },
-        { position: 'v', note: 'Dm' },
-        { position: 'VI', note: 'Eb' },
-        { position: 'VII', note: 'F' }
+        { position: 'i', note: 'Gm', idPosition: '10i' },
+        { position: 'ii°', note: 'A°', idPosition: '0i' },
+        { position: 'III', note: 'Bb', idPosition: '10e' },
+        { position: 'iv', note: 'Cm', idPosition: '9i' },
+        { position: 'v', note: 'Dm', idPosition: '11i' },
+        { position: 'VI', note: 'Eb', idPosition: '9e' },
+        { position: 'VII', note: 'F', idPosition: '11e' }
       ]
     },
     {
       key: 'Dm',
       values: [
-        { position: 'i', note: 'Dm' },
-        { position: 'ii°', note: 'E°' },
-        { position: 'III', note: 'F' },
-        { position: 'iv', note: 'Gm' },
-        { position: 'v', note: 'Am' },
-        { position: 'VI', note: 'Bb' },
-        { position: 'VII', note: 'C' }
+        { position: 'i', note: 'Dm', idPosition: '11i' },
+        { position: 'ii°', note: 'E°', idPosition: '1i' },
+        { position: 'III', note: 'F', idPosition: '11e' },
+        { position: 'iv', note: 'Gm', idPosition: '10i' },
+        { position: 'v', note: 'Am', idPosition: '0i' },
+        { position: 'VI', note: 'Bb', idPosition: '10e' },
+        { position: 'VII', note: 'C', idPosition: '0e' }
       ]
     }
   ];
@@ -400,64 +399,49 @@ const CircleOfFifths = () => {
     
     const degrees = [];
     
+    // Usar idPosition para posicionar los grados de escala
     selectedScale.values.forEach(scaleChord => {
-      // Encontrar en qué posición del círculo está este acorde
-      const chordRoot = scaleChord.note.replace('m', '').replace('°', '');
+      const idPosition = scaleChord.idPosition;
+      if (!idPosition) return;
       
-      // Buscar en mayores
-      let circleIndex = majorKeys.findIndex(key => {
-        const keyRoot = key.replace('/Gb', '').replace('/F#', '');
-        return noteEquals(chordRoot, keyRoot);
-      });
+      const positionIndex = parseInt(idPosition.substring(0, idPosition.length - 1));
+      const isExternal = idPosition.endsWith('e');
       
-      let isMajorChord = circleIndex !== -1;
+      const segmentCenterAngle = (positionIndex * 30 + 15 - 90) * (Math.PI / 180);
+      let radius;
       
-      // Si no se encuentra en mayores, buscar en menores
-      if (circleIndex === -1) {
-        circleIndex = minorKeys.findIndex(key => {
-          const keyRoot = key.replace('m', '');
-          return noteEquals(chordRoot, keyRoot);
-        });
-        isMajorChord = false;
+      if (isExternal) {
+        radius = (OUTER_RADIUS + INNER_RADIUS) / 2;
+      } else {
+        radius = (INNER_RADIUS + MIDDLE_RADIUS) / 2;
       }
       
-      if (circleIndex !== -1) {
-        const segmentCenterAngle = (circleIndex * 30 + 15 - 90) * (Math.PI / 180);
-        let radius;
-        
-        if (isMajorChord) {
-          radius = (OUTER_RADIUS + INNER_RADIUS) / 2;
-        } else {
-          radius = (INNER_RADIUS + MIDDLE_RADIUS) / 2;
-        }
-        
-        const x = CENTER + Math.cos(segmentCenterAngle) * radius;
-        const y = CENTER + Math.sin(segmentCenterAngle) * radius;
-        
-        degrees.push(
-          <React.Fragment key={`degree-${circleIndex}-${scaleChord.position}`}>
-            <Circle
-              cx={x}
-              cy={y - 16}
-              r="10"
-              fill="#FFD700"
-              stroke="#FFA500"
-              strokeWidth="2"
-            />
-            <SvgText
-              x={x}
-              y={y - 16}
-              fontSize="8"
-              fontWeight="bold"
-              fill="#000000"
-              textAnchor="middle"
-              alignmentBaseline="middle"
-            >
-              {scaleChord.position}
-            </SvgText>
-          </React.Fragment>
-        );
-      }
+      const x = CENTER + Math.cos(segmentCenterAngle) * radius;
+      const y = CENTER + Math.sin(segmentCenterAngle) * radius;
+      
+      degrees.push(
+        <React.Fragment key={`degree-${positionIndex}-${scaleChord.position}`}>
+          <Circle
+            cx={x}
+            cy={y - 16}
+            r="10"
+            fill="#FFD700"
+            stroke="#FFA500"
+            strokeWidth="2"
+          />
+          <SvgText
+            x={x}
+            y={y - 16}
+            fontSize="8"
+            fontWeight="bold"
+            fill="#000000"
+            textAnchor="middle"
+            alignmentBaseline="middle"
+          >
+            {scaleChord.position}
+          </SvgText>
+        </React.Fragment>
+      );
     });
     
     return degrees;
@@ -610,7 +594,7 @@ const CircleOfFifths = () => {
             <Text style={styles.scaleNotes}>
               {(() => {
                 const selectedScale = scaleData.find(scale => scale.key === selectedKey);
-                return selectedScale ? selectedScale.values.map(chord => `${chord.position}: ${chord.note}`).join(' - ') : '';
+                return selectedScale ? selectedScale.values.map(chord => `${chord.position}: ${chord.note} (${chord.idPosition})`).join(' - ') : '';
               })()}
             </Text>
           </View>
