@@ -6,6 +6,7 @@ import {
   Dimensions,
   TouchableOpacity,
   ScrollView,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import Svg, {
   Circle,
@@ -394,6 +395,35 @@ const CircleOfFifths = () => {
     setSelectedKey(key);
   };
   
+  const detectAndSelectKey = (x, y) => {
+    const dx = x - CENTER;
+    const dy = y - CENTER;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    if (distance >= MIDDLE_RADIUS && distance <= OUTER_RADIUS) {
+      // Calculate angle and adjust so that 0° is at the top
+      let angle = Math.atan2(dy, dx) * (180 / Math.PI);
+      angle = (angle + 90 + 360) % 360;
+      const segment = Math.floor(angle / 30);
+
+      if (distance <= INNER_RADIUS) {
+        // Inner circle (minors)
+        setSelectedKey(minorKeys[segment]);
+      } else {
+        // Outer circle (majors)
+        setSelectedKey(majorKeys[segment]);
+      }
+    } else if (distance < MIDDLE_RADIUS) {
+      // Click in center - reset selection
+      setSelectedKey(null);
+    }
+  };
+  
+  const handleSvgPress = (evt) => {
+    const { locationX, locationY } = evt.nativeEvent;
+    detectAndSelectKey(locationX, locationY);
+  };
+  
   const renderScaleDegrees = () => {
     const selectedScale = scaleData.find(scale => scale.key === selectedKey);
     if (!selectedScale) return null;
@@ -510,14 +540,12 @@ const CircleOfFifths = () => {
             fill={majorColor}
             stroke="#FFFFFF"
             strokeWidth="2"
-            onPress={() => handleSegmentPress(majorKey)}
           />
           <Path
             d={minorPath}
             fill={minorColor}
             stroke="#FFFFFF"
             strokeWidth="2"
-            onPress={() => handleSegmentPress(minorKey)}
           />
           <SvgText
             x={majorTextPos.x}
@@ -527,7 +555,6 @@ const CircleOfFifths = () => {
             fill={isMajorSelected || isMajorInScale ? "#FFFFFF" : "#333333"}
             textAnchor="middle"
             alignmentBaseline="middle"
-            onPress={() => handleSegmentPress(majorKey)}
           >
             {majorKey}
           </SvgText>
@@ -539,7 +566,6 @@ const CircleOfFifths = () => {
             fill={isMinorSelected || isMinorInScale ? "#FFFFFF" : "#333333"}
             textAnchor="middle"
             alignmentBaseline="middle"
-            onPress={() => handleSegmentPress(minorKey)}
           >
             {minorKey}
           </SvgText>
@@ -555,49 +581,51 @@ const CircleOfFifths = () => {
       <Text style={styles.title}>Círculo de Quintas</Text>
       
       <View style={styles.circleContainer}>
-        <Svg width={CIRCLE_SIZE} height={CIRCLE_SIZE}>
-          <Defs>
-            <RadialGradient id="centerGradient" cx="50%" cy="50%">
-              <Stop offset="0%" stopColor="#ffffff" />
-              <Stop offset="100%" stopColor="#f0f0f0" />
-            </RadialGradient>
-          </Defs>
-          
-          {/* Segments and lines */}
-          {renderSegments()}
-          
-          {/* Scale degrees */}
-          {renderScaleDegrees()}
-          
-          {/* Círculos de borde */}
-          <Circle
-            cx={CENTER}
-            cy={CENTER}
-            r={OUTER_RADIUS}
-            fill="none"
-            stroke="#FFFFFF"
-            strokeWidth="2"
-          />
-          <Circle
-            cx={CENTER}
-            cy={CENTER}
-            r={INNER_RADIUS}
-            fill="none"
-            stroke="#FFFFFF"
-            strokeWidth="2"
-          />
-          
-          {/* Center circle */}
-          <Circle
-            cx={CENTER}
-            cy={CENTER}
-            r={MIDDLE_RADIUS}
-            fill="url(#centerGradient)"
-            stroke="#CCCCCC"
-            strokeWidth="2"
-            onPress={() => setSelectedKey(null)}
-          />
-        </Svg>
+        <TouchableWithoutFeedback onPress={handleSvgPress}>
+          <Svg width={CIRCLE_SIZE} height={CIRCLE_SIZE}>
+            <Defs>
+              <RadialGradient id="centerGradient" cx="50%" cy="50%">
+                <Stop offset="0%" stopColor="#ffffff" />
+                <Stop offset="100%" stopColor="#f0f0f0" />
+              </RadialGradient>
+            </Defs>
+            
+            {/* Segments and lines */}
+            {renderSegments()}
+            
+            {/* Scale degrees */}
+            {renderScaleDegrees()}
+            
+            {/* Círculos de borde */}
+            <Circle
+              cx={CENTER}
+              cy={CENTER}
+              r={OUTER_RADIUS}
+              fill="none"
+              stroke="#FFFFFF"
+              strokeWidth="2"
+            />
+            <Circle
+              cx={CENTER}
+              cy={CENTER}
+              r={INNER_RADIUS}
+              fill="none"
+              stroke="#FFFFFF"
+              strokeWidth="2"
+            />
+            
+            {/* Center circle */}
+            <Circle
+              cx={CENTER}
+              cy={CENTER}
+              r={MIDDLE_RADIUS}
+              fill="url(#centerGradient)"
+              stroke="#CCCCCC"
+              strokeWidth="2"
+              onPress={() => detectAndSelectKey(CENTER, CENTER)}
+            />
+          </Svg>
+        </TouchableWithoutFeedback>
       </View>
       
       <View style={styles.infoPanel}>
