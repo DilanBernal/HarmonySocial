@@ -7,13 +7,31 @@
 -- ==================================================
 -- TABLA: USERS
 -- ==================================================
+
+CREATE TYPE user_status AS ENUM (
+    'ACTIVE',
+    'BLOCKED',
+    'DELETED', 
+    'SUSPENDED',
+    'FROZEN'
+);
+
+
+CREATE TYPE user_instrument AS ENUM (
+    'GUITAR',
+    'PIANO',
+    'BASS'
+);
+
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
+    full_name varchar(200),
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
+    status user_status DEFAULT 'ACTIVE',
     profile_image VARCHAR(255),
-    favorite_instrument VARCHAR(50),
+    favorite_instrument user_instrument null,
     learning_points INTEGER DEFAULT 0,
     is_artist BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

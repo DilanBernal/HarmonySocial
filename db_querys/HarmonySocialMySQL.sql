@@ -6,19 +6,27 @@ CREATE DATABASE harmonysocial CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE harmonysocial;
 
 -- ==================================================
--- TABLA: USERS
+-- TABLA: USER
 -- ==================================================
-CREATE TABLE users (
+CREATE TABLE user (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
+    full_name varchar(200),
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     profile_image VARCHAR(255),
-    favorite_instrument VARCHAR(50),
+    status ENUM('ACTIVE',
+        'BLOCKED', 
+        'DELETED',
+        'SUSPENDED',
+        'FROZEN') default 'frozen' not null,
+    favorite_instrument ENUM('GUITAR',
+    'PIANO',
+    'BASS') null,
     learning_points INT DEFAULT 0,
     is_artist BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- ==================================================
@@ -32,7 +40,7 @@ CREATE TABLE artists (
     formation_year INT,
     country VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- ==================================================
@@ -57,9 +65,9 @@ CREATE TABLE songs (
     verified_by_artist BOOLEAN DEFAULT FALSE,
     verified_by_users BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_songs_artist FOREIGN KEY (artist_id) REFERENCES artists(id) ON DELETE CASCADE,
-    CONSTRAINT fk_songs_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+    CONSTRAINT fk_songs_user FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE SET NULL
 );
 
 -- ==================================================
@@ -75,7 +83,7 @@ CREATE TABLE music_theory (
     progression VARCHAR(100),
     difficulty ENUM('EASY','INTERMEDIATE','HARD'),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_music_theory_song FOREIGN KEY (song_id) REFERENCES songs(id) ON DELETE CASCADE
 );
 
@@ -94,8 +102,8 @@ CREATE TABLE posts (
     likes_number INT DEFAULT 0,
     comments_number INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_posts_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    updated_at TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_posts_user FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
     CONSTRAINT fk_posts_song FOREIGN KEY (song_id) REFERENCES songs(id) ON DELETE CASCADE
 );
 
@@ -109,8 +117,8 @@ CREATE TABLE comments (
     song_id INT,
     post_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_comments_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    updated_at TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_comments_user FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
     CONSTRAINT fk_comments_song FOREIGN KEY (song_id) REFERENCES songs(id) ON DELETE CASCADE,
     CONSTRAINT fk_comments_post FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
 );
@@ -125,7 +133,7 @@ CREATE TABLE ratings (
     song_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY unique_user_song (user_id, song_id),
-    CONSTRAINT fk_ratings_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_ratings_user FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
     CONSTRAINT fk_ratings_song FOREIGN KEY (song_id) REFERENCES songs(id) ON DELETE CASCADE
 );
 
@@ -138,10 +146,10 @@ CREATE TABLE friendships (
     friend_id INT,
     status ENUM('PENDING','ACCEPTED','REJECTED') DEFAULT 'PENDING',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     UNIQUE KEY unique_friendship (user_id, friend_id),
-    CONSTRAINT fk_friendships_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT fk_friendships_friend FOREIGN KEY (friend_id) REFERENCES users(id) ON DELETE CASCADE
+    CONSTRAINT fk_friendships_user FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
+    CONSTRAINT fk_friendships_friend FOREIGN KEY (friend_id) REFERENCES user(id) ON DELETE CASCADE
 );
 
 -- ==================================================
@@ -153,7 +161,7 @@ CREATE TABLE user_follows_artist (
     artist_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY unique_follow_artist (user_id, artist_id),
-    CONSTRAINT fk_user_follows_artist_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_user_follows_artist_user FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
     CONSTRAINT fk_user_follows_artist_artist FOREIGN KEY (artist_id) REFERENCES artists(id) ON DELETE CASCADE
 );
 
@@ -166,6 +174,6 @@ CREATE TABLE user_follows_user (
     followed_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY unique_follow_user (follower_id, followed_id),
-    CONSTRAINT fk_user_follows_user_follower FOREIGN KEY (follower_id) REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT fk_user_follows_user_followed FOREIGN KEY (followed_id) REFERENCES users(id) ON DELETE CASCADE
+    CONSTRAINT fk_user_follows_user_follower FOREIGN KEY (follower_id) REFERENCES user(id) ON DELETE CASCADE,
+    CONSTRAINT fk_user_follows_user_followed FOREIGN KEY (followed_id) REFERENCES user(id) ON DELETE CASCADE
 );
