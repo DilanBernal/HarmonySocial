@@ -1,27 +1,29 @@
 import { EntityNotFoundError } from "typeorm";
-import User, { UserInstrument, UserStatus } from "../../domain/models/User";
+import User, { UserStatus } from "../../domain/models/User";
 import AuthPort from "../../domain/ports/data/AuthPort";
 import UserPort from "../../domain/ports/data/UserPort";
 import EmailPort from "../../domain/ports/extras/EmailPort";
 import RegisterRequest from "../dto/requests/RegisterRequest";
-import UserEntity from "../../infrastructure/entities/UserEntity";
 import { ApplicationResponse } from "../shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes } from "../shared/errors/ApplicationError";
+import LoggerPort from "../../domain/ports/extras/LoggerPort";
 
 export default class UserService {
   private userPort: UserPort;
   private authPort: AuthPort;
   private emailPort: EmailPort;
+  private loggerPort: LoggerPort;
   private usernameRegex: RegExp = /^[a-zA-Z0-9_*\-#$!|°.+]{2,50}$/;
   private fullNameRegex: RegExp = /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+(?:\s[A-Za-zÁÉÍÓÚáéíóúÑñ]+)?$/;
   private passwordRegex: RegExp = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#\$%\^&\*])(.){8,}$/;
   private emailRegex: RegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   private profileImage: RegExp = /^(https?|ftp|http):\/\/[^\s/$.?#].[^\s]*$/
 
-  constructor(userPort: UserPort, authPort: AuthPort, emailPort: EmailPort) {
+  constructor(userPort: UserPort, authPort: AuthPort, emailPort: EmailPort, logger: LoggerPort) {
     this.userPort = userPort;
     this.authPort = authPort;
     this.emailPort = emailPort;
+    this.loggerPort = logger;
   }
 
   async registerUser(user: RegisterRequest): Promise<ApplicationResponse<number>> {
@@ -94,12 +96,18 @@ export default class UserService {
       throw ApplicationResponse.failure(new ApplicationError("El usuario no se encontro", ErrorCodes.VALUE_NOT_FOUND));
     } catch (error: unknown) {
       if (error instanceof EntityNotFoundError) {
-        throw new Error("No existe el usuario");
+        this.loggerPort.info("Se intento eliminar un usuario que no existe", error)
+        throw ApplicationResponse.failure(new ApplicationError(error.message, ErrorCodes.VALUE_NOT_FOUND, [error.name, error.message], error));
       }
       if (error instanceof ApplicationResponse) {
-        if (error.error?.toResponse().code === ErrorCodes.VALUE_NOT_FOUND) {
-          throw ApplicationResponse.failure(new ApplicationError("No se encontro el usuario", ErrorCodes.VALUE_NOT_FOUND));
+        if (error.error?.code != ErrorCodes.VALUE_NOT_FOUND) {
+          this.loggerPort.appError(error);
         }
+        throw error;
+      }
+      if (error instanceof Error) {
+        this.loggerPort.error(error.message, [error.name, error.message, error,]);
+        throw ApplicationResponse.failure(new ApplicationError("Ocurrio un error inesperado", ErrorCodes.SERVER_ERROR, [error.name, error.message], error));
       }
       throw error;
     }

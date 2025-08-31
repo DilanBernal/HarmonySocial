@@ -38,6 +38,7 @@ export enum ErrorCodes {
   // Errores de negocio
   INSUFFICIENT_PERMISSIONS,
   BUSINESS_RULE_VIOLATION,
+  SERVER_ERROR,
 }
 
 export type ErrorCode = typeof ErrorCodes[keyof typeof ErrorCodes];

@@ -1,7 +1,7 @@
 import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
 import User from "../../models/User";
 
-interface UserPort {
+export default interface UserPort {
   //Sección de creacion
   createUser(user: Omit<User, "id">): Promise<ApplicationResponse<number>>;
   //Sección de actualizacion
@@ -11,10 +11,10 @@ interface UserPort {
   getAllUsers(): Promise<ApplicationResponse<Array<User>>>;
   getUserById(id: number): Promise<ApplicationResponse<User>>;
   getUserByEmail(email: string): Promise<ApplicationResponse<User>>;
+  getUserByLoginRequest(userOrEmail: string): Promise<ApplicationResponse<User>>;
   getUserByEmailOrUsername(email: string, username: string): Promise<ApplicationResponse<User>>;
   //Seccion de validación
-  existsUserByEmailOrUsername(email: string, username: string): Promise<ApplicationResponse<boolean>>;
   existsUserById(id: number): Promise<ApplicationResponse<boolean>>;
+  existsUserByLoginRequest(userOrEmail: string): Promise<ApplicationResponse<boolean>>;
+  existsUserByEmailOrUsername(email: string, username: string): Promise<ApplicationResponse<boolean>>;
 }
-
-export default UserPort;

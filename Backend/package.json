@@ -13,6 +13,8 @@
   "joi": "^18.0.0",
   "jsonwebtoken": "^9.0.2",
   "mysql2": "^3.14.3",
+  "pino": "^9.9.0",
+  "pino-prettier": "^3.0.1-dev",
   "typeorm": "^0.3.26"
  },
  "devDependencies": {
