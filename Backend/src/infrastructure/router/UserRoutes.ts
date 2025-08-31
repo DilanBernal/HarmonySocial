@@ -4,6 +4,7 @@ import UserService from "../../application/services/UserService";
 import UserController from '../controller/UserController';
 import AuthAdapter from "../adapter/AuthAdapter";
 import EmailAdapter from "../adapter/EmailAdapter";
+import LoggerAdapter from "../adapter/LoggerAdapter";
 
 // import DataNotFoundError from "../shared/errors/DataNotFoundError";
 
@@ -13,7 +14,8 @@ const router = Router();
 const userAdapter = new UserAdapter();
 const authAdapter = new AuthAdapter();
 const emailAdapter = new EmailAdapter();
-const userApp = new UserService(userAdapter, authAdapter, emailAdapter);
+const loggerAdapter = new LoggerAdapter();
+const userApp = new UserService(userAdapter, authAdapter, emailAdapter, loggerAdapter);
 const userController = new UserController(userApp);
 
 //Login
