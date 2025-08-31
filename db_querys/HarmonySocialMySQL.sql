@@ -10,9 +10,9 @@ USE harmonysocial;
 -- ==================================================
 CREATE TABLE user (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
+    username VARCHAR(50) NOT NULL,
     full_name varchar(200),
-    email VARCHAR(100) UNIQUE NOT NULL,
+    email VARCHAR(100) NOT NULL,
     password VARCHAR(255) NOT NULL,
     profile_image VARCHAR(255),
     status ENUM('ACTIVE',
@@ -26,7 +26,10 @@ CREATE TABLE user (
     learning_points INT DEFAULT 0,
     is_artist BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT UQ_user_username_status unique (username, status),
+    CONSTRAINT UQ_user_email_status 
+    UNIQUE (email, status);
 );
 
 -- ==================================================

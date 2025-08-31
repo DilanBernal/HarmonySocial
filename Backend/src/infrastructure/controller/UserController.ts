@@ -1,6 +1,7 @@
 import UserService from "../../application/services/UserService";
 import { Request, Response } from "express";
 import User from "../../domain/models/User";
+import { EntityNotFoundError } from "typeorm";
 
 export default class UserController {
   private userService: UserService;
@@ -10,7 +11,7 @@ export default class UserController {
   }
 
   async registerUser(req: Request, res: Response) {
-    const { full_name, email, username, password, profile_image, status, favorite_instrument, is_artist } = req.body;
+    const { full_name, email, username, password, profile_image, favorite_instrument } = req.body;
     try {
       const user: Omit<User, "id" | "status" | 'created_at' | 'updated_at'> = {
         full_name: full_name.trim(),
@@ -33,6 +34,24 @@ export default class UserController {
     } catch (error) {
       console.error(error);
       throw error;
+    }
+  }
+
+  async logicalDeleteUser(req: Request, res: Response) {
+    const { id } = req.params;
+    try {
+      if (await this.userService.deleteUser(Number(id))) {
+        res.status(204).json({ message: "Se elimino correctamente al usuario" });
+      } else {
+        res.status(500).json({ messag: "No se pudo eliminar correctamente al usuario" });
+      }
+    } catch (error: unknown) {
+      if (error instanceof EntityNotFoundError) {
+        res.status(404).json({ message: "No se encontro al usuario" })
+      }
+      else {
+        throw error;
+      }
     }
   }
 }

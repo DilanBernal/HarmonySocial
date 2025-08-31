@@ -1,7 +1,9 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
 import { UserInstrument, UserStatus } from "../../domain/models/User";
 
 @Entity({ name: "user" })
+@Index("IDX_user_email_status", ["email", "status"], { unique: true })
+@Index("IDX_user_username_status", ["username", "status"], { unique: true })
 export default class UserEntity {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -12,7 +14,7 @@ export default class UserEntity {
   @Column({ type: "varchar" })
   full_name!: string;
 
-  @Column({ type: "varchar", length: 100, unique: true })
+  @Column({ type: "varchar", length: 100 })
   email!: string;
 
   @Column({ type: "varchar", length: 255 })

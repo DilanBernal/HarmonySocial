@@ -1,8 +1,12 @@
+import { EntityNotFoundError } from "typeorm";
 import User, { UserInstrument, UserStatus } from "../../domain/models/User";
 import AuthPort from "../../domain/ports/data/AuthPort";
 import UserPort from "../../domain/ports/data/UserPort";
 import EmailPort from "../../domain/ports/extras/EmailPort";
 import RegisterRequest from "../dto/requests/RegisterRequest";
+import UserEntity from "../../infrastructure/entities/UserEntity";
+import { ApplicationResponse } from "../shared/ApplicationReponse";
+import { ApplicationError, ErrorCodes } from "../shared/errors/ApplicationError";
 
 export default class UserService {
   private userPort: UserPort;
@@ -20,16 +24,15 @@ export default class UserService {
     this.emailPort = emailPort;
   }
 
-  async registerUser(user: RegisterRequest): Promise<number> {
+  async registerUser(user: RegisterRequest): Promise<ApplicationResponse<number>> {
     if (!user) {
       throw new Error;
     }
     try {
-      const existingUser = await this.userPort.getUserByEmail(user.email);
-      Object.freeze(existingUser);
+      const existUser = await this.userPort.existsUserByEmailOrUsername(user.email, user.username);
       Object.freeze(user);
 
-      if (existingUser) {
+      if (existUser) {
         throw new Error("El usuario ya existe");
       }
 
@@ -58,7 +61,7 @@ export default class UserService {
       const hashPassword = await this.authPort.encryptPassword(user.password);
 
       const userDomain: Omit<User, "id"> = {
-        status: UserStatus.ACTIVE,
+        status: UserStatus.SUSPENDED,
         created_at: new Date(Date.now()),
         full_name: user.full_name,
         email: user.email,
@@ -70,7 +73,34 @@ export default class UserService {
         is_artist: user.is_artist
       }
       return await this.userPort.createUser(userDomain);
-    } catch (error) {
+    } catch (error: unknown) {
+      if (error instanceof EntityNotFoundError) {
+        throw ApplicationResponse.failure(new ApplicationError("No se encontro el usuario", ErrorCodes.VALUE_NOT_FOUND));
+      }
+      if (error instanceof ApplicationResponse) {
+        if (error.error?.toResponse().code === ErrorCodes.VALUE_NOT_FOUND) {
+          throw ApplicationResponse.failure(new ApplicationError("No se encontro el usuario", ErrorCodes.VALUE_NOT_FOUND));
+        }
+      }
+      throw error;
+    }
+  }
+
+  async deleteUser(id: number): Promise<ApplicationResponse> {
+    try {
+      if (await this.userPort.existsUserById(id)) {
+        return await this.userPort.deleteUser(id);
+      }
+      throw ApplicationResponse.failure(new ApplicationError("El usuario no se encontro", ErrorCodes.VALUE_NOT_FOUND));
+    } catch (error: unknown) {
+      if (error instanceof EntityNotFoundError) {
+        throw new Error("No existe el usuario");
+      }
+      if (error instanceof ApplicationResponse) {
+        if (error.error?.toResponse().code === ErrorCodes.VALUE_NOT_FOUND) {
+          throw ApplicationResponse.failure(new ApplicationError("No se encontro el usuario", ErrorCodes.VALUE_NOT_FOUND));
+        }
+      }
       throw error;
     }
   }

@@ -1,6 +1,6 @@
-import app from "./infraestructure/web/app";
-import ServerBootstrap from "./infraestructure/bootstrap/server_bootstrap";
-import { connectDB } from "./infraestructure/config/con_database";
+import app from "./infrastructure/web/app";
+import ServerBootstrap from "./infrastructure/bootstrap/server_bootstrap";
+import { connectDB } from "./infrastructure/config/con_database";
 
 const server = new ServerBootstrap(app);
 

@@ -83,21 +83,20 @@ router.post("/user", async (request, response) => {
 //   }
 // })
 
-// router.delete("/users/:id", async (req, res) => {
-//   try {
-//     await userController.deleteUser(req, res);
-//   } catch (error: any) {
-//     const errorMessage = error.message ?? "Error al eliminar el usuario";
-//     res.status(error.statusCode ?? 500)
-//       .json({
-//         message: errorMessage
-//       });
-//     console.error(errorMessage, error);
-//     res.status(400)
-//       .json({
-//         message: errorMessage
-//       })
-//   }
-
-// })
+router.delete("/user/:id", async (req, res) => {
+  try {
+    await userController.logicalDeleteUser(req, res);
+  } catch (error: any) {
+    const errorMessage = error.message ?? "Error al eliminar el usuario";
+    res.status(error.statusCode ?? 500)
+      .json({
+        message: errorMessage
+      });
+    console.error(errorMessage, error);
+    res.status(400)
+      .json({
+        message: errorMessage
+      })
+  }
+})
 export default router;
