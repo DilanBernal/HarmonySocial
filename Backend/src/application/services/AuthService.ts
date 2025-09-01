@@ -1,7 +1,7 @@
 import AuthPort from "../../domain/ports/data/AuthPort";
 import UserPort from "../../domain/ports/data/UserPort";
-import EmailPort from "../../domain/ports/extras/EmailPort";
-import LoggerPort from "../../domain/ports/extras/LoggerPort";
+import EmailPort from "../../domain/ports/utils/EmailPort";
+import LoggerPort from "../../domain/ports/utils/LoggerPort";
 import LoginRequest from "../dto/requests/LoginRequest";
 import AuthResponse from "../dto/responses/AuthResponse";
 import { ApplicationResponse } from "../shared/ApplicationReponse";
@@ -13,10 +13,8 @@ export default class AuthService {
   private emailPort: EmailPort;
   private loggerPort: LoggerPort;
   private usernameRegex: RegExp = /^[a-zA-Z0-9_*\-#$!|°.+]{2,50}$/;
-  private fullNameRegex: RegExp = /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+(?:\s[A-Za-zÁÉÍÓÚáéíóúÑñ]+)?$/;
   private passwordRegex: RegExp = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#\$%\^&\*])(.){8,}$/;
   private emailRegex: RegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  private profileImage: RegExp = /^(https?|ftp|http):\/\/[^\s/$.?#].[^\s]*$/;
 
   constructor(userPort: UserPort, authPort: AuthPort, emailPort: EmailPort, logger: LoggerPort) {
     this.userPort = userPort;
@@ -60,10 +58,7 @@ export default class AuthService {
         );
       }
 
-      const userExistsResponse = await this.userPort.existsUserByEmailOrUsername(
-        requests.userOrEmail,
-        requests.userOrEmail,
-      );
+      const userExistsResponse = await this.userPort.existsUserByLoginRequest(requests.userOrEmail);
 
       if (!userExistsResponse.success || !userExistsResponse.data) {
         return ApplicationResponse.failure(

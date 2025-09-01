@@ -1,16 +1,24 @@
 import UserService from "../../application/services/UserService";
+import AuthService from "../../application/services/AuthService";
 import { Request, Response } from "express";
 import User from "../../domain/models/User";
 import { EntityNotFoundError } from "typeorm";
 import { ErrorCodes } from "../../application/shared/errors/ApplicationError";
 import { ApplicationResponse } from "../../application/shared/ApplicationReponse";
 import RegisterRequest from "../../application/dto/requests/RegisterRequest";
+import LoginRequest from "../../application/dto/requests/LoginRequest";
+import UpdateUserRequest from "../../application/dto/requests/UpdateUserRequest";
+import ForgotPasswordRequest from "../../application/dto/requests/ForgotPasswordRequest";
+import ResetPasswordRequest from "../../application/dto/requests/ResetPasswordRequest";
+import VerifyEmailRequest from "../../application/dto/requests/VerifyEmailRequest";
 
 export default class UserController {
   private userService: UserService;
+  private authService: AuthService;
 
-  constructor(app: UserService) {
-    this.userService = app;
+  constructor(userService: UserService, authService: AuthService) {
+    this.userService = userService;
+    this.authService = authService;
   }
 
   async registerUser(req: Request, res: Response) {

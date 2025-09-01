@@ -14,14 +14,17 @@
     "joi": "^18.0.0",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.14.3",
+    "nodemailer": "^7.0.6",
     "pino": "^9.9.0",
     "pino-prettier": "^3.0.1-dev",
-    "typeorm": "^0.3.26"
+    "typeorm": "^0.3.26",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/nodemailer": "^7.0.1",
     "@typescript-eslint/eslint-plugin": "^8.39.1",
     "@typescript-eslint/parser": "^8.39.1",
     "eslint": "^9.33.0",

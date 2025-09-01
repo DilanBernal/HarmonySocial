@@ -25,6 +25,8 @@ CREATE TABLE app_user (
     'BASS') null,
     learning_points INT DEFAULT 0,
     is_artist BOOLEAN DEFAULT FALSE,
+    security_stamp varchar(36) null,
+    concurrency_stamp varchar(36) null,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT UQ_user_username_status unique (username, status),

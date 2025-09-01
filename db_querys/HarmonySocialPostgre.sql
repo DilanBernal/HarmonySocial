@@ -25,17 +25,21 @@ CREATE TYPE user_instrument AS ENUM (
 
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    full_name varchar(200),
-    username VARCHAR(50) UNIQUE NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
+    username VARCHAR(50) NOT NULL,
+    full_name VARCHAR(200),
+    email VARCHAR(100) NOT NULL,
     password VARCHAR(255) NOT NULL,
-    status user_status DEFAULT 'ACTIVE',
     profile_image VARCHAR(255),
-    favorite_instrument user_instrument null,
+    status user_status DEFAULT 'FROZEN',
+    favorite_instrument user_instrument NULL,
     learning_points INTEGER DEFAULT 0,
     is_artist BOOLEAN DEFAULT FALSE,
+    security_stamp VARCHAR(36) NULL,
+    concurrency_stamp VARCHAR(36) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT UQ_user_username_status UNIQUE (username, status),
+    CONSTRAINT UQ_user_email_status UNIQUE (email, status)
 );
 
 -- ==================================================
@@ -67,7 +71,7 @@ CREATE TABLE songs (
     decade VARCHAR(20),
     genre VARCHAR(50),
     country VARCHAR(50),
-    instruments TEXT[],
+    instruments JSONB,
     difficulty_level VARCHAR(20) CHECK (difficulty_level IN ('EASY','INTERMEDIATE','HARD')),
     artist_id INTEGER REFERENCES artists(id) ON DELETE CASCADE,
     user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,

@@ -1,10 +1,11 @@
 import { Request, Response, Router } from "express";
-import UserAdapter from "../adapter/UserAdapter";
+import UserAdapter from "../adapter/data/UserAdapter";
 import UserService from "../../application/services/UserService";
 import UserController from "../controller/UserController";
-import AuthAdapter from "../adapter/AuthAdapter";
-import EmailAdapter from "../adapter/EmailAdapter";
-import LoggerAdapter from "../adapter/LoggerAdapter";
+import AuthAdapter from "../adapter/data/AuthAdapter";
+import EmailNodemailerAdapter from "../adapter/utils/EmailAdapter";
+import LoggerAdapter from "../adapter/utils/LoggerAdapter";
+import TokenAdapter from "../adapter/utils/TokenAdapter";
 
 // import DataNotFoundError from "../shared/errors/DataNotFoundError";
 
@@ -13,9 +14,16 @@ const router = Router();
 //Inicializacion de capas
 const userAdapter = new UserAdapter();
 const authAdapter = new AuthAdapter();
-const emailAdapter = new EmailAdapter();
 const loggerAdapter = new LoggerAdapter();
-const userApp = new UserService(userAdapter, authAdapter, emailAdapter, loggerAdapter);
+const tokenAdapter = new TokenAdapter();
+const emailAdapter = new EmailNodemailerAdapter(loggerAdapter);
+const userApp = new UserService(
+  userAdapter,
+  authAdapter,
+  emailAdapter,
+  loggerAdapter,
+  tokenAdapter,
+);
 const userController = new UserController(userApp);
 
 //Login

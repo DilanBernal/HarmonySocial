@@ -5,5 +5,4 @@ export default interface AuthPort {
   loginUser(credentials: LoginRequest): Promise<AuthResponse>;
   recoverAccount(email: string): Promise<boolean>;
   encryptPassword(password: string): Promise<string>;
-  generateLoginToken(payload: object): Promise<string>;
 }

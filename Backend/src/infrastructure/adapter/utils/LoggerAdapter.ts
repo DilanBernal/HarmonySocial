@@ -1,5 +1,5 @@
-import { ApplicationResponse } from "../../application/shared/ApplicationReponse";
-import LoggerPort from "../../domain/ports/extras/LoggerPort";
+import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
+import LoggerPort from "../../../domain/ports/utils/LoggerPort";
 import pino, { Logger, LoggerOptions } from "pino";
 
 export default class LoggerAdapter implements LoggerPort {

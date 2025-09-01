@@ -9,6 +9,8 @@ interface User {
   status: UserStatus;
   favorite_instrument: UserInstrument;
   is_artist: boolean;
+  concurrency_stamp?: string;
+  security_stamp?: string;
   created_at: Date;
   updated_at?: Date;
 }

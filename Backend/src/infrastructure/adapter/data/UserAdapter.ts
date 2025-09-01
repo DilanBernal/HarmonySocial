@@ -6,12 +6,12 @@ import {
   QueryFailedError,
   Repository,
 } from "typeorm";
-import UserPort from "../../domain/ports/data/UserPort";
-import UserEntity from "../entities/UserEntity";
-import { AppDataSource } from "../config/con_database";
-import User, { UserStatus } from "../../domain/models/User";
-import { ApplicationResponse } from "../../application/shared/ApplicationReponse";
-import { ApplicationError, ErrorCodes } from "../../application/shared/errors/ApplicationError";
+import UserPort from "../../../domain/ports/data/UserPort";
+import UserEntity from "../../entities/UserEntity";
+import { AppDataSource } from "../../config/con_database";
+import User, { UserStatus } from "../../../domain/models/User";
+import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
+import { ApplicationError, ErrorCodes } from "../../../application/shared/errors/ApplicationError";
 
 export default class UserAdapter implements UserPort {
   private userRepository: Repository<UserEntity>;

@@ -14,6 +14,12 @@ export type ReturnEnvironmentVars = {
   DB_SYNC: boolean;
   PASSWORD_SALT: number;
   JWT_SECRET: string;
+  SMTP_HOST: string;
+  SMTP_PORT: number;
+  SMTP_USER: string;
+  SMTP_PASSWORD: string;
+  EMAIL_FROM: string;
+  FRONTEND_URL: string;
 };
 
 type ValidationEnvironmentVars = {
@@ -35,6 +41,12 @@ function validateEnvVars(vars: NodeJS.ProcessEnv): ValidationEnvironmentVars {
       DB_SYNC: joi.boolean().default(false).required(),
       PASSWORD_SALT: joi.number().default(4).required(),
       JWT_SECRET: joi.string().min(32).required(),
+      SMTP_HOST: joi.string().required(),
+      SMTP_PORT: joi.number().default(1025).required(),
+      SMTP_USER: joi.string().allow("").optional(),
+      SMTP_PASSWORD: joi.string().allow("").optional(),
+      EMAIL_FROM: joi.string().email().required(),
+      FRONTEND_URL: joi.string().uri().required(),
     })
     .unknown(true);
   const { error, value } = envSchem.validate(vars);
@@ -59,6 +71,12 @@ const loadEnvVars = (): ReturnEnvironmentVars => {
     DB_SYNC: value.DB_SYNC,
     PASSWORD_SALT: value.PASSWORD_SALT,
     JWT_SECRET: value.JWT_SECRET,
+    SMTP_HOST: value.SMTP_HOST,
+    SMTP_PORT: value.SMTP_PORT,
+    SMTP_USER: value.SMTP_USER,
+    SMTP_PASSWORD: value.SMTP_PASSWORD,
+    EMAIL_FROM: value.EMAIL_FROM,
+    FRONTEND_URL: value.FRONTEND_URL,
   };
 };
 const envs = loadEnvVars();
