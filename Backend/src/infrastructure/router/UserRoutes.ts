@@ -1,6 +1,7 @@
 import { Request, Response, Router } from "express";
 import UserAdapter from "../adapter/data/UserAdapter";
 import UserService from "../../application/services/UserService";
+import AuthService from "../../application/services/AuthService";
 import UserController from "../controller/UserController";
 import AuthAdapter from "../adapter/data/AuthAdapter";
 import EmailNodemailerAdapter from "../adapter/utils/EmailAdapter";
@@ -24,12 +25,19 @@ const userApp = new UserService(
   loggerAdapter,
   tokenAdapter,
 );
-const userController = new UserController(userApp);
+const authService = new AuthService(userAdapter, authAdapter, emailAdapter, loggerAdapter);
+const userController = new UserController(userApp, authService);
 
 //Login
-// router.post("/login", async (req: Request, res: Response) => {
-//   await userController.login(req, res);
-// });
+router.post("/login", async (req: Request, res: Response) => {
+  try {
+    await userController.loginUser(req, res);
+  } catch (error: any) {
+    console.error("Error en login: ", error);
+    res.status(500).json({ message: "Error en el login del usuario" });
+  }
+});
+
 router.get("/ping", async (request, response: Response) => {
   response.status(200).json({ message: "pong" });
 });
@@ -55,6 +63,18 @@ router.post("/user", async (request, response) => {
 //   }
 // });
 
+router.get("/users", async (req, res) => {
+  try {
+    await userController.getAllUsers(req, res);
+  } catch (error: any) {
+    const errorMessage = error.message ?? "Error al traer los usuarios";
+    res.status(error.statusCode ?? 500).json({
+      message: errorMessage,
+    });
+    console.error(errorMessage, error);
+  }
+});
+
 // router.get("/users/id/:id", async (req, res) => {
 //   try {
 //     await userController.searchUserById(req, res);
@@ -66,6 +86,18 @@ router.post("/user", async (request, response) => {
 //       });
 //   }
 // });
+
+router.get("/users/id/:id", async (req, res) => {
+  try {
+    await userController.getUserById(req, res);
+  } catch (error: any) {
+    const errorMessage = error.message ?? "Error al traer el usuario";
+    res.status(error.statusCode ?? 500).json({
+      message: errorMessage,
+    });
+    console.error(errorMessage, error);
+  }
+});
 
 // router.get("/users/email/:email", async (req, res) => {
 //   try {
@@ -79,6 +111,18 @@ router.post("/user", async (request, response) => {
 //   }
 // });
 
+router.get("/users/email/:email", async (req, res) => {
+  try {
+    await userController.getUserByEmail(req, res);
+  } catch (error: any) {
+    const errorMessage = error.message ?? "Error al traer el usuario";
+    res.status(error.statusCode ?? 500).json({
+      message: errorMessage,
+    });
+    console.error(errorMessage, error);
+  }
+});
+
 // router.put("/users/:id", async (req, res) => {
 //   try {
 //     await userController.updataUser(req, res);
@@ -90,6 +134,18 @@ router.post("/user", async (request, response) => {
 //       });
 //   }
 // })
+
+router.put("/users/:id", async (req, res) => {
+  try {
+    await userController.updateUser(req, res);
+  } catch (error: any) {
+    const errorMessage: string = error.message ?? "Error al actualizar el usuario";
+    res.status(error.statusCode ?? 500).json({
+      message: errorMessage,
+    });
+    console.error(errorMessage, error);
+  }
+});
 
 router.delete("/user/:id", async (req, res) => {
   try {
@@ -105,4 +161,44 @@ router.delete("/user/:id", async (req, res) => {
     });
   }
 });
+
+// Ruta para recuperar contraseña
+router.post("/forgot-password", async (req, res) => {
+  try {
+    await userController.forgotPassword(req, res);
+  } catch (error: any) {
+    const errorMessage = error.message ?? "Error al procesar la recuperación de contraseña";
+    res.status(error.statusCode ?? 500).json({
+      message: errorMessage,
+    });
+    console.error(errorMessage, error);
+  }
+});
+
+// Ruta para restablecer contraseña
+router.post("/reset-password", async (req, res) => {
+  try {
+    await userController.resetPassword(req, res);
+  } catch (error: any) {
+    const errorMessage = error.message ?? "Error al restablecer la contraseña";
+    res.status(error.statusCode ?? 500).json({
+      message: errorMessage,
+    });
+    console.error(errorMessage, error);
+  }
+});
+
+// Ruta para verificar email
+router.post("/verify-email", async (req, res) => {
+  try {
+    await userController.verifyEmail(req, res);
+  } catch (error: any) {
+    const errorMessage = error.message ?? "Error al verificar el email";
+    res.status(error.statusCode ?? 500).json({
+      message: errorMessage,
+    });
+    console.error(errorMessage, error);
+  }
+});
+
 export default router;
