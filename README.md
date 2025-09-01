@@ -1,4 +1,84 @@
-# Este es el proyecto general de la aplicación
+# HarmonySocial
+
+HarmonySocial es una aplicación móvil y web diseñada para unir el aprendizaje musical con la interacción social. El objetivo es democratizar el acceso a la educación musical (alineado con el ODS 4) y ofrecer un espacio donde los usuarios pueden desarrollar sus habilidades, compartir sus creaciones y conectarse con otros músicos, tanto principiantes como expertos.
+
+## Tabla de Contenidos
+
+- [Introducción](#Introducción)
+- [Características Principales](#características-principales)
+  - [Módulo Social](#módulo-social)
+  - [Módulo Educativo](#módulo-educativo)
+  - [Gestión de Usuarios](#gestión-de-usuarios)
+  - [Validación de Canciones](#validación-de-canciones)
+- [Arquitectura y Tecnologías](#arquitectura-y-tecnologías)
+  - [Frontend](#frontend)
+  - [Backend](#backend)
+  - [Base de Datos](#base-de-datos)
+- [Estructura de la Base de Datos](#estructura-de-la-base-de-datos)
+- [Inspiración](#inspiración)
+
+## Introducción
+
+HarmonySocial combina la pasión por la música con la potencia de la tecnología. La aplicación permite a los usuarios:
+
+- Aprender teoría musical mediante herramientas interactivas, como el Círculo de Quintas.
+- Subir y compartir canciones (originales o covers), generando posts con interacciones sociales.
+- Conectarse y colaborar con otros músicos mediante likes, comentarios y compartidos.
+
+## Características Principales
+
+### Módulo Social
+
+- **Interacción:** Los usuarios pueden subir canciones, dar likes, comentar, compartir y seguir a otros músicos.
+- **Posts:** Cada canción subida genera un post que incluye información del autor, fecha de publicación, descripción y métricas de interacción.
+
+### Módulo Educativo
+
+- **Teoría Musical:** Explicación detallada de canciones que incluye datos sobre tónica, progresión armónica, acordes, BPM, instrumentos y nivel de dificultad.
+- **Herramientas Didácticas:** Uso del Círculo de Quintas para enseñar teoría musical de forma interactiva.
+
+### Gestión de Usuarios
+
+- **Perfiles Personalizados:** Cada usuario cuenta con un perfil donde se muestra avatar, canciones subidas, progreso en el aprendizaje y elementos de gamificación.
+- **Conexiones Sociales:** Posibilidad de seguir a otros usuarios y formar parte de una comunidad activa.
+
+### Validación de Canciones
+
+- **Verificación Colaborativa:** Las canciones pueden ser validadas tanto por la comunidad como por artistas, aumentando la confiabilidad del contenido.
+
+## Arquitectura y Tecnologías
+
+### Frontend
+
+- **React Native:** Desarrollo de la aplicación móvil con un diseño responsivo y componentes interactivos.
+- **Arquitectura MVVM:** Separación clara entre la lógica de negocio (ViewModel), la interfaz (View) y los datos (Model).
+
+### Backend
+
+- **Node.js con Express:** Implementado en TypeScript, utilizando una arquitectura hexagonal (ports & adapters) que desacopla el núcleo de la aplicación de los detalles de infraestructura.
+- **Gestión de Errores y Validaciones:** Uso de DTOs para requests/responses y manejo centralizado de errores.
+
+### Base de Datos
+
+- **PostgreSQL:** Diseño de un modelo relacional normalizado con tablas dedicadas a usuarios, artistas, canciones, posts, comentarios, likes, instrumentos y géneros.
+- **Integridad y Relaciones:** Implementación de relaciones 1:1 entre canciones y teoría musical, y relaciones 1:N para posts y demás interacciones.
+
+## Estructura de la Base de Datos
+
+El esquema de la base de datos incluye:
+
+- **Usuarios:** Datos de autenticación, perfil y métricas de aprendizaje.
+- **Artistas:** Información y verificación de artistas.
+- **Canciones y Teoría Musical:** Cada canción cuenta además con un análisis teórico asociado.
+- **Posts, Comentarios y Likes:** Registro de la actividad social y de interacción de la comunidad.
+
+Se han implementado además triggers para mantener la integridad de los campos de fecha de actualización en cada tabla.
+
+## Inspiración
+
+HarmonySocial se inspira en la idea de que la música es un lenguaje universal. Así como en una banda cada instrumento aporta su sonido para crear armonía, en esta aplicación cada usuario aporta su talento para construir una comunidad musical diversa e inclusiva.
+
+_Disfruta explorando, aprendiendo y compartiendo en HarmonySocial._
 
 Estructura a seguir para el front (MVVM):
 ```
