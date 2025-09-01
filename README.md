@@ -4,7 +4,7 @@ HarmonySocial es una aplicación móvil y web diseñada para unir el aprendizaje
 
 ## Tabla de Contenidos
 
-- [Introducción](#introducción)
+- [Introducción](#Introducción)
 - [Características Principales](#características-principales)
   - [Módulo Social](#módulo-social)
   - [Módulo Educativo](#módulo-educativo)
