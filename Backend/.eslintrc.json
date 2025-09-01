@@ -8,8 +8,8 @@
     "plugin:prettier/recommended"
   ],
   "rules": {
-    "semi": ["error", "always"],    
-    "comma-dangle": ["error", "always-multiline"],  
+    "semi": ["error", "always"],
+    "comma-dangle": ["error", "always-multiline"],
     "@typescript-eslint/explicit-function-return-type": "warn",
     "prettier/prettier": "warn"
   },

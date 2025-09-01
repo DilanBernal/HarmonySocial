@@ -10,7 +10,7 @@ interface User {
   favorite_instrument: UserInstrument;
   is_artist: boolean;
   created_at: Date;
-  updated_at?: Date ;
+  updated_at?: Date;
 }
 export default User;
 
@@ -19,11 +19,11 @@ export enum UserStatus {
   BLOCKED = 2,
   DELETED = 3,
   SUSPENDED = 4,
-  FROZEN = 5
+  FROZEN = 5,
 }
 
 export enum UserInstrument {
   GUITAR,
   PIANO,
-  BASS
+  BASS,
 }

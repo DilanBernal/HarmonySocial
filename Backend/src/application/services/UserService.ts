@@ -17,7 +17,7 @@ export default class UserService {
   private fullNameRegex: RegExp = /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+(?:\s[A-Za-zÁÉÍÓÚáéíóúÑñ]+)?$/;
   private passwordRegex: RegExp = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#\$%\^&\*])(.){8,}$/;
   private emailRegex: RegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  private profileImage: RegExp = /^(https?|ftp|http):\/\/[^\s/$.?#].[^\s]*$/
+  private profileImage: RegExp = /^(https?|ftp|http):\/\/[^\s/$.?#].[^\s]*$/;
 
   constructor(userPort: UserPort, authPort: AuthPort, emailPort: EmailPort, logger: LoggerPort) {
     this.userPort = userPort;
@@ -28,21 +28,28 @@ export default class UserService {
 
   async registerUser(user: RegisterRequest): Promise<ApplicationResponse<number>> {
     if (!user) {
-      throw new Error;
+      return ApplicationResponse.failure(
+        new ApplicationError("Datos de usuario inválidos", ErrorCodes.VALIDATION_ERROR),
+      );
     }
     try {
-      const existUser = await this.userPort.existsUserByEmailOrUsername(user.email, user.username);
+      const existUserResponse = await this.userPort.existsUserByEmailOrUsername(
+        user.email,
+        user.username,
+      );
       Object.freeze(user);
 
-      if (existUser) {
-        throw new Error("El usuario ya existe");
+      if (existUserResponse.success && existUserResponse.data) {
+        return ApplicationResponse.failure(
+          new ApplicationError("Ya existe el usuario", ErrorCodes.USER_ALREADY_EXISTS),
+        );
       }
 
       let errors: Array<[string, string]> = [];
       if (!this.usernameRegex.test(user.username)) {
         errors.push(["username", "El username no esta en el formato correcto"]);
       }
-      console.log(user.full_name)
+      console.log(user.full_name);
       if (!this.fullNameRegex.test(user.full_name)) {
         errors.push(["full name", "El nombre no esta en el formato correcto"]);
       }
@@ -57,7 +64,13 @@ export default class UserService {
       }
 
       if (errors.length > 0) {
-        throw new Error(JSON.stringify(errors));
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            "Algunos de los campos no estan bien llenados",
+            ErrorCodes.VALIDATION_ERROR,
+            errors,
+          ),
+        );
       }
 
       const hashPassword = await this.authPort.encryptPassword(user.password);
@@ -72,19 +85,33 @@ export default class UserService {
         profile_image: user.profile_image,
         learning_points: 0,
         favorite_instrument: user.favorite_instrument,
-        is_artist: user.is_artist
-      }
+        is_artist: user.is_artist,
+      };
       return await this.userPort.createUser(userDomain);
     } catch (error: unknown) {
-      if (error instanceof EntityNotFoundError) {
-        throw ApplicationResponse.failure(new ApplicationError("No se encontro el usuario", ErrorCodes.VALUE_NOT_FOUND));
-      }
       if (error instanceof ApplicationResponse) {
-        if (error.error?.toResponse().code === ErrorCodes.VALUE_NOT_FOUND) {
-          throw ApplicationResponse.failure(new ApplicationError("No se encontro el usuario", ErrorCodes.VALUE_NOT_FOUND));
+        switch (error.error?.code) {
+          case ErrorCodes.VALUE_NOT_FOUND:
+            return ApplicationResponse.failure(
+              new ApplicationError("No se encontro el usuario", ErrorCodes.VALUE_NOT_FOUND),
+            );
+          case ErrorCodes.DATABASE_ERROR:
+            return error;
         }
       }
-      throw error;
+      if (error instanceof Error) {
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            "Ocurrio un error inesperado en el registro",
+            ErrorCodes.SERVER_ERROR,
+            [error.name, error.message],
+            error,
+          ),
+        );
+      }
+      return ApplicationResponse.failure(
+        new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR, undefined, undefined),
+      );
     }
   }
 
@@ -93,23 +120,41 @@ export default class UserService {
       if (await this.userPort.existsUserById(id)) {
         return await this.userPort.deleteUser(id);
       }
-      throw ApplicationResponse.failure(new ApplicationError("El usuario no se encontro", ErrorCodes.VALUE_NOT_FOUND));
+      return ApplicationResponse.failure(
+        new ApplicationError("El usuario no se encontro", ErrorCodes.VALUE_NOT_FOUND),
+      );
     } catch (error: unknown) {
       if (error instanceof EntityNotFoundError) {
-        this.loggerPort.info("Se intento eliminar un usuario que no existe", error)
-        throw ApplicationResponse.failure(new ApplicationError(error.message, ErrorCodes.VALUE_NOT_FOUND, [error.name, error.message], error));
+        this.loggerPort.info("Se intento eliminar un usuario que no existe", error);
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            error.message,
+            ErrorCodes.VALUE_NOT_FOUND,
+            [error.name, error.message],
+            error,
+          ),
+        );
       }
       if (error instanceof ApplicationResponse) {
         if (error.error?.code != ErrorCodes.VALUE_NOT_FOUND) {
           this.loggerPort.appError(error);
         }
-        throw error;
+        return error;
       }
       if (error instanceof Error) {
-        this.loggerPort.error(error.message, [error.name, error.message, error,]);
-        throw ApplicationResponse.failure(new ApplicationError("Ocurrio un error inesperado", ErrorCodes.SERVER_ERROR, [error.name, error.message], error));
+        this.loggerPort.error(error.message, [error.name, error.message, error]);
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            "Ocurrio un error inesperado",
+            ErrorCodes.SERVER_ERROR,
+            [error.name, error.message],
+            error,
+          ),
+        );
       }
-      throw error;
+      return ApplicationResponse.failure(
+        new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR, undefined, undefined),
+      );
     }
   }
 }

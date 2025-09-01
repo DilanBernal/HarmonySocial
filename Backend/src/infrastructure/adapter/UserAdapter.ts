@@ -1,14 +1,19 @@
-import { EntityNotFoundError, FindOptionsWhere, In, Not, QueryFailedError, Repository } from "typeorm";
+import {
+  EntityNotFoundError,
+  FindOptionsWhere,
+  In,
+  Not,
+  QueryFailedError,
+  Repository,
+} from "typeorm";
 import UserPort from "../../domain/ports/data/UserPort";
 import UserEntity from "../entities/UserEntity";
 import { AppDataSource } from "../config/con_database";
-import User, { UserInstrument, UserStatus } from "../../domain/models/User";
+import User, { UserStatus } from "../../domain/models/User";
 import { ApplicationResponse } from "../../application/shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes } from "../../application/shared/errors/ApplicationError";
 
-
 export default class UserAdapter implements UserPort {
-
   private userRepository: Repository<UserEntity>;
   /**
    * @summary Son los estados de cuentas que ya no se pueden reactivar, para que si quiere crear una cuenta de 0 pueda hacerlo
@@ -17,7 +22,12 @@ export default class UserAdapter implements UserPort {
   /**
    * @summary Son los estados de cuentas que como tal ya existen, por lo que no se puede crear un usuario con esas credenciales, en el caso de blocked y suspended es para que el usuario que ya fue expulsado no pueda volver a crearse una cuenta con el mismo correo
    */
-  private positiveStatus: Array<UserStatus> = [UserStatus.ACTIVE, UserStatus.FROZEN, UserStatus.BLOCKED, UserStatus.SUSPENDED];
+  private positiveStatus: Array<UserStatus> = [
+    UserStatus.ACTIVE,
+    UserStatus.FROZEN,
+    UserStatus.BLOCKED,
+    UserStatus.SUSPENDED,
+  ];
 
   constructor() {
     this.userRepository = AppDataSource.getRepository(UserEntity);
@@ -36,7 +46,7 @@ export default class UserAdapter implements UserPort {
       favorite_instrument: user.favorite_instrument,
       is_artist: user.is_artist,
       created_at: user.created_at,
-      updated_at: user.updated_at
+      updated_at: user.updated_at,
     };
     return userDomain;
   }
@@ -68,33 +78,45 @@ export default class UserAdapter implements UserPort {
       return ApplicationResponse.success(savedUser.id);
     } catch (error: unknown) {
       if (error instanceof QueryFailedError) {
-        throw ApplicationResponse.failure(new ApplicationError("Ocurrio un error al crear el usuario", ErrorCodes.DATABASE_ERROR, error.message, error));
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            "Ocurrio un error al crear el usuario",
+            ErrorCodes.DATABASE_ERROR,
+            error.message,
+            error,
+          ),
+        );
       }
       if (error instanceof Error) {
-        throw ApplicationResponse.failure(new ApplicationError("Ocurrio un error al crear el usuario",
-          ErrorCodes.DATABASE_ERROR,
-          { errorName: error.name, errorMessage: error.message },
-          error
-        ));
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            "Ocurrio un error al crear el usuario",
+            ErrorCodes.DATABASE_ERROR,
+            { errorName: error.name, errorMessage: error.message },
+            error,
+          ),
+        );
       }
       throw error;
     }
   }
   /**
    * @param id El id del usuario a editar, para poder buscarlo en la base de datos independientemente de los cambios de usuario
-   * @param user El usuario de manera parcial, para poder actualizar los datos que se hayan enviado y 
+   * @param user El usuario de manera parcial, para poder actualizar los datos que se hayan enviado y
    * @returns ApplicationResponse<void> Si se actualizo correctamente traera un ApplicationResponse con un success vacio, si no sale bien va a arrojar un ApplicationResponse con el error
-   * @summary La funcion va a buscar el usuario en la db con el id indicado, tambien lo va a filtrar por los estados positivos para que si un usuario ha sido eliminado, se pueda crear otra cuenta desde 0, si el usuario no existe va a lanzar un error ApplicationResponse, con un ApplicationError con un mensaje "El usuario no fue encontrado" y el Error Code de VALUE_NOT_FOUND. va a capturar si existe algun otro error de query para lanzarlo con un Error Code de DATABASE_ERROR, por ultimo si se escapa el error lo va a volver a lanzar. 
+   * @summary La funcion va a buscar el usuario en la db con el id indicado, tambien lo va a filtrar por los estados positivos para que si un usuario ha sido eliminado, se pueda crear otra cuenta desde 0, si el usuario no existe va a lanzar un error ApplicationResponse, con un ApplicationError con un mensaje "El usuario no fue encontrado" y el Error Code de VALUE_NOT_FOUND. va a capturar si existe algun otro error de query para lanzarlo con un Error Code de DATABASE_ERROR, por ultimo si se escapa el error lo va a volver a lanzar.
    */
   async updateUser(id: number, user: Partial<User>): Promise<ApplicationResponse> {
     try {
       const whereCondition: FindOptionsWhere<UserEntity>[] = [
-        { id: id, status: Not(In(this.negativeStatus)) }
+        { id: id, status: Not(In(this.negativeStatus)) },
       ];
 
       const existingUser = await this.userRepository.findOneOrFail({ where: whereCondition });
       if (!existingUser) {
-        throw ApplicationResponse.failure(new ApplicationError("El usuario no fue encontrado", ErrorCodes.VALUE_NOT_FOUND));
+        return ApplicationResponse.failure(
+          new ApplicationError("El usuario no fue encontrado", ErrorCodes.VALUE_NOT_FOUND),
+        );
       }
       Object.assign(existingUser, {
         full_name: user.full_name ?? existingUser.full_name,
@@ -113,16 +135,38 @@ export default class UserAdapter implements UserPort {
       return ApplicationResponse.emptySuccess();
     } catch (error: unknown) {
       if (error instanceof EntityNotFoundError) {
-        throw ApplicationResponse.failure(new ApplicationError("El usuario no fue encontrado", ErrorCodes.VALUE_NOT_FOUND, error.message, error));
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            "El usuario no fue encontrado",
+            ErrorCodes.VALUE_NOT_FOUND,
+            error.message,
+            error,
+          ),
+        );
       }
       if (error instanceof QueryFailedError) {
-        throw ApplicationResponse.failure(new ApplicationError("Ocurrio un error con la DB", ErrorCodes.DATABASE_ERROR, error.message, error));
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            "Ocurrio un error con la DB",
+            ErrorCodes.DATABASE_ERROR,
+            error.message,
+            error,
+          ),
+        );
       }
       if (error instanceof Error) {
-        throw ApplicationResponse.failure(new ApplicationError("Ocurrio un error al actualizar el usuario",
-          ErrorCodes.DATABASE_ERROR, { errorName: error.name, errorMessage: error.message }, error));
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            "Ocurrio un error al actualizar el usuario",
+            ErrorCodes.DATABASE_ERROR,
+            { errorName: error.name, errorMessage: error.message },
+            error,
+          ),
+        );
       }
-      throw error;
+      return ApplicationResponse.failure(
+        new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR, undefined, undefined),
+      );
     }
   }
 
@@ -133,39 +177,57 @@ export default class UserAdapter implements UserPort {
    */
   async deleteUser(id: number): Promise<ApplicationResponse> {
     try {
-      const existingUser = await this.userRepository.findOneOrFail({ where: { id: id, status: Not(In(this.positiveStatus)) } });
+      const existingUser = await this.userRepository.findOneOrFail({
+        where: { id: id, status: Not(In(this.positiveStatus)) },
+      });
 
       if (!existingUser) {
-        throw new EntityNotFoundError(UserEntity, "No existe el usuario");
+        return ApplicationResponse.failure(
+          new ApplicationError("No se encontro el usuario a eliminar", ErrorCodes.VALUE_NOT_FOUND),
+        );
       }
 
       Object.assign(existingUser, {
         status: UserStatus.DELETED,
         password: null,
-        updated_at: new Date()
+        updated_at: new Date(),
       });
       await this.userRepository.save(existingUser);
       return ApplicationResponse.emptySuccess();
     } catch (error: unknown) {
       if (error instanceof EntityNotFoundError) {
-        throw ApplicationResponse.failure(new ApplicationError("No se encontro el usuario a eliminar",
-          ErrorCodes.VALUE_NOT_FOUND, { errorName: error.name, errorMessage: error.message }, error));
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            "No se encontro el usuario a eliminar",
+            ErrorCodes.VALUE_NOT_FOUND,
+            { errorName: error.name, errorMessage: error.message },
+            error,
+          ),
+        );
       }
       if (error instanceof QueryFailedError) {
-        throw ApplicationResponse.failure(new ApplicationError("Ocurrio un error con la DB",
-          ErrorCodes.DATABASE_ERROR,
-          { errorName: error.name, errorMessage: error.message },
-          error
-        ));
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            "Ocurrio un error con la DB",
+            ErrorCodes.DATABASE_ERROR,
+            { errorName: error.name, errorMessage: error.message },
+            error,
+          ),
+        );
       }
       if (error instanceof Error) {
-        throw ApplicationResponse.failure(new ApplicationError("Ocurrio un error al actualizar el usuario",
-          ErrorCodes.DATABASE_ERROR,
-          { errorName: error.name, errorMessage: error.message },
-          error
-        ));
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            "Ocurrio un error al actualizar el usuario",
+            ErrorCodes.DATABASE_ERROR,
+            { errorName: error.name, errorMessage: error.message },
+            error,
+          ),
+        );
       }
-      throw error;
+      return ApplicationResponse.failure(
+        new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR, undefined, undefined),
+      );
     }
   }
   /**
@@ -174,7 +236,7 @@ export default class UserAdapter implements UserPort {
   async getAllUsers(): Promise<ApplicationResponse<Array<User>>> {
     try {
       const whereCondition: FindOptionsWhere<UserEntity>[] = [
-        { status: Not(In(this.negativeStatus)) }
+        { status: Not(In(this.negativeStatus)) },
       ];
 
       const users = await this.userRepository.find({ where: whereCondition });
@@ -192,30 +254,43 @@ export default class UserAdapter implements UserPort {
   async getUserById(id: number): Promise<ApplicationResponse<User>> {
     try {
       const whereCondition: FindOptionsWhere<UserEntity>[] = [
-        { id: id, status: Not(In(this.negativeStatus)) }
+        { id: id, status: Not(In(this.negativeStatus)) },
       ];
 
       const user = await this.userRepository.findOneOrFail({ where: whereCondition });
-      if (user)
-        return ApplicationResponse.success(user);
-      throw ApplicationResponse.failure<User>(new ApplicationError("No se encontraron usuarios", ErrorCodes.VALUE_NOT_FOUND))
+      if (user) return ApplicationResponse.success(user);
+      return ApplicationResponse.failure<User>(
+        new ApplicationError("No se encontraron usuarios", ErrorCodes.VALUE_NOT_FOUND),
+      );
     } catch (error) {
       if (error instanceof EntityNotFoundError) {
-        throw ApplicationResponse.failure(new ApplicationError("No se encontraron usuarios",
-          ErrorCodes.VALUE_NOT_FOUND,
-          { errorName: error.name, errorMessage: error.message },
-          error));
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            "No se encontraron usuarios",
+            ErrorCodes.VALUE_NOT_FOUND,
+            { errorName: error.name, errorMessage: error.message },
+            error,
+          ),
+        );
       }
       if (error instanceof QueryFailedError) {
-        throw ApplicationResponse.failure(new ApplicationError("Ocurrio un error en la query",
-          ErrorCodes.DATABASE_ERROR,
-          { errorName: error.name, errorMessage: error.message },
-          error));
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            "Ocurrio un error en la query",
+            ErrorCodes.DATABASE_ERROR,
+            { errorName: error.name, errorMessage: error.message },
+            error,
+          ),
+        );
       }
       if (error instanceof Error) {
-        throw ApplicationResponse.failure(new ApplicationError("Error en userAdapter", ErrorCodes.DATABASE_ERROR, undefined, error));
+        return ApplicationResponse.failure(
+          new ApplicationError("Error en userAdapter", ErrorCodes.DATABASE_ERROR, undefined, error),
+        );
       }
-      throw error;
+      return ApplicationResponse.failure(
+        new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR, undefined, undefined),
+      );
     }
   }
   /**
@@ -226,13 +301,44 @@ export default class UserAdapter implements UserPort {
   async getUserByEmail(email: string): Promise<ApplicationResponse<User>> {
     try {
       const whereCondition: FindOptionsWhere<UserEntity>[] = [
-        { email: email, status: Not(In(this.negativeStatus)) }
+        { email: email, status: Not(In(this.negativeStatus)) },
       ];
       const user = await this.userRepository.findOneOrFail({ where: whereCondition });
       return ApplicationResponse.success(this.toDomain(user));
-    } catch (error) {
-      console.error(error);
-      throw new Error("No se pudo encontrar el ususario");
+    } catch (error: unknown) {
+      if (error instanceof EntityNotFoundError) {
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            "No se encontró el usuario",
+            ErrorCodes.VALUE_NOT_FOUND,
+            { errorName: error.name, errorMessage: error.message },
+            error,
+          ),
+        );
+      }
+      if (error instanceof QueryFailedError) {
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            "Ocurrió un error en la query",
+            ErrorCodes.DATABASE_ERROR,
+            { errorName: error.name, errorMessage: error.message },
+            error,
+          ),
+        );
+      }
+      if (error instanceof Error) {
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            "Error en getUserByEmail",
+            ErrorCodes.DATABASE_ERROR,
+            undefined,
+            error,
+          ),
+        );
+      }
+      return ApplicationResponse.failure(
+        new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR, undefined, undefined),
+      );
     }
   }
   /**
@@ -241,20 +347,54 @@ export default class UserAdapter implements UserPort {
    * @returns ApplicationResponse<User> Si encuentra el usuario por el email o el username, va a retornarlo en la data, si no va a retornar un ApplicationResponse con los errores correspondientes
    * @summary Se recibe el email y el username del usuario para buscarlo en la base de datos, filtrando los usuarios que no esten en la lista en la negativeStatus, si no encuentra el usuario va a retornar un ApplicationResponse failure con un Error Code de VALUE_NOT_FOUND si no es un error de que no lo encontro, lanzaraun error de Database.
    */
-  async getUserByEmailOrUsername(email: string, username: string): Promise<ApplicationResponse<User>> {
+  async getUserByEmailOrUsername(
+    email: string,
+    username: string,
+  ): Promise<ApplicationResponse<User>> {
     try {
       const whereCondition: FindOptionsWhere<UserEntity>[] = [
         { email: email, status: Not(In(this.negativeStatus)) },
-        { username: username, status: Not(In(this.negativeStatus)) }
+        { username: username, status: Not(In(this.negativeStatus)) },
       ];
 
       const user = await this.userRepository.findOneOrFail({ where: whereCondition });
       return ApplicationResponse.success(user);
-    } catch (error) {
-      throw error;
+    } catch (error: unknown) {
+      if (error instanceof EntityNotFoundError) {
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            "No se encontró el usuario",
+            ErrorCodes.VALUE_NOT_FOUND,
+            { errorName: error.name, errorMessage: error.message },
+            error,
+          ),
+        );
+      }
+      if (error instanceof QueryFailedError) {
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            "Ocurrió un error en la query",
+            ErrorCodes.DATABASE_ERROR,
+            { errorName: error.name, errorMessage: error.message },
+            error,
+          ),
+        );
+      }
+      if (error instanceof Error) {
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            "Error en getUserByEmailOrUsername",
+            ErrorCodes.DATABASE_ERROR,
+            undefined,
+            error,
+          ),
+        );
+      }
+      return ApplicationResponse.failure(
+        new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR, undefined, undefined),
+      );
     }
   }
-
 
   /**
    * @param userOrEmail Username o email único del usuario en la DB
@@ -265,28 +405,45 @@ export default class UserAdapter implements UserPort {
     try {
       const whereCondition: FindOptionsWhere<UserEntity>[] = [
         { email: userOrEmail, status: Not(In(this.negativeStatus)) },
-        { username: userOrEmail, status: Not(In(this.negativeStatus)) }
+        { username: userOrEmail, status: Not(In(this.negativeStatus)) },
       ];
 
       const user = await this.userRepository.findOneOrFail({ where: whereCondition });
       return ApplicationResponse.success(this.toDomain(user));
     } catch (error: unknown) {
       if (error instanceof EntityNotFoundError) {
-        throw ApplicationResponse.failure(new ApplicationError("No se encontró el usuario",
-          ErrorCodes.VALUE_NOT_FOUND,
-          { errorName: error.name, errorMessage: error.message },
-          error));
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            "No se encontró el usuario",
+            ErrorCodes.VALUE_NOT_FOUND,
+            { errorName: error.name, errorMessage: error.message },
+            error,
+          ),
+        );
       }
       if (error instanceof QueryFailedError) {
-        throw ApplicationResponse.failure(new ApplicationError("Ocurrió un error en la query",
-          ErrorCodes.DATABASE_ERROR,
-          { errorName: error.name, errorMessage: error.message },
-          error));
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            "Ocurrió un error en la query",
+            ErrorCodes.DATABASE_ERROR,
+            { errorName: error.name, errorMessage: error.message },
+            error,
+          ),
+        );
       }
       if (error instanceof Error) {
-        throw ApplicationResponse.failure(new ApplicationError("Error en getUserByLoginRequest", ErrorCodes.DATABASE_ERROR, undefined, error));
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            "Error en getUserByLoginRequest",
+            ErrorCodes.DATABASE_ERROR,
+            undefined,
+            error,
+          ),
+        );
       }
-      throw error;
+      return ApplicationResponse.failure(
+        new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR, undefined, undefined),
+      );
     }
   }
 
@@ -299,7 +456,7 @@ export default class UserAdapter implements UserPort {
     try {
       const whereCondition: FindOptionsWhere<UserEntity>[] = [
         { email: userOrEmail, status: Not(In(this.negativeStatus)) },
-        { username: userOrEmail, status: Not(In(this.negativeStatus)) }
+        { username: userOrEmail, status: Not(In(this.negativeStatus)) },
       ];
 
       const user: UserEntity | null = await this.userRepository.findOneByOrFail(whereCondition);
@@ -314,16 +471,30 @@ export default class UserAdapter implements UserPort {
         return ApplicationResponse.success(false);
       }
       if (error instanceof QueryFailedError) {
-        throw ApplicationResponse.failure(new ApplicationError("Ocurrio un erro con la DB", ErrorCodes.DATABASE_ERROR, [error.name, error.message], error));
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            "Ocurrio un erro con la DB",
+            ErrorCodes.DATABASE_ERROR,
+            [error.name, error.message],
+            error,
+          ),
+        );
       }
       if (error instanceof Error) {
-        throw ApplicationResponse.failure(new ApplicationError("Ocurrio un erro con la DB", ErrorCodes.DATABASE_ERROR, [error.name, error.message], error));
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            "Ocurrio un erro con la DB",
+            ErrorCodes.DATABASE_ERROR,
+            [error.name, error.message],
+            error,
+          ),
+        );
       }
-      console.error(error instanceof Error);
-      throw error;
+      return ApplicationResponse.failure(
+        new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR, undefined, undefined),
+      );
     }
   }
-
 
   //Seccion de validaciones
 
@@ -333,24 +504,30 @@ export default class UserAdapter implements UserPort {
    * @returns Promise<ApplicationResponse<boolean>> Variable tipo boolean que determina si ya existia un usuario con los parametros email o username.
    * @summary Se recibe el email y el username del usuario para buscarlo en la base de datos, filtrando los usuarios que no esten en la lista en la negativeStatus, si no encuentra el usuario va a retornar un ApplicationResponse failure con un Error Code de VALUE_NOT_FOUND si no es un error de que no lo encontro, lanzaraun error de Database
    */
-  async existsUserByEmailOrUsername(email: string, username: string): Promise<ApplicationResponse<boolean>> {
+  async existsUserByEmailOrUsername(
+    email: string,
+    username: string,
+  ): Promise<ApplicationResponse<boolean>> {
     try {
       const whereCondition: FindOptionsWhere<UserEntity>[] = [
         { email: email, status: Not(In(this.negativeStatus)) },
-        { username: username, status: Not(In(this.negativeStatus)) }
+        { username: username, status: Not(In(this.negativeStatus)) },
       ];
 
-      const userExists: UserEntity = await this.userRepository.findOneOrFail({ where: whereCondition });
+      const userExists: UserEntity = await this.userRepository.findOneOrFail({
+        where: whereCondition,
+      });
       return ApplicationResponse.success(userExists != null);
     } catch (error: unknown) {
       if (error instanceof EntityNotFoundError) {
         return ApplicationResponse.success(false);
       }
       if (error instanceof QueryFailedError) {
-        throw ApplicationResponse.failure(new ApplicationError("", 2));
-      }
-      else {
-        throw error;
+        return ApplicationResponse.failure(new ApplicationError("", 2));
+      } else {
+        return ApplicationResponse.failure(
+          new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR, undefined, undefined),
+        );
       }
     }
   }
@@ -362,19 +539,35 @@ export default class UserAdapter implements UserPort {
   async existsUserById(id: number): Promise<ApplicationResponse<boolean>> {
     try {
       const whereCondition: FindOptionsWhere<UserEntity>[] = [
-        { id: id, status: Not(In(this.negativeStatus)) }
+        { id: id, status: Not(In(this.negativeStatus)) },
       ];
       const userExists = await this.userRepository.findOneOrFail({ where: whereCondition });
 
       return ApplicationResponse.success(userExists != null);
     } catch (error: unknown) {
       if (error instanceof EntityNotFoundError) {
-        throw ApplicationResponse.failure(new ApplicationError("No se encontro el usuario", ErrorCodes.VALUE_NOT_FOUND, { errorName: error.name, errorMessage: error.message }, error));
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            "No se encontro el usuario",
+            ErrorCodes.VALUE_NOT_FOUND,
+            { errorName: error.name, errorMessage: error.message },
+            error,
+          ),
+        );
       }
       if (error instanceof Error) {
-        throw ApplicationResponse.failure(new ApplicationError("Ocurrio un error al retornar el usuario", ErrorCodes.DATABASE_ERROR, { errorName: error.name, errorMessage: error.message }, error));
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            "Ocurrio un error al retornar el usuario",
+            ErrorCodes.DATABASE_ERROR,
+            { errorName: error.name, errorMessage: error.message },
+            error,
+          ),
+        );
       }
-      throw error;
+      return ApplicationResponse.failure(
+        new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR, undefined, undefined),
+      );
     }
   }
 }

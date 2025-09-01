@@ -3,10 +3,10 @@ export class ApplicationError extends Error {
     message: string,
     public readonly code: ErrorCode,
     public readonly details?: unknown,
-    public readonly originalError?: Error
+    public readonly originalError?: Error,
   ) {
     super(message);
-    this.name = 'ApplicationError';
+    this.name = "ApplicationError";
   }
 
   // Métodos de utilidad
@@ -14,7 +14,7 @@ export class ApplicationError extends Error {
     return {
       code: this.code,
       message: this.message,
-      details: this.details
+      details: this.details,
     };
   }
 }
@@ -41,7 +41,7 @@ export enum ErrorCodes {
   SERVER_ERROR,
 }
 
-export type ErrorCode = typeof ErrorCodes[keyof typeof ErrorCodes];
+export type ErrorCode = (typeof ErrorCodes)[keyof typeof ErrorCodes];
 
 export interface ErrorResponse {
   code: ErrorCode;

@@ -4,8 +4,8 @@ export class ApplicationResponse<T = void> {
   constructor(
     public readonly success: boolean,
     public readonly data?: T,
-    public readonly error?: ApplicationError
-  ) { }
+    public readonly error?: ApplicationError,
+  ) {}
 
   static success<T>(data: T): ApplicationResponse<T> {
     return new ApplicationResponse(true, data, undefined);

@@ -1,7 +1,7 @@
 import { Request, Response, Router } from "express";
 import UserAdapter from "../adapter/UserAdapter";
 import UserService from "../../application/services/UserService";
-import UserController from '../controller/UserController';
+import UserController from "../controller/UserController";
 import AuthAdapter from "../adapter/AuthAdapter";
 import EmailAdapter from "../adapter/EmailAdapter";
 import LoggerAdapter from "../adapter/LoggerAdapter";
@@ -32,9 +32,7 @@ router.post("/user", async (request, response) => {
     await userController.registerUser(request, response);
   } catch (error: any) {
     console.error("Error en usuario: ", error);
-    response
-      .status(error.statusCode ?? 500)
-      .json({ message: "Error en la creacion del usuario" });
+    response.status(500).json({ message: "Error en la creacion del usuario" });
   }
 });
 
@@ -90,15 +88,13 @@ router.delete("/user/:id", async (req, res) => {
     await userController.logicalDeleteUser(req, res);
   } catch (error: any) {
     const errorMessage = error.message ?? "Error al eliminar el usuario";
-    res.status(error.statusCode ?? 500)
-      .json({
-        message: errorMessage
-      });
+    res.status(error.statusCode ?? 500).json({
+      message: errorMessage,
+    });
     console.error(errorMessage, error);
-    res.status(400)
-      .json({
-        message: errorMessage
-      })
+    res.status(400).json({
+      message: errorMessage,
+    });
   }
-})
+});
 export default router;

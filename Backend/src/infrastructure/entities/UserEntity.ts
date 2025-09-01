@@ -1,7 +1,7 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
 import { UserInstrument, UserStatus } from "../../domain/models/User";
 
-@Entity({ name: "user" })
+@Entity({ name: "app_user" })
 @Index("IDX_user_email_status", ["email", "status"], { unique: true })
 @Index("IDX_user_username_status", ["username", "status"], { unique: true })
 export default class UserEntity {

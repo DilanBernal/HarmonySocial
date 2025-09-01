@@ -5,7 +5,6 @@ import AuthPort from "../../domain/ports/data/AuthPort";
 import envs from "../config/environment-vars";
 
 export default class AuthAdapter implements AuthPort {
-
   async encryptPassword(password: string): Promise<string> {
     try {
       const encryptedPassword: string = await bcrypt.hash(password, envs.PASSWORD_SALT);

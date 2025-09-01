@@ -1,4 +1,3 @@
-
 import { DataSource } from "typeorm";
 import UserEntity from "../entities/UserEntity";
 import envs from "./environment-vars";
@@ -13,9 +12,7 @@ export const AppDataSource = new DataSource({
   synchronize: envs.DB_SYNC,
   logging: envs.ENVIRONMENT === "dev" ? true : false,
   // schema: envs.DB_SCHEMA,
-  entities: [
-    UserEntity,
-  ]
+  entities: [UserEntity],
 });
 
 export const connectDB = async () => {
@@ -26,4 +23,4 @@ export const connectDB = async () => {
     console.error("Error connecting to the DB", error);
     process.exit(1);
   }
-}
+};

@@ -25,7 +25,7 @@ function validateEnvVars(vars: NodeJS.ProcessEnv): ValidationEnvironmentVars {
   const envSchem = joi
     .object({
       PORT: joi.number().default(4666).required(),
-      ENVIRONMENT: joi.string().default('dev').required(),
+      ENVIRONMENT: joi.string().default("dev").required(),
       DB_HOST: joi.string().required(),
       DB_PORT: joi.number().required(),
       DB_USER: joi.string().required(),
