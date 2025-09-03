@@ -15,17 +15,13 @@ import LoggerPort from "../../domain/ports/utils/LoggerPort";
 import Email from "../dto/utils/Email";
 import envs from "../../infrastructure/config/environment-vars";
 import TokenPort from "../../domain/ports/utils/TokenPort";
+import { findRegex } from "../shared/utils/regex";
 
 export default class UserService {
   private userPort: UserPort;
   private authPort: AuthPort;
   private emailPort: EmailPort;
   private loggerPort: LoggerPort;
-  private usernameRegex: RegExp = /^[a-zA-Z0-9_*\-#$!|°.+]{2,50}$/;
-  private fullNameRegex: RegExp = /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+(?:\s[A-Za-zÁÉÍÓÚáéíóúÑñ]+)?$/;
-  private passwordRegex: RegExp = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#\$%\^&\*])(.){8,}$/;
-  private emailRegex: RegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  private profileImage: RegExp = /^(https?|ftp|http):\/\/[^\s/$.?#].[^\s]*$/;
 
   constructor(
     userPort: UserPort,
@@ -60,20 +56,20 @@ export default class UserService {
       }
 
       let errors: Array<[string, string]> = [];
-      if (!this.usernameRegex.test(user.username)) {
+      if (!findRegex("usernameRegex").test(user.username)) {
         errors.push(["username", "El username no esta en el formato correcto"]);
       }
       console.log(user.full_name);
-      if (!this.fullNameRegex.test(user.full_name)) {
+      if (!findRegex("fullNameRegex").test(user.full_name)) {
         errors.push(["full name", "El nombre no esta en el formato correcto"]);
       }
-      if (!this.passwordRegex.test(user.password)) {
+      if (!findRegex("passwordRegex").test(user.password)) {
         errors.push(["password", "La contraseña no esta en el formato correcto"]);
       }
-      if (!this.emailRegex.test(user.email)) {
+      if (!findRegex("emailRegex").test(user.email)) {
         errors.push(["email", "El email no esta en el formato correcto"]);
       }
-      if (!this.profileImage.test(user.profile_image)) {
+      if (!findRegex("profileImageRegex").test(user.profile_image)) {
         errors.push(["image", "La imagen de usuaruio no esta en el fomrato correcto"]);
       }
 
@@ -191,13 +187,13 @@ export default class UserService {
   async getAllUsers(): Promise<ApplicationResponse<UserResponse[]>> {
     try {
       const usersResponse = await this.userPort.getAllUsers();
-      
+
       if (!usersResponse.success) {
         return usersResponse;
       }
 
       const users = usersResponse.data || [];
-      const userResponses: UserResponse[] = users.map(user => ({
+      const userResponses: UserResponse[] = users.map((user) => ({
         id: user.id,
         full_name: user.full_name,
         email: user.email,
@@ -242,7 +238,7 @@ export default class UserService {
       }
 
       const userResponse = await this.userPort.getUserById(id);
-      
+
       if (!userResponse.success) {
         return userResponse;
       }
@@ -274,7 +270,11 @@ export default class UserService {
         return error;
       }
       if (error instanceof Error) {
-        this.loggerPort.error("Error al obtener usuario por ID", [error.name, error.message, error]);
+        this.loggerPort.error("Error al obtener usuario por ID", [
+          error.name,
+          error.message,
+          error,
+        ]);
         return ApplicationResponse.failure(
           new ApplicationError(
             "Ocurrio un error al obtener el usuario",
@@ -292,14 +292,14 @@ export default class UserService {
 
   async getUserByEmail(email: string): Promise<ApplicationResponse<UserResponse>> {
     try {
-      if (!email || !this.emailRegex.test(email)) {
+      if (!email || !findRegex("emailRegex").test(email)) {
         return ApplicationResponse.failure(
           new ApplicationError("Email inválido", ErrorCodes.VALIDATION_ERROR),
         );
       }
 
       const userResponse = await this.userPort.getUserByEmail(email);
-      
+
       if (!userResponse.success) {
         return userResponse;
       }
@@ -331,7 +331,11 @@ export default class UserService {
         return error;
       }
       if (error instanceof Error) {
-        this.loggerPort.error("Error al obtener usuario por email", [error.name, error.message, error]);
+        this.loggerPort.error("Error al obtener usuario por email", [
+          error.name,
+          error.message,
+          error,
+        ]);
         return ApplicationResponse.failure(
           new ApplicationError(
             "Ocurrio un error al obtener el usuario",
@@ -372,23 +376,29 @@ export default class UserService {
       let errors: Array<[string, string]> = [];
 
       // Validaciones
-      if (updateRequest.username && !this.usernameRegex.test(updateRequest.username)) {
+      if (updateRequest.username && !findRegex("usernameRegex").test(updateRequest.username)) {
         errors.push(["username", "El username no esta en el formato correcto"]);
       }
 
-      if (updateRequest.full_name && !this.fullNameRegex.test(updateRequest.full_name)) {
+      if (updateRequest.full_name && !findRegex("fullNameRegex").test(updateRequest.full_name)) {
         errors.push(["full_name", "El nombre no esta en el formato correcto"]);
       }
 
-      if (updateRequest.email && !this.emailRegex.test(updateRequest.email)) {
+      if (updateRequest.email && !findRegex("emailRegex").test(updateRequest.email)) {
         errors.push(["email", "El email no esta en el formato correcto"]);
       }
 
-      if (updateRequest.profile_image && !this.profileImage.test(updateRequest.profile_image)) {
+      if (
+        updateRequest.profile_image &&
+        !findRegex("profileImageRegex").test(updateRequest.profile_image)
+      ) {
         errors.push(["profile_image", "La imagen de usuario no esta en el formato correcto"]);
       }
 
-      if (updateRequest.new_password && !this.passwordRegex.test(updateRequest.new_password)) {
+      if (
+        updateRequest.new_password &&
+        !findRegex("passwordRegex").test(updateRequest.new_password)
+      ) {
         errors.push(["new_password", "La nueva contraseña no esta en el formato correcto"]);
       }
 
@@ -406,12 +416,19 @@ export default class UserService {
       if (updateRequest.email || updateRequest.username) {
         const existingUserResponse = await this.userPort.getUserByEmailOrUsername(
           updateRequest.email || "",
-          updateRequest.username || ""
+          updateRequest.username || "",
         );
-        
-        if (existingUserResponse.success && existingUserResponse.data && existingUserResponse.data.id !== id) {
+
+        if (
+          existingUserResponse.success &&
+          existingUserResponse.data &&
+          existingUserResponse.data.id !== id
+        ) {
           return ApplicationResponse.failure(
-            new ApplicationError("El email o username ya están en uso", ErrorCodes.USER_ALREADY_EXISTS),
+            new ApplicationError(
+              "El email o username ya están en uso",
+              ErrorCodes.USER_ALREADY_EXISTS,
+            ),
           );
         }
       }
@@ -424,8 +441,10 @@ export default class UserService {
       if (updateRequest.full_name) updateData.full_name = updateRequest.full_name.trim();
       if (updateRequest.email) updateData.email = updateRequest.email.trim();
       if (updateRequest.username) updateData.username = updateRequest.username.trim();
-      if (updateRequest.profile_image) updateData.profile_image = updateRequest.profile_image.trim();
-      if (updateRequest.favorite_instrument !== undefined) updateData.favorite_instrument = updateRequest.favorite_instrument;
+      if (updateRequest.profile_image)
+        updateData.profile_image = updateRequest.profile_image.trim();
+      if (updateRequest.favorite_instrument !== undefined)
+        updateData.favorite_instrument = updateRequest.favorite_instrument;
       if (updateRequest.is_artist !== undefined) updateData.is_artist = updateRequest.is_artist;
 
       // Si se está actualizando la contraseña
@@ -433,14 +452,13 @@ export default class UserService {
         // Aquí deberías verificar la contraseña actual
         const hashPassword = await this.authPort.encryptPassword(updateRequest.new_password);
         updateData.password = hashPassword;
-        
+
         // Regenerar security stamp al cambiar contraseña
         updateData.security_stamp = await this.tokenPort.generateStamp();
       }
 
       const updateResponse = await this.userPort.updateUser(id, updateData);
       return updateResponse;
-
     } catch (error: unknown) {
       if (error instanceof ApplicationResponse) {
         return error;
@@ -459,6 +477,7 @@ export default class UserService {
       return ApplicationResponse.failure(
         new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR),
       );
+      1;
     }
   }
 
@@ -470,21 +489,21 @@ export default class UserService {
         );
       }
 
-      if (!this.emailRegex.test(request.email)) {
+      if (!findRegex("emailRegex").test(request.email)) {
         return ApplicationResponse.failure(
           new ApplicationError("Email inválido", ErrorCodes.VALIDATION_ERROR),
         );
       }
 
       const userResponse = await this.userPort.getUserByEmail(request.email);
-      
+
       if (!userResponse.success || !userResponse.data) {
         // Por seguridad, no revelamos si el email existe o no
         return ApplicationResponse.emptySuccess();
       }
 
       const user = userResponse.data;
-      
+
       if (user.status !== UserStatus.ACTIVE) {
         return ApplicationResponse.failure(
           new ApplicationError("La cuenta no está activa", ErrorCodes.BUSINESS_RULE_VIOLATION),
@@ -503,15 +522,18 @@ export default class UserService {
       };
 
       await this.emailPort.sendEmail(recoveryEmail);
-      
-      return ApplicationResponse.emptySuccess();
 
+      return ApplicationResponse.emptySuccess();
     } catch (error: unknown) {
       if (error instanceof ApplicationResponse) {
         return error;
       }
       if (error instanceof Error) {
-        this.loggerPort.error("Error al procesar recuperación de contraseña", [error.name, error.message, error]);
+        this.loggerPort.error("Error al procesar recuperación de contraseña", [
+          error.name,
+          error.message,
+          error,
+        ]);
         return ApplicationResponse.failure(
           new ApplicationError(
             "Ocurrio un error al procesar la solicitud",
@@ -541,40 +563,42 @@ export default class UserService {
         );
       }
 
-      if (!this.passwordRegex.test(request.newPassword)) {
+      if (!findRegex("passwordRegex").test(request.newPassword)) {
         return ApplicationResponse.failure(
-          new ApplicationError("La nueva contraseña no cumple con los requisitos", ErrorCodes.VALIDATION_ERROR),
+          new ApplicationError(
+            "La nueva contraseña no cumple con los requisitos",
+            ErrorCodes.VALIDATION_ERROR,
+          ),
         );
       }
 
       // Verificar y decodificar el token
       const tokenData = this.tokenPort.verifyToken(request.token);
-      
+
       if (!tokenData) {
         return ApplicationResponse.failure(
           new ApplicationError("Token inválido o expirado", ErrorCodes.VALIDATION_ERROR),
         );
       }
 
-      // Buscar usuario por security stamp (del token)
-      // Nota: Aquí necesitarías un método en UserPort para buscar por security_stamp
-      // Como no existe, buscaremos de otra manera
-      
       // Encriptar nueva contraseña
       const hashPassword = await this.authPort.encryptPassword(request.newPassword);
       const newSecurityStamp = await this.tokenPort.generateStamp();
 
       // Actualizar contraseña y security stamp
       // Nota: Necesitarías implementar una búsqueda por security_stamp o pasar el user ID en el token
-      
-      return ApplicationResponse.emptySuccess();
 
+      return ApplicationResponse.emptySuccess();
     } catch (error: unknown) {
       if (error instanceof ApplicationResponse) {
         return error;
       }
       if (error instanceof Error) {
-        this.loggerPort.error("Error al restablecer contraseña", [error.name, error.message, error]);
+        this.loggerPort.error("Error al restablecer contraseña", [
+          error.name,
+          error.message,
+          error,
+        ]);
         return ApplicationResponse.failure(
           new ApplicationError(
             "Ocurrio un error al restablecer la contraseña",
@@ -600,17 +624,19 @@ export default class UserService {
 
       // Verificar el token
       const tokenData = this.tokenPort.verifyToken(request.token);
-      
+
       if (!tokenData) {
         return ApplicationResponse.failure(
           new ApplicationError("Token inválido o expirado", ErrorCodes.VALIDATION_ERROR),
         );
       }
 
-      // Buscar usuario por security stamp (del token)
-      // Nota: Similar al caso anterior, necesitarías un método para buscar por security_stamp
-      // Por simplicidad, asumamos que el token contiene el user ID
-      
+      const user = await this.userPort.getUserByEmail(request.token);
+      if (!user.success && user.data) {
+        return ApplicationResponse.failure(
+          new ApplicationError("No se encontro el usuario", ErrorCodes.INVALID_EMAIL),
+        );
+      }
       // Activar cuenta
       const updateData: Partial<User> = {
         status: UserStatus.ACTIVE,
@@ -618,10 +644,9 @@ export default class UserService {
       };
 
       // Aquí necesitarías el ID del usuario desde el token
-      // await this.userPort.updateUser(userId, updateData);
-      
-      return ApplicationResponse.emptySuccess();
+      await this.userPort.updateUser(user.data!.id, updateData);
 
+      return ApplicationResponse.emptySuccess();
     } catch (error: unknown) {
       if (error instanceof ApplicationResponse) {
         return error;

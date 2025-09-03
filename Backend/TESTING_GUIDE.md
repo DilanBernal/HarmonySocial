@@ -3,7 +3,9 @@
 ## Instrucciones para Pruebas
 
 ### 1. Configuración
+
 Asegúrate de que tu proyecto esté ejecutándose:
+
 ```bash
 cd Backend
 npm run dev
@@ -12,8 +14,9 @@ npm run dev
 ### 2. Pruebas con curl o Postman
 
 #### Registro de Usuario
+
 ```bash
-curl -X POST http://localhost:3000/user \
+curl -X POST http://localhost:4666/api/user \
   -H "Content-Type: application/json" \
   -d '{
     "full_name": "Juan Pérez",
@@ -27,8 +30,9 @@ curl -X POST http://localhost:3000/user \
 ```
 
 #### Login
+
 ```bash
-curl -X POST http://localhost:3000/login \
+curl -X POST http://localhost:4666/api/login \
   -H "Content-Type: application/json" \
   -d '{
     "userOrEmail": "juan@example.com",
@@ -37,21 +41,25 @@ curl -X POST http://localhost:3000/login \
 ```
 
 #### Obtener Todos los Usuarios
+
 ```bash
-curl -X GET http://localhost:3000/users
+curl -X GET http://localhost:4666/api/users
 ```
 
 #### Obtener Usuario por ID
+
 ```bash
 curl -X GET http://localhost:3000/users/id/1
 ```
 
 #### Obtener Usuario por Email
+
 ```bash
 curl -X GET http://localhost:3000/users/email/juan@example.com
 ```
 
 #### Actualizar Usuario
+
 ```bash
 curl -X PUT http://localhost:3000/users/1 \
   -H "Content-Type: application/json" \
@@ -62,6 +70,7 @@ curl -X PUT http://localhost:3000/users/1 \
 ```
 
 #### Recuperar Contraseña
+
 ```bash
 curl -X POST http://localhost:3000/forgot-password \
   -H "Content-Type: application/json" \
@@ -71,6 +80,7 @@ curl -X POST http://localhost:3000/forgot-password \
 ```
 
 #### Verificar Email (requiere token del email)
+
 ```bash
 curl -X POST http://localhost:3000/verify-email \
   -H "Content-Type: application/json" \
@@ -80,6 +90,7 @@ curl -X POST http://localhost:3000/verify-email \
 ```
 
 #### Eliminar Usuario
+
 ```bash
 curl -X DELETE http://localhost:3000/user/1
 ```

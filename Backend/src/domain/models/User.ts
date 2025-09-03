@@ -17,11 +17,11 @@ interface User {
 export default User;
 
 export enum UserStatus {
-  ACTIVE = 1,
-  BLOCKED = 2,
-  DELETED = 3,
-  SUSPENDED = 4,
-  FROZEN = 5,
+  ACTIVE = "ACTIVE",
+  BLOCKED = "BLOCKED",
+  DELETED = "DELETED",
+  SUSPENDED = "SUSPENDED",
+  FROZEN = "FROZEN",
 }
 
 export enum UserInstrument {

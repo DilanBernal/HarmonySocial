@@ -92,7 +92,7 @@ export default class UserController {
     const loginRequest: LoginRequest = req.body;
     try {
       const authResponse = await this.authService.login(loginRequest);
-      
+
       if (authResponse.success && authResponse.data) {
         return res.status(200).json({
           message: "Login exitoso",
@@ -146,7 +146,7 @@ export default class UserController {
   async getAllUsers(req: Request, res: Response) {
     try {
       const usersResponse = await this.userService.getAllUsers();
-      
+
       if (usersResponse.success) {
         return res.status(200).json({
           message: "Usuarios obtenidos exitosamente",
@@ -178,7 +178,7 @@ export default class UserController {
     const { id } = req.params;
     try {
       const userResponse = await this.userService.getUserById(Number(id));
-      
+
       if (userResponse.success) {
         return res.status(200).json({
           message: "Usuario obtenido exitosamente",
@@ -214,7 +214,7 @@ export default class UserController {
     const { email } = req.params;
     try {
       const userResponse = await this.userService.getUserByEmail(email);
-      
+
       if (userResponse.success) {
         return res.status(200).json({
           message: "Usuario obtenido exitosamente",
@@ -249,10 +249,10 @@ export default class UserController {
   async updateUser(req: Request, res: Response) {
     const { id } = req.params;
     const updateRequest: UpdateUserRequest = req.body;
-    
+
     try {
       const updateResponse = await this.userService.updateUser(Number(id), updateRequest);
-      
+
       if (updateResponse.success) {
         return res.status(200).json({
           message: "Usuario actualizado exitosamente",
@@ -290,10 +290,10 @@ export default class UserController {
 
   async forgotPassword(req: Request, res: Response) {
     const forgotRequest: ForgotPasswordRequest = req.body;
-    
+
     try {
       const response = await this.userService.forgotPassword(forgotRequest);
-      
+
       if (response.success) {
         return res.status(200).json({
           message: "Si el email existe, se ha enviado un enlace de recuperación",
@@ -327,10 +327,10 @@ export default class UserController {
 
   async resetPassword(req: Request, res: Response) {
     const resetRequest: ResetPasswordRequest = req.body;
-    
+
     try {
       const response = await this.userService.resetPassword(resetRequest);
-      
+
       if (response.success) {
         return res.status(200).json({
           message: "Contraseña restablecida exitosamente",
@@ -362,10 +362,10 @@ export default class UserController {
 
   async verifyEmail(req: Request, res: Response) {
     const verifyRequest: VerifyEmailRequest = req.body;
-    
+
     try {
       const response = await this.userService.verifyEmail(verifyRequest);
-      
+
       if (response.success) {
         return res.status(200).json({
           message: "Email verificado exitosamente. Tu cuenta ha sido activada.",
