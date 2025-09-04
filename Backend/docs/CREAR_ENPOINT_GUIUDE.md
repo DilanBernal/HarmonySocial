@@ -311,6 +311,7 @@ export default router;
 
 ```
 
+```mermaid
 flowchart TD
     subgraph Domain
         A[Entidad: Cancion]
@@ -333,3 +334,4 @@ flowchart TD
     C --> D
     D --> E
     E --> F
+```
