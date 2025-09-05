@@ -23,7 +23,7 @@ CREATE TYPE user_instrument AS ENUM (
     'BASS'
 );
 
-CREATE TABLE users (
+CREATE TABLE app_users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) NOT NULL,
     full_name VARCHAR(200),
