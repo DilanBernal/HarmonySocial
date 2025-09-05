@@ -52,17 +52,6 @@ router.post("/user", async (request, response) => {
   }
 });
 
-// router.get("/users", async (req, res) => {
-//   try {
-//     await userController.allUsers(req, res);
-//   } catch (error: any) {
-//     res.status(error.statusCode ?? 500)
-//       .json({
-//         message: "Error al traer los usuarios"
-//       });
-//   }
-// });
-
 router.get("/users", async (req, res) => {
   try {
     await userController.getAllUsers(req, res);
@@ -74,18 +63,6 @@ router.get("/users", async (req, res) => {
     console.error(errorMessage, error);
   }
 });
-
-// router.get("/users/id/:id", async (req, res) => {
-//   try {
-//     await userController.searchUserById(req, res);
-//   } catch (error: any) {
-//     const errorMessage = error.message ?? "Error al traer el usuario";
-//     res.status(error.statusCode ?? 500)
-//       .json({
-//         message: errorMessage
-//       });
-//   }
-// });
 
 router.get("/users/id/:id", async (req, res) => {
   try {
@@ -99,18 +76,6 @@ router.get("/users/id/:id", async (req, res) => {
   }
 });
 
-// router.get("/users/email/:email", async (req, res) => {
-//   try {
-//     await userController.searchUserByEmail(req, res);
-//   } catch (error: any) {
-//     const errorMessage = error.message ?? "Error al traer el usuario";
-//     res.status(error.statusCode ?? 500)
-//       .json({
-//         message: errorMessage
-//       });
-//   }
-// });
-
 router.get("/users/email/:email", async (req, res) => {
   try {
     await userController.getUserByEmail(req, res);
@@ -122,18 +87,6 @@ router.get("/users/email/:email", async (req, res) => {
     console.error(errorMessage, error);
   }
 });
-
-// router.put("/users/:id", async (req, res) => {
-//   try {
-//     await userController.updataUser(req, res);
-//   } catch (error: any) {
-//     const errorMessage: string = error.message ?? "Error al actualizar el usuario";
-//     res.status(error.statusCode ?? 500)
-//       .json({
-//         message: errorMessage
-//       });
-//   }
-// })
 
 router.put("/users/:id", async (req, res) => {
   try {

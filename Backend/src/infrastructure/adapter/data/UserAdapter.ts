@@ -502,7 +502,7 @@ export default class UserAdapter implements UserPort {
    * @param email Email unico del usuario en la DB
    * @param username Username unico del usuario en la DB
    * @returns Promise<ApplicationResponse<boolean>> Variable tipo boolean que determina si ya existia un usuario con los parametros email o username.
-   * @summary Se recibe el email y el username del usuario para buscarlo en la base de datos, filtrando los usuarios que no esten en la lista en la negativeStatus, si no encuentra el usuario va a retornar un ApplicationResponse failure con un Error Code de VALUE_NOT_FOUND si no es un error de que no lo encontro, lanzaraun error de Database
+   * @summary Se recibe el email y el username del usuario para buscarlo en la base de datos, filtrando los usuarios que no esten en la lista en la negativeStatus, si no encuentra el usuario va a retornar un ApplicationResponse failure con un Error Code de VALUE_NOT_FOUND si no es un error de que no lo encontro, lanzara un error de Database
    */
   async existsUserByEmailOrUsername(
     email: string,
