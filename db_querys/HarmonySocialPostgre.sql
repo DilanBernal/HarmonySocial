@@ -5,7 +5,7 @@
 -- CREATE DATABASE harmonysocial WITH ENCODING 'UTF8';
 
 -- ==================================================
--- TABLA: USERS
+-- TABLA: app_user
 -- ==================================================
 
 CREATE TYPE user_status AS ENUM (
@@ -69,7 +69,7 @@ CREATE TABLE artists (
     formation_year INTEGER,
     country VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP NULL
 );
 
 -- ==================================================
@@ -90,11 +90,11 @@ CREATE TABLE songs (
     instruments JSONB,
     difficulty_level VARCHAR(20) CHECK (difficulty_level IN ('EASY','INTERMEDIATE','HARD')),
     artist_id INTEGER REFERENCES artists(id) ON DELETE CASCADE,
-    user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    user_id INTEGER REFERENCES app_user(id) ON DELETE SET NULL,
     verified_by_artist BOOLEAN DEFAULT FALSE,
     verified_by_users BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP NULL
 );
 
 -- ==================================================
@@ -110,7 +110,7 @@ CREATE TABLE music_theory (
     progression VARCHAR(100),
     difficulty VARCHAR(20) CHECK (difficulty IN ('EASY','INTERMEDIATE','HARD')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP NULL
 );
 
 -- ==================================================
@@ -118,7 +118,7 @@ CREATE TABLE music_theory (
 -- ==================================================
 CREATE TABLE posts (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES app_user(id) ON DELETE CASCADE,
     song_id INTEGER REFERENCES songs(id) ON DELETE CASCADE,
     publication_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     title VARCHAR(200),
@@ -128,7 +128,7 @@ CREATE TABLE posts (
     likes_number INTEGER DEFAULT 0,
     comments_number INTEGER DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP NULL
 );
 
 -- ==================================================
@@ -137,11 +137,11 @@ CREATE TABLE posts (
 CREATE TABLE comments (
     id SERIAL PRIMARY KEY,
     content TEXT NOT NULL,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES app_user(id) ON DELETE CASCADE,
     song_id INTEGER REFERENCES songs(id) ON DELETE CASCADE,
     post_id INTEGER REFERENCES posts(id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP NULL
 );
 
 -- ==================================================
@@ -150,7 +150,7 @@ CREATE TABLE comments (
 CREATE TABLE ratings (
     id SERIAL PRIMARY KEY,
     value INTEGER CHECK (value BETWEEN 1 AND 5),
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES app_user(id) ON DELETE CASCADE,
     song_id INTEGER REFERENCES songs(id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (user_id, song_id)
@@ -159,13 +159,19 @@ CREATE TABLE ratings (
 -- ==================================================
 -- TABLA: FRIENDSHIPS
 -- ==================================================
+CREATE TYPE frienship_status AS ENUM (
+    'ACEPTED',
+    'REJECTED',
+    'PENDING'
+);
+
 CREATE TABLE friendships (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    friend_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    status VARCHAR(20) CHECK (status IN ('PENDING', 'ACCEPTED', 'REJECTED')) DEFAULT 'PENDING',
+    user_id INTEGER REFERENCES app_user(id) ON DELETE CASCADE,
+    friend_id INTEGER REFERENCES app_user(id) ON DELETE CASCADE,
+    status frienship_status not null DEFAULT 'PENDING',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL,
     UNIQUE (user_id, friend_id)
 );
 
@@ -174,7 +180,7 @@ CREATE TABLE friendships (
 -- ==================================================
 CREATE TABLE user_follows_artist (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES app_user(id) ON DELETE CASCADE,
     artist_id INTEGER REFERENCES artists(id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (user_id, artist_id)
@@ -185,8 +191,8 @@ CREATE TABLE user_follows_artist (
 -- ==================================================
 CREATE TABLE user_follows_user (
     id SERIAL PRIMARY KEY,
-    follower_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    followed_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    follower_id INTEGER REFERENCES app_user(id) ON DELETE CASCADE,
+    followed_id INTEGER REFERENCES app_user(id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (follower_id, followed_id)
 );
@@ -201,7 +207,7 @@ BEGIN
 END;
 $$ LANGUAGE 'plpgsql';
 
-CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON app_user FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_artists_updated_at BEFORE UPDATE ON artists FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_songs_updated_at BEFORE UPDATE ON songs FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_music_theory_updated_at BEFORE UPDATE ON music_theory FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

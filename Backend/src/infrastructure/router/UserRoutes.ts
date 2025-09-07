@@ -42,10 +42,6 @@ router.post("/login", validateRequest(loginSchema), async (req: Request, res: Re
   }
 });
 
-router.get("/ping", async (request, response: Response) => {
-  response.status(200).json({ message: "pong" });
-});
-
 router.post("/register", validateRequest(registerSchema), async (request, response) => {
   try {
     await userController.registerUser(request, response);
@@ -55,7 +51,7 @@ router.post("/register", validateRequest(registerSchema), async (request, respon
   }
 });
 
-router.get("/users", authenticateToken, async (req, res) => {
+router.get("/all", authenticateToken, async (req, res) => {
   try {
     await userController.getAllUsers(req, res);
   } catch (error: any) {
@@ -67,7 +63,7 @@ router.get("/users", authenticateToken, async (req, res) => {
   }
 });
 
-router.get("/users/id/:id", authenticateToken, async (req, res) => {
+router.get("/id/:id", authenticateToken, async (req, res) => {
   try {
     await userController.getUserById(req, res);
   } catch (error: any) {
@@ -79,7 +75,7 @@ router.get("/users/id/:id", authenticateToken, async (req, res) => {
   }
 });
 
-router.get("/users/email/:email", authenticateToken, async (req, res) => {
+router.get("/email/:email", authenticateToken, async (req, res) => {
   try {
     await userController.getUserByEmail(req, res);
   } catch (error: any) {
@@ -91,7 +87,7 @@ router.get("/users/email/:email", authenticateToken, async (req, res) => {
   }
 });
 
-router.put("/users/:id", authenticateToken, async (req, res) => {
+router.put("/:id", authenticateToken, async (req, res) => {
   try {
     await userController.updateUser(req, res);
   } catch (error: any) {
@@ -103,7 +99,7 @@ router.put("/users/:id", authenticateToken, async (req, res) => {
   }
 });
 
-router.delete("/user/:id", authenticateToken, async (req, res) => {
+router.delete("/:id", authenticateToken, async (req, res) => {
   try {
     await userController.logicalDeleteUser(req, res);
   } catch (error: any) {

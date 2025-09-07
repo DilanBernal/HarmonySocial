@@ -1,0 +1,13 @@
+POST /api/users/register HTTP/1.1
+Host: localhost:4666
+Content-Type: application/json
+Content-Length: 244
+
+{
+  "full_name": "Eryn Carter",
+  "email": "Evie.Ortiz@example.org",
+  "username": "Wendell.Schimmel44",
+  "password": "P4$$w0rd666*",
+  "profile_image": "http://i.ytimg.com/vi/MDBykpSXsSE/maxresdefault.jpg",
+  "favorite_instrument": 2
+}

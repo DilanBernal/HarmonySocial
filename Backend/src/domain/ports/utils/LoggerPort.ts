@@ -6,11 +6,11 @@ export default interface LoggerPort {
   error(message: string, ...args: any[]): void;
   debug(message: string, ...args: any[]): void;
   fatal?(message: string, ...args: any[]): void;
-  appInfo(appError: ApplicationResponse): void;
-  appWarn(appError: ApplicationResponse): void;
-  appError(appError: ApplicationResponse): void;
-  appDebug(appError: ApplicationResponse): void;
-  appFatal(appError: ApplicationResponse): void;
+  appInfo(appError: ApplicationResponse<any>): void;
+  appWarn(appError: ApplicationResponse<any>): void;
+  appError(appError: ApplicationResponse<any>): void;
+  appDebug(appError: ApplicationResponse<any>): void;
+  appFatal(appError: ApplicationResponse<any>): void;
 
   // Métodos para configurar el logger dinámicamente
   setLevel?(level: string): void;

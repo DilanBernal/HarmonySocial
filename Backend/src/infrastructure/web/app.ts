@@ -1,5 +1,5 @@
 import express from "express";
-import routes from "../router/UserRoutes";
+import mainRouter from "../router/mainRouter";
 
 class App {
   private app: express.Application;
@@ -11,11 +11,15 @@ class App {
   }
 
   private middlewares(): void {
+    this.app.use((req, res, next) => {
+      console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+      next();
+    });
     this.app.use(express.json());
   }
 
   private routes(): void {
-    this.app.use("/api", routes);
+    this.app.use("/api", mainRouter);
   }
 
   getApp(): express.Application {
