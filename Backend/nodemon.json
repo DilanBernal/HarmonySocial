@@ -1,10 +1,10 @@
 {
-  "watch": ["src"],
+  "watch": ["src", ".env"],
   "ext": "ts json",
   "ignore": ["src/**/*.spec.ts", "node_modules"],
   "execMap": {
     "ts": "ts-node"
   },
-  "verbose": true,
+  "verbose": false,
   "restartable": "rs"
 }

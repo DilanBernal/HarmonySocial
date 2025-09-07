@@ -7,6 +7,10 @@ import AuthAdapter from "../adapter/data/AuthAdapter";
 import EmailNodemailerAdapter from "../adapter/utils/EmailAdapter";
 import LoggerAdapter from "../adapter/utils/LoggerAdapter";
 import TokenAdapter from "../adapter/utils/TokenAdapter";
+import { validateRequest } from "../middleware/validateRequest";
+import loginSchema from "../validator/LoginValidator";
+import registerSchema from "../validator/RegisterValidator";
+import authenticateToken from "../middleware/authMiddleware";
 
 // import DataNotFoundError from "../shared/errors/DataNotFoundError";
 
@@ -29,7 +33,7 @@ const authService = new AuthService(userAdapter, authAdapter, emailAdapter, logg
 const userController = new UserController(userApp, authService);
 
 //Login
-router.post("/login", async (req: Request, res: Response) => {
+router.post("/login", validateRequest(loginSchema), async (req: Request, res: Response) => {
   try {
     await userController.loginUser(req, res);
   } catch (error: any) {
@@ -42,8 +46,7 @@ router.get("/ping", async (request, response: Response) => {
   response.status(200).json({ message: "pong" });
 });
 
-//Definicion de rutas o endopoints
-router.post("/user", async (request, response) => {
+router.post("/register", validateRequest(registerSchema), async (request, response) => {
   try {
     await userController.registerUser(request, response);
   } catch (error: any) {
@@ -52,7 +55,7 @@ router.post("/user", async (request, response) => {
   }
 });
 
-router.get("/users", async (req, res) => {
+router.get("/users", authenticateToken, async (req, res) => {
   try {
     await userController.getAllUsers(req, res);
   } catch (error: any) {
@@ -64,7 +67,7 @@ router.get("/users", async (req, res) => {
   }
 });
 
-router.get("/users/id/:id", async (req, res) => {
+router.get("/users/id/:id", authenticateToken, async (req, res) => {
   try {
     await userController.getUserById(req, res);
   } catch (error: any) {
@@ -76,7 +79,7 @@ router.get("/users/id/:id", async (req, res) => {
   }
 });
 
-router.get("/users/email/:email", async (req, res) => {
+router.get("/users/email/:email", authenticateToken, async (req, res) => {
   try {
     await userController.getUserByEmail(req, res);
   } catch (error: any) {
@@ -88,7 +91,7 @@ router.get("/users/email/:email", async (req, res) => {
   }
 });
 
-router.put("/users/:id", async (req, res) => {
+router.put("/users/:id", authenticateToken, async (req, res) => {
   try {
     await userController.updateUser(req, res);
   } catch (error: any) {
@@ -100,7 +103,7 @@ router.put("/users/:id", async (req, res) => {
   }
 });
 
-router.delete("/user/:id", async (req, res) => {
+router.delete("/user/:id", authenticateToken, async (req, res) => {
   try {
     await userController.logicalDeleteUser(req, res);
   } catch (error: any) {

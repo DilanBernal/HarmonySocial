@@ -44,6 +44,8 @@ export default class UserAdapter implements UserPort {
       profile_image: user.profile_image,
       learning_points: user.learning_points,
       favorite_instrument: user.favorite_instrument,
+      security_stamp: user.security_stamp,
+      concurrency_stamp: user.concurrency_stamp,
       is_artist: user.is_artist,
       created_at: user.created_at,
       updated_at: user.updated_at,

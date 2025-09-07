@@ -15,6 +15,7 @@
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.14.3",
     "nodemailer": "^7.0.6",
+    "pg": "^8.16.3",
     "pino": "^9.9.0",
     "pino-prettier": "^3.0.1-dev",
     "typeorm": "^0.3.26",

@@ -24,7 +24,16 @@ export default class UserController {
   async registerUser(req: Request, res: Response) {
     const regRequest: RegisterRequest = req.body;
     try {
-      const user: Omit<User, "id" | "status" | "created_at" | "updated_at" | "learning_points"> = {
+      const user: Omit<
+        User,
+        | "id"
+        | "status"
+        | "created_at"
+        | "updated_at"
+        | "learning_points"
+        | "concurrency_stamp"
+        | "security_stamp"
+      > = {
         full_name: regRequest.full_name.trim(),
         email: regRequest.email.trim(),
         username: regRequest.username.trim(),
@@ -148,10 +157,7 @@ export default class UserController {
       const usersResponse = await this.userService.getAllUsers();
 
       if (usersResponse.success) {
-        return res.status(200).json({
-          message: "Usuarios obtenidos exitosamente",
-          data: usersResponse.data,
-        });
+        return res.status(200).json(usersResponse.data);
       } else {
         if (usersResponse.error) {
           switch (usersResponse.error.code) {

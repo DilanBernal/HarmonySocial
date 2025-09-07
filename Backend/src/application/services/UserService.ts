@@ -54,35 +54,6 @@ export default class UserService {
           new ApplicationError("Ya existe el usuario", ErrorCodes.USER_ALREADY_EXISTS),
         );
       }
-
-      let errors: Array<[string, string]> = [];
-      if (!findRegex("usernameRegex").test(user.username)) {
-        errors.push(["username", "El username no esta en el formato correcto"]);
-      }
-      console.log(user.full_name);
-      if (!findRegex("fullNameRegex").test(user.full_name)) {
-        errors.push(["full name", "El nombre no esta en el formato correcto"]);
-      }
-      if (!findRegex("passwordRegex").test(user.password)) {
-        errors.push(["password", "La contraseña no esta en el formato correcto"]);
-      }
-      if (!findRegex("emailRegex").test(user.email)) {
-        errors.push(["email", "El email no esta en el formato correcto"]);
-      }
-      // if (!findRegex("profileImageRegex").test(user.profile_image)) {
-      //   errors.push(["image", "La imagen de usuaruio no esta en el fomrato correcto"]);
-      // }
-
-      if (errors.length > 0) {
-        return ApplicationResponse.failure(
-          new ApplicationError(
-            "Algunos de los campos no estan bien llenados",
-            ErrorCodes.VALIDATION_ERROR,
-            errors,
-          ),
-        );
-      }
-
       const hashPassword = await this.authPort.encryptPassword(user.password);
       const securityStamp: string = await this.tokenPort.generateStamp();
       const concurrencyStamp: string = await this.tokenPort.generateStamp();
@@ -102,18 +73,23 @@ export default class UserService {
         security_stamp: securityStamp,
       };
 
-      return await this.userPort.createUser(userDomain).then(async (x) => {
+      const response = await this.userPort.createUser(userDomain);
+
+      if (response.success) {
         let welcomeEmail: Email = {
           to: [user.email],
           from: envs.EMAIL_FROM,
           subject: `Bienvenido ${user.full_name}`,
         };
 
-        const verificationToken = this.tokenPort.generateConfirmAccountToken(securityStamp);
+        const verificationToken = this.tokenPort.generateConfirmAccountToken(
+          securityStamp,
+          concurrencyStamp,
+        );
         welcomeEmail.text = `Bienvenido a HarmonyMusical, entra a este link para activar tu cuenta ${envs.FRONTEND_URL}/verify-email?token=${verificationToken}`;
         await this.emailPort.sendEmail(welcomeEmail);
-        return x;
-      });
+      }
+      return response;
     } catch (error: unknown) {
       if (error instanceof ApplicationResponse) {
         switch (error.error?.code) {
@@ -511,7 +487,10 @@ export default class UserService {
       }
 
       // Generar token de recuperación
-      const recoveryToken = this.tokenPort.generateRecoverPasswordToken(user.security_stamp || "");
+      const recoveryToken = this.tokenPort.generateRecoverPasswordToken(
+        user.security_stamp,
+        user.concurrency_stamp,
+      );
 
       // Enviar email de recuperación
       const recoveryEmail: Email = {

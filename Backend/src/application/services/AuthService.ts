@@ -3,6 +3,7 @@ import UserPort from "../../domain/ports/data/UserPort";
 import EmailPort from "../../domain/ports/utils/EmailPort";
 import LoggerPort from "../../domain/ports/utils/LoggerPort";
 import LoginRequest from "../dto/requests/LoginRequest";
+import VerifyEmailRequest from "../dto/requests/VerifyEmailRequest";
 import AuthResponse from "../dto/responses/AuthResponse";
 import { ApplicationResponse } from "../shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes } from "../shared/errors/ApplicationError";
@@ -12,9 +13,6 @@ export default class AuthService {
   private authPort: AuthPort;
   private emailPort: EmailPort;
   private loggerPort: LoggerPort;
-  private usernameRegex: RegExp = /^[a-zA-Z0-9_*\-#$!|°.+]{2,50}$/;
-  private passwordRegex: RegExp = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#\$%\^&\*])(.){8,}$/;
-  private emailRegex: RegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
   constructor(userPort: UserPort, authPort: AuthPort, emailPort: EmailPort, logger: LoggerPort) {
     this.userPort = userPort;
@@ -31,29 +29,6 @@ export default class AuthService {
           new ApplicationError(
             "La solicitud de login no puede estar vacía",
             ErrorCodes.VALIDATION_ERROR,
-          ),
-        );
-      }
-
-      const validationErrors: Array<string> = [];
-
-      if (
-        !this.usernameRegex.test(requests.userOrEmail) &&
-        !this.emailRegex.test(requests.userOrEmail)
-      ) {
-        validationErrors.push("El valor userOrEmail no está en el formato correcto");
-      }
-
-      if (!this.passwordRegex.test(requests.password)) {
-        validationErrors.push("La contraseña no está en el formato correcto");
-      }
-
-      if (validationErrors.length > 0) {
-        return ApplicationResponse.failure(
-          new ApplicationError(
-            "Errores de validación",
-            ErrorCodes.VALIDATION_ERROR,
-            validationErrors,
           ),
         );
       }
@@ -97,5 +72,9 @@ export default class AuthService {
         new ApplicationError("Ocurrió un error inesperado", ErrorCodes.SERVER_ERROR),
       );
     }
+  }
+
+  async confirmEmail(req: VerifyEmailRequest): Promise<ApplicationResponse<boolean>> {
+    return ApplicationResponse.success(true);
   }
 }
