@@ -69,9 +69,9 @@ export default class UserService {
       if (!findRegex("emailRegex").test(user.email)) {
         errors.push(["email", "El email no esta en el formato correcto"]);
       }
-      if (!findRegex("profileImageRegex").test(user.profile_image)) {
-        errors.push(["image", "La imagen de usuaruio no esta en el fomrato correcto"]);
-      }
+      // if (!findRegex("profileImageRegex").test(user.profile_image)) {
+      //   errors.push(["image", "La imagen de usuaruio no esta en el fomrato correcto"]);
+      // }
 
       if (errors.length > 0) {
         return ApplicationResponse.failure(

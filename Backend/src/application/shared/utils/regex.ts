@@ -7,7 +7,7 @@ export const userValidations: Array<ValidationType> = [
   { name: "fullNameRegex", regex: /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+(?:\s[A-Za-zÁÉÍÓÚáéíóúÑñ]+)?$/ },
   { name: "passwordRegex", regex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#\$%\^&\*])(.){8,}$/ },
   { name: "emailRegex", regex: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/ },
-  { name: "profileImage", regex: /^(https?|ftp|http),\/\/[^\s/$.?#].[^\s]*$/ },
+  { name: "profileImageRegex", regex: /^(https?|ftp|http),\/\/[^\s/$.?#].[^\s]*$/ },
 ];
 
 export const findRegex = (name: string): RegExp =>
