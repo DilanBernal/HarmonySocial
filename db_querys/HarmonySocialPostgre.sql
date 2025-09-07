@@ -23,24 +23,40 @@ CREATE TYPE user_instrument AS ENUM (
     'BASS'
 );
 
-CREATE TABLE app_users (
-    id SERIAL PRIMARY KEY,
-    username VARCHAR(50) NOT NULL,
-    full_name VARCHAR(200),
-    email VARCHAR(100) NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    profile_image VARCHAR(255),
-    status user_status DEFAULT 'FROZEN',
-    favorite_instrument user_instrument NULL,
-    learning_points INTEGER DEFAULT 0,
-    is_artist BOOLEAN DEFAULT FALSE,
-    security_stamp VARCHAR(36) NULL,
-    concurrency_stamp VARCHAR(36) NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT UQ_user_username_status UNIQUE (username, status),
-    CONSTRAINT UQ_user_email_status UNIQUE (email, status)
-);
+CREATE TABLE IF NOT EXISTS public.app_app_user
+(
+    id integer NOT NULL DEFAULT nextval('app_user_id_seq'::regclass),
+    username character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    full_name character varying COLLATE pg_catalog."default" NOT NULL,
+    email character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    password character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    profile_image character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    status app_user_status_enum NOT NULL DEFAULT 'ACTIVE'::app_user_status_enum,
+    favorite_instrument app_user_favorite_instrument_enum NOT NULL,
+    learning_points integer NOT NULL,
+    is_artist boolean NOT NULL,
+    concurrency_stamp character varying(36) COLLATE pg_catalog."default" NOT NULL DEFAULT gen_random_uuid(),
+    security_stamp character varying(36) COLLATE pg_catalog."default" NOT NULL DEFAULT gen_random_uuid(),
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "PK_APP_USER" PRIMARY KEY (id)
+)
+
+
+-- DROP INDEX IF EXISTS public."IDX_user_email_status";
+
+CREATE UNIQUE INDEX IF NOT EXISTS "IDX_user_email_status"
+    ON public.app_user USING btree
+    (email COLLATE pg_catalog."default" ASC NULLS LAST, status ASC NULLS LAST)
+    TABLESPACE pg_default;
+-- Index: IDX_user_username_status
+
+-- DROP INDEX IF EXISTS public."IDX_user_username_status";
+
+CREATE UNIQUE INDEX IF NOT EXISTS "IDX_user_username_status"
+    ON public.app_user USING btree
+    (username COLLATE pg_catalog."default" ASC NULLS LAST, status ASC NULLS LAST)
+    TABLESPACE pg_default;
 
 -- ==================================================
 -- TABLA: ARTISTS

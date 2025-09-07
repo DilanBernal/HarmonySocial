@@ -36,10 +36,10 @@ export default class UserEntity {
   is_artist!: boolean;
 
   @Column({ type: "varchar", length: 36 })
-  concurrency_stamp?: string;
+  concurrency_stamp!: string;
 
   @Column({ type: "varchar", length: 36 })
-  security_stamp?: string;
+  security_stamp!: string;
 
   @Column({ type: "timestamp" })
   created_at!: Date;

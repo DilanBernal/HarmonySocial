@@ -1,8 +1,9 @@
-# Guia paso para crear los endpoints 
+# Guia paso para crear los endpoints
 
 ## Capa de dominio
 
 ### Definición de el modelo
+
 1. En la capa dominio en `src/domain` crear el modelo necesario en la carpeta models, usar la nomenclatura camel case, que es hacerlo sin guión y poniendo mayúsculas, por ejemplo `EstadioDeFutbol.ts.`
 2. Crear la interfaz/clase/type requerida, declarando las propiedades necesarias con sus tipos. No agregar nada de más que no tenga que ver con lo que se le puso el nombre al archivo. Por ejemplo
 
@@ -38,7 +39,8 @@ export default class EstadioDeFutbolAdapter implements EstadioDeFutbolPort {
 }
 ```
 
-> Va a lanzar un error ya que no está implementando correctamente todos los métodos, pararse sobre el nombre de la clase y con vscode implementar los métodos. Saldrá algo así 
+> Va a lanzar un error ya que no está implementando correctamente todos los métodos, pararse sobre el nombre de la clase y con vscode implementar los métodos. Saldrá algo así
+
 ```
 export default class EstadioDeFutbolAdapter implements EstadioDeFutbolPort {
  crearEstadio(estadio: EstadioDeFutbol): Promise<ApplicationResponse<number>>{
@@ -46,6 +48,7 @@ export default class EstadioDeFutbolAdapter implements EstadioDeFutbolPort {
  }
 }
 ```
+
 7. Dentro de las funciones que trajo de el puerto, agregar la lógica correspondiente.
 
 ## Capa de aplicación
@@ -55,7 +58,7 @@ export default class EstadioDeFutbolAdapter implements EstadioDeFutbolPort {
 #### Inyección de dependencias
 
 8. Ahora en la capa de application en `src/application` en la carpeta services crear el servicio necesario, por ejemplo `UserService.ts`
-9. En el servicio crear la clase , inyectando los puertos necesarios, por ejemplo 
+9. En el servicio crear la clase , inyectando los puertos necesarios, por ejemplo
 
 ```
 export default class EstadioDeFutbolService {
@@ -70,7 +73,7 @@ export default class EstadioDeFutbolService {
 
 #### Implementación de los puertos
 
-10. En el servicio, crear las funciones necesarias para el funcionamiento, pueden ser llamadas iguales o parecidas a las del puerto, o distintas también. Ejemplo 
+10. En el servicio, crear las funciones necesarias para el funcionamiento, pueden ser llamadas iguales o parecidas a las del puerto, o distintas también. Ejemplo
 
 ```
 export default class EstadioDeFutbolService {
@@ -79,7 +82,7 @@ export default class EstadioDeFutbolService {
 	constructor(estadioPort: EstadioDeFutbolPort){
 		this.estadioPort = estadioPort;
 	}
-	
+
 	async crearEstadio(estadio: EstadioDeFutbol): Promise<ApplicationResponse<number>>{
     if (!estadio) {
       return ApplicationResponse.failure(new ApplicationError("Se necesita un estadio para crearlo", ErrorCodes.REQUIRED_FIELD));
@@ -106,6 +109,7 @@ export default class EstadioDeFutbolService {
 
 11. Ahora en la capa de infrastructure en la carpeta services crear el controller necesario en la carpeta `controller`, por ejemplo `EstadioDeFutbolController.ts`
 12. En el controller crear la clase e implementar los servicios a usar, por ejemplo:
+
 ```
 export default class EstadioDeFutbolController {
   private estadioService: EstadioDeFutbolService;
@@ -115,6 +119,7 @@ export default class EstadioDeFutbolController {
   }
 }
 ```
+
 13. Crear la función especifica para cada caso de uso. Ejemplo:
 
 ```
@@ -147,6 +152,7 @@ export default class EstadioDeFutbolController {
 ```
 
 ### Creación de la ruta
+
 14. Ya casi por ultimo en la carpeta `router` se crea el archivo que enruta el crud correspondiente por ejemplo: `EstadioDeFutbolRouter.ts`
 15. Y para finalizar, en el archivo se agrega el router y se agregan las rutas correspondientes. Ejemplo (me dio ya pereza hacer un ejemplo nuevo asi que este es el de la aplicacion como tal, pero igual creo que se entiende)
 

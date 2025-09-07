@@ -7,6 +7,9 @@ import AuthAdapter from "../adapter/data/AuthAdapter";
 import EmailNodemailerAdapter from "../adapter/utils/EmailAdapter";
 import LoggerAdapter from "../adapter/utils/LoggerAdapter";
 import TokenAdapter from "../adapter/utils/TokenAdapter";
+import { validateRequest } from "../middleware/validateRequest";
+import loginSchema from "../validator/LoginValidator";
+import registerSchema from "../validator/RegisterValidator";
 
 // import DataNotFoundError from "../shared/errors/DataNotFoundError";
 
@@ -29,7 +32,7 @@ const authService = new AuthService(userAdapter, authAdapter, emailAdapter, logg
 const userController = new UserController(userApp, authService);
 
 //Login
-router.post("/login", async (req: Request, res: Response) => {
+router.post("/login", validateRequest(loginSchema), async (req: Request, res: Response) => {
   try {
     await userController.loginUser(req, res);
   } catch (error: any) {
@@ -42,8 +45,7 @@ router.get("/ping", async (request, response: Response) => {
   response.status(200).json({ message: "pong" });
 });
 
-//Definicion de rutas o endopoints
-router.post("/user", async (request, response) => {
+router.post("/register", validateRequest(registerSchema), async (request, response) => {
   try {
     await userController.registerUser(request, response);
   } catch (error: any) {
@@ -51,17 +53,6 @@ router.post("/user", async (request, response) => {
     response.status(500).json({ message: "Error en la creacion del usuario" });
   }
 });
-
-// router.get("/users", async (req, res) => {
-//   try {
-//     await userController.allUsers(req, res);
-//   } catch (error: any) {
-//     res.status(error.statusCode ?? 500)
-//       .json({
-//         message: "Error al traer los usuarios"
-//       });
-//   }
-// });
 
 router.get("/users", async (req, res) => {
   try {
@@ -75,18 +66,6 @@ router.get("/users", async (req, res) => {
   }
 });
 
-// router.get("/users/id/:id", async (req, res) => {
-//   try {
-//     await userController.searchUserById(req, res);
-//   } catch (error: any) {
-//     const errorMessage = error.message ?? "Error al traer el usuario";
-//     res.status(error.statusCode ?? 500)
-//       .json({
-//         message: errorMessage
-//       });
-//   }
-// });
-
 router.get("/users/id/:id", async (req, res) => {
   try {
     await userController.getUserById(req, res);
@@ -99,18 +78,6 @@ router.get("/users/id/:id", async (req, res) => {
   }
 });
 
-// router.get("/users/email/:email", async (req, res) => {
-//   try {
-//     await userController.searchUserByEmail(req, res);
-//   } catch (error: any) {
-//     const errorMessage = error.message ?? "Error al traer el usuario";
-//     res.status(error.statusCode ?? 500)
-//       .json({
-//         message: errorMessage
-//       });
-//   }
-// });
-
 router.get("/users/email/:email", async (req, res) => {
   try {
     await userController.getUserByEmail(req, res);
@@ -122,18 +89,6 @@ router.get("/users/email/:email", async (req, res) => {
     console.error(errorMessage, error);
   }
 });
-
-// router.put("/users/:id", async (req, res) => {
-//   try {
-//     await userController.updataUser(req, res);
-//   } catch (error: any) {
-//     const errorMessage: string = error.message ?? "Error al actualizar el usuario";
-//     res.status(error.statusCode ?? 500)
-//       .json({
-//         message: errorMessage
-//       });
-//   }
-// })
 
 router.put("/users/:id", async (req, res) => {
   try {

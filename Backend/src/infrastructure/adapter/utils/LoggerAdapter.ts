@@ -1,12 +1,21 @@
 import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
 import LoggerPort from "../../../domain/ports/utils/LoggerPort";
 import pino, { Logger, LoggerOptions } from "pino";
+import loggerConfig from "../../config/LoggerConfig";
 
 export default class LoggerAdapter implements LoggerPort {
   private logger: Logger;
+  private errorLogger: Logger;
 
   constructor(options?: LoggerOptions) {
-    this.logger = pino(options);
+    this.logger = pino(options ?? loggerConfig);
+
+    const errorStream = pino.destination({
+      dest: "../../../../logs/error.log",
+      sync: false,
+      mkdir: true,
+    });
+    this.errorLogger = pino({ level: "error" }, errorStream);
   }
 
   info(message: string, ...args: any[]): void {
@@ -43,6 +52,7 @@ export default class LoggerAdapter implements LoggerPort {
 
   appError(appError: ApplicationResponse): void {
     this.logger.error({ msg: appError.error?.message, appError });
+    this.errorLogger.error({ msg: appError.error?.message, appError });
   }
 
   appDebug(appError: ApplicationResponse): void {
