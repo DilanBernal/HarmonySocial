@@ -10,6 +10,7 @@ import TokenAdapter from "../adapter/utils/TokenAdapter";
 import { validateRequest } from "../middleware/validateRequest";
 import loginSchema from "../validator/LoginValidator";
 import registerSchema from "../validator/RegisterValidator";
+import authenticateToken from "../middleware/authMiddleware";
 
 // import DataNotFoundError from "../shared/errors/DataNotFoundError";
 
@@ -54,7 +55,7 @@ router.post("/register", validateRequest(registerSchema), async (request, respon
   }
 });
 
-router.get("/users", async (req, res) => {
+router.get("/users", authenticateToken, async (req, res) => {
   try {
     await userController.getAllUsers(req, res);
   } catch (error: any) {
@@ -66,7 +67,7 @@ router.get("/users", async (req, res) => {
   }
 });
 
-router.get("/users/id/:id", async (req, res) => {
+router.get("/users/id/:id", authenticateToken, async (req, res) => {
   try {
     await userController.getUserById(req, res);
   } catch (error: any) {
@@ -78,7 +79,7 @@ router.get("/users/id/:id", async (req, res) => {
   }
 });
 
-router.get("/users/email/:email", async (req, res) => {
+router.get("/users/email/:email", authenticateToken, async (req, res) => {
   try {
     await userController.getUserByEmail(req, res);
   } catch (error: any) {
@@ -90,7 +91,7 @@ router.get("/users/email/:email", async (req, res) => {
   }
 });
 
-router.put("/users/:id", async (req, res) => {
+router.put("/users/:id", authenticateToken, async (req, res) => {
   try {
     await userController.updateUser(req, res);
   } catch (error: any) {
@@ -102,7 +103,7 @@ router.put("/users/:id", async (req, res) => {
   }
 });
 
-router.delete("/user/:id", async (req, res) => {
+router.delete("/user/:id", authenticateToken, async (req, res) => {
   try {
     await userController.logicalDeleteUser(req, res);
   } catch (error: any) {

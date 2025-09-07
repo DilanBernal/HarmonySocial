@@ -157,10 +157,7 @@ export default class UserController {
       const usersResponse = await this.userService.getAllUsers();
 
       if (usersResponse.success) {
-        return res.status(200).json({
-          message: "Usuarios obtenidos exitosamente",
-          data: usersResponse.data,
-        });
+        return res.status(200).json(usersResponse.data);
       } else {
         if (usersResponse.error) {
           switch (usersResponse.error.code) {

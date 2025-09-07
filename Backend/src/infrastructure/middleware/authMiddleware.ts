@@ -5,7 +5,7 @@ const authenticateToken = (request: Request, response: Response, next: NextFunct
   const token = authHeader && authHeader.split(" ")[1];
   if (!token) {
     response.status(401).json({
-      message: "Invalid Token Perro malparido",
+      message: "Invalid Credentials",
     });
     return;
   }
