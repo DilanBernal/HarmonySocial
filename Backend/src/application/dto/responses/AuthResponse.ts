@@ -1,5 +1,6 @@
 type AuthResponse = {
-  user: string;
+  id?: number;
+  username: string;
   token: string;
 };
 

@@ -6,6 +6,7 @@ import FriendshipUsersIdsRequest from "../dto/requests/Friendship/FriendshipUser
 import FriendshipsResponse from "../dto/responses/FriendshipsResponse";
 import { ApplicationResponse } from "../shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes } from "../shared/errors/ApplicationError";
+import EmailPort from "../../domain/ports/utils/EmailPort";
 
 /**
  * Servicio para la gestión de amistades entre usuarios
@@ -15,6 +16,7 @@ export default class FriendshipService {
   private friendshipPort: FriendshipPort;
   private loggerPort: LoggerPort;
   private userPort: UserPort;
+  private emailPort: EmailPort;
 
   /**
    * Constructor del servicio de amistades
@@ -22,10 +24,16 @@ export default class FriendshipService {
    * @param logger Interfaz para el registro de logs del sistema
    * @param userPort Interfaz para acceder a las operaciones de usuario en la base de datos
    */
-  constructor(friendshipPort: FriendshipPort, logger: LoggerPort, userPort: UserPort) {
+  constructor(
+    friendshipPort: FriendshipPort,
+    logger: LoggerPort,
+    userPort: UserPort,
+    emailPort: EmailPort,
+  ) {
     this.friendshipPort = friendshipPort;
     this.loggerPort = logger;
     this.userPort = userPort;
+    this.emailPort = emailPort;
   }
 
   /**

@@ -18,9 +18,9 @@ export default class AuthAdapter implements AuthPort {
   private generateLoginToken(payload: object): string {
     return jwt.sign(payload, envs.JWT_SECRET, { expiresIn: "2h" });
   }
-  async loginUser(credentials: LoginRequest): Promise<AuthResponse> {
-    const token = this.generateLoginToken(credentials);
-    return { user: credentials.userOrEmail, token: token };
+  async loginUser(credentials: LoginRequest, payload: object): Promise<AuthResponse> {
+    const token = this.generateLoginToken({ credentials, payload });
+    return { username: credentials.userOrEmail, token: token };
   }
   async recoverAccount(email: string): Promise<boolean> {
     throw new Error("Method not implemented.");

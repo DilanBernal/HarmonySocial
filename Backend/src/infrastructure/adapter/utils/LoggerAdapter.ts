@@ -1,6 +1,7 @@
 import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
 import LoggerPort from "../../../domain/ports/utils/LoggerPort";
 import pino, { Logger, LoggerOptions } from "pino";
+import path from "path";
 import loggerConfig from "../../config/LoggerConfig";
 
 export default class LoggerAdapter implements LoggerPort {
@@ -10,9 +11,13 @@ export default class LoggerAdapter implements LoggerPort {
   constructor(options?: LoggerOptions) {
     this.logger = pino(options ?? loggerConfig);
 
+    // Use an absolute path for the error log and create directories if needed.
+    // Use sync: true so the writer is ready immediately and does not throw
+    // "sonic boom is not ready yet" during process shutdown.
+    const errorLogPath = path.join(process.cwd(), "logs", "error.log");
     const errorStream = pino.destination({
-      dest: "../../../../logs/error.log",
-      sync: false,
+      dest: errorLogPath,
+      sync: true,
       mkdir: true,
     });
     this.errorLogger = pino({ level: "error" }, errorStream);

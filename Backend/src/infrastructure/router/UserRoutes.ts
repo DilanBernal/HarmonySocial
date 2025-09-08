@@ -29,7 +29,13 @@ const userApp = new UserService(
   loggerAdapter,
   tokenAdapter,
 );
-const authService = new AuthService(userAdapter, authAdapter, emailAdapter, loggerAdapter);
+const authService = new AuthService(
+  userAdapter,
+  authAdapter,
+  emailAdapter,
+  loggerAdapter,
+  tokenAdapter,
+);
 const userController = new UserController(userApp, authService);
 
 //Login

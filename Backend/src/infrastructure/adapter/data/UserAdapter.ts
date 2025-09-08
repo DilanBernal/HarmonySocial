@@ -11,7 +11,11 @@ import UserEntity from "../../entities/UserEntity";
 import { AppDataSource } from "../../config/con_database";
 import User, { UserStatus } from "../../../domain/models/User";
 import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
-import { ApplicationError, ErrorCodes } from "../../../application/shared/errors/ApplicationError";
+import {
+  ApplicationError,
+  ErrorCodes,
+  ErrorResponse,
+} from "../../../application/shared/errors/ApplicationError";
 
 export default class UserAdapter implements UserPort {
   private userRepository: Repository<UserEntity>;
@@ -445,6 +449,37 @@ export default class UserAdapter implements UserPort {
       }
       return ApplicationResponse.failure(
         new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR, undefined, undefined),
+      );
+    }
+  }
+
+  async getUserStampsAndIdByUserOrEmail(
+    userOrEmail: string,
+  ): Promise<ApplicationResponse<[string, string, number]>> {
+    try {
+      const whereCondition: FindOptionsWhere<UserEntity>[] = [
+        { email: userOrEmail, status: Not(In(this.negativeStatus)) },
+        { username: userOrEmail, status: Not(In(this.negativeStatus)) },
+      ];
+
+      const response = await this.userRepository.findOne({
+        where: whereCondition,
+        select: ["concurrency_stamp", "security_stamp", "id"],
+      });
+
+      if (!response) {
+        return ApplicationResponse.failure(
+          new ApplicationError("No se encontraron usuarios", ErrorCodes.VALUE_NOT_FOUND),
+        );
+      }
+      return ApplicationResponse.success([
+        response.concurrency_stamp,
+        response.security_stamp,
+        response.id,
+      ]);
+    } catch (error) {
+      return ApplicationResponse.failure(
+        new ApplicationError("Error en getUserStampsByEmail", ErrorCodes.SERVER_ERROR),
       );
     }
   }
