@@ -13,8 +13,21 @@ export default class FriendshipController {
    */
   async newFriendship(req: Request, res: Response) {
     try {
+      const authenticatedUserId = (req as any).userId as number | undefined;
+
+      if (!authenticatedUserId) {
+        return res.status(401).json({ message: "Usuario no autenticado" });
+      }
+
       if (req.body.user_id === req.body.friend_id) {
-        res.status(422).send("El usuario no se puede agregar a si mismo como amigo");
+        return res.status(422).send("El usuario no se puede agregar a si mismo como amigo");
+      }
+
+      // Ensure that the authenticated user is the same as the creator (user_id)
+      if (Number(req.body.user_id) !== Number(authenticatedUserId)) {
+        return res
+          .status(403)
+          .json({ message: "No está autorizado para crear solicitudes en nombre de otro usuario" });
       }
       const servResponse = await this.friendshipService.createNewFriendship(req.body);
       if (!servResponse!.success) {
@@ -52,7 +65,26 @@ export default class FriendshipController {
    */
   async acceptFriendship(req: Request, res: Response) {
     const { id } = req.query;
+    const authenticatedUserId = (req as any).userId as number | undefined;
+    if (!authenticatedUserId) {
+      return res.status(401).json({ message: "Usuario no autenticado" });
+    }
     try {
+      // Before calling service, validate that the authenticated user is the friend (receiver)
+      // We need to fetch the friendship to check friend_id
+      const friendshipCheck = await this.friendshipService.getFriendshipById(Number(id));
+      if (!friendshipCheck.success) {
+        return res.status(400).json(friendshipCheck.error);
+      }
+      const friendship = friendshipCheck.data;
+      if (!friendship) {
+        return res.status(404).json({ message: "Solicitud de amistad no encontrada" });
+      }
+
+      if (Number(friendship.friend_id) !== Number(authenticatedUserId)) {
+        return res.status(403).json({ message: "Solo el destinatario puede aceptar la solicitud" });
+      }
+
       const servResponse = await this.friendshipService.aceptFriendship(Number(id));
       if (!servResponse.success) {
         return res.status(400).json(servResponse.error);
@@ -87,7 +119,27 @@ export default class FriendshipController {
    */
   async rejectFriendship(req: Request, res: Response) {
     const { id } = req.query;
+    const authenticatedUserId = (req as any).userId as number | undefined;
+    if (!authenticatedUserId) {
+      return res.status(401).json({ message: "Usuario no autenticado" });
+    }
     try {
+      // Validate actor is the friend (recipient)
+      const friendshipCheck = await this.friendshipService.getFriendshipById(Number(id));
+      if (!friendshipCheck.success) {
+        return res.status(400).json(friendshipCheck.error);
+      }
+      const friendship = friendshipCheck.data;
+      if (!friendship) {
+        return res.status(404).json({ message: "Solicitud de amistad no encontrada" });
+      }
+
+      if (Number(friendship.friend_id) !== Number(authenticatedUserId)) {
+        return res
+          .status(403)
+          .json({ message: "Solo el destinatario puede rechazar la solicitud" });
+      }
+
       const servResponse = await this.friendshipService.rejectFriendship(Number(id));
       if (!servResponse.success) {
         return res.status(400).json(servResponse.error);

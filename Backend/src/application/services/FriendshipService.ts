@@ -317,4 +317,22 @@ export default class FriendshipService {
       return errorResponse;
     }
   }
+
+  /**
+   * Obtiene una amistad por su ID (expuesto para validaciones en controller)
+   */
+  async getFriendshipById(id: number): Promise<ApplicationResponse<any>> {
+    try {
+      const response = await this.friendshipPort.getFriendshipById(id);
+      if (response.success) return response;
+      this.loggerPort.appWarn(response);
+      return response;
+    } catch (error) {
+      const errorResponse = ApplicationResponse.failure<any>(
+        new ApplicationError("Error al obtener la amistad por ID", ErrorCodes.SERVER_ERROR),
+      );
+      this.loggerPort.appWarn(errorResponse);
+      return errorResponse;
+    }
+  }
 }
