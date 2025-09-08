@@ -6,19 +6,28 @@ import LoginRequest from "../dto/requests/User/LoginRequest";
 import VerifyEmailRequest from "../dto/requests/User/VerifyEmailRequest";
 import AuthResponse from "../dto/responses/AuthResponse";
 import { ApplicationResponse } from "../shared/ApplicationReponse";
-import { ApplicationError, ErrorCodes } from "../shared/errors/ApplicationError";
+import { ApplicationError, ErrorCodes, ErrorCode } from "../shared/errors/ApplicationError";
+import TokenPort from "../../domain/ports/utils/TokenPort";
 
 export default class AuthService {
   private userPort: UserPort;
   private authPort: AuthPort;
   private emailPort: EmailPort;
   private loggerPort: LoggerPort;
+  private tokenPort: TokenPort;
 
-  constructor(userPort: UserPort, authPort: AuthPort, emailPort: EmailPort, logger: LoggerPort) {
+  constructor(
+    userPort: UserPort,
+    authPort: AuthPort,
+    emailPort: EmailPort,
+    logger: LoggerPort,
+    tokenPort: TokenPort,
+  ) {
     this.userPort = userPort;
     this.authPort = authPort;
     this.emailPort = emailPort;
     this.loggerPort = logger;
+    this.tokenPort = tokenPort;
   }
 
   async login(requests: LoginRequest): Promise<ApplicationResponse<AuthResponse>> {
@@ -41,13 +50,31 @@ export default class AuthService {
         );
       }
 
-      const authResponse: AuthResponse = await this.authPort.loginUser(requests);
+      const userInfo = (await this.userPort.getUserStampsAndIdByUserOrEmail(requests.userOrEmail))
+        .data;
+      if (!userInfo) {
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            "Error al obtener la información del usuario",
+            ErrorCodes.SERVER_ERROR,
+          ),
+        );
+      }
+
+      const authResponse: AuthResponse = await this.authPort.loginUser(requests, userInfo!);
+      authResponse.id = userInfo[2];
 
       if (!authResponse) {
         return ApplicationResponse.failure(
           new ApplicationError("Error al autenticar al usuario", ErrorCodes.SERVER_ERROR),
         );
       }
+
+      const newConcurrencyStamp = this.tokenPort.generateStamp();
+
+      await this.userPort.updateUser(userInfo[2], {
+        concurrency_stamp: newConcurrencyStamp,
+      });
 
       return ApplicationResponse.success(authResponse);
     } catch (error: unknown) {

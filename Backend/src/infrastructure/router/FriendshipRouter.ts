@@ -5,14 +5,21 @@ import FriendshipService from "../../application/services/FriendshipService";
 import authenticateToken from "../middleware/authMiddleware";
 import FriendshipController from "../controller/FriendshipController";
 import { Router } from "express";
+import EmailNodemailerAdapter from "../adapter/utils/EmailAdapter";
 
 const friendshipRouter = Router();
 
 const friendshipAdapter = new FriendshipAdapter();
 const userAdapter = new UserAdapter();
 const loggerAdapter = new LoggerAdapter();
+const emailAdapter = new EmailNodemailerAdapter(loggerAdapter);
 
-const friendshipService = new FriendshipService(friendshipAdapter, loggerAdapter, userAdapter);
+const friendshipService = new FriendshipService(
+  friendshipAdapter,
+  loggerAdapter,
+  userAdapter,
+  emailAdapter,
+);
 
 const friendshipController = new FriendshipController(friendshipService);
 
