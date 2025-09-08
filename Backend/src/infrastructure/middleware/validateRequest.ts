@@ -4,6 +4,7 @@ import { ObjectSchema } from "joi";
 
 export function validateRequest(schema: ObjectSchema) {
   return (req: Request, res: Response, next: NextFunction) => {
+    console.log(req.body);
     const { error, value } = schema.validate(req.body, { abortEarly: false, stripUnknown: true });
 
     if (error) {

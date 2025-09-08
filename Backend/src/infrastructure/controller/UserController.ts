@@ -5,12 +5,12 @@ import User from "../../domain/models/User";
 import { EntityNotFoundError } from "typeorm";
 import { ErrorCodes } from "../../application/shared/errors/ApplicationError";
 import { ApplicationResponse } from "../../application/shared/ApplicationReponse";
-import RegisterRequest from "../../application/dto/requests/RegisterRequest";
-import LoginRequest from "../../application/dto/requests/LoginRequest";
-import UpdateUserRequest from "../../application/dto/requests/UpdateUserRequest";
-import ForgotPasswordRequest from "../../application/dto/requests/ForgotPasswordRequest";
-import ResetPasswordRequest from "../../application/dto/requests/ResetPasswordRequest";
-import VerifyEmailRequest from "../../application/dto/requests/VerifyEmailRequest";
+import RegisterRequest from "../../application/dto/requests/User/RegisterRequest";
+import LoginRequest from "../../application/dto/requests/User/LoginRequest";
+import UpdateUserRequest from "../../application/dto/requests/User/UpdateUserRequest";
+import ForgotPasswordRequest from "../../application/dto/requests/User/ForgotPasswordRequest";
+import ResetPasswordRequest from "../../application/dto/requests/User/ResetPasswordRequest";
+import VerifyEmailRequest from "../../application/dto/requests/User/VerifyEmailRequest";
 
 export default class UserController {
   private userService: UserService;
@@ -24,6 +24,7 @@ export default class UserController {
   async registerUser(req: Request, res: Response) {
     const regRequest: RegisterRequest = req.body;
     try {
+      console.log(regRequest);
       const user: Omit<
         User,
         | "id"

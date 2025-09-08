@@ -1,0 +1,116 @@
+@baseUrl = http://localhost:4666/api
+@authToken = {{login.response.body.data.token}}
+
+### Login para obtener token
+# @name login
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+    "userOrEmail": "usuario1@example.com",
+    "password": "Password123!"
+}
+
+### Crear usuario 1 (si no existe)
+POST {{baseUrl}}/user
+Content-Type: application/json
+
+{
+    "full_name": "Usuario 1",
+    "email": "usuario1@example.com",
+    "username": "usuario1",
+    "password": "Password123!",
+    "profile_image": "https://example.com/photo1.jpg",
+    "favorite_instrument": 0,
+    "is_artist": false
+}
+
+### Crear usuario 2 (si no existe)
+POST {{baseUrl}}/user
+Content-Type: application/json
+
+{
+    "full_name": "Usuario 2",
+    "email": "usuario2@example.com",
+    "username": "usuario2",
+    "password": "Password123!",
+    "profile_image": "https://example.com/photo2.jpg",
+    "favorite_instrument": 1,
+    "is_artist": true
+}
+
+### Crear solicitud de amistad
+POST {{baseUrl}}/friendship
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "from_user_id": 1,
+    "to_user_id": 2
+}
+
+### Aceptar solicitud de amistad
+PUT {{baseUrl}}/friendship/accept
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "from_user_id": 1,
+    "to_user_id": 2
+}
+
+### Rechazar solicitud de amistad
+PUT {{baseUrl}}/friendship/reject
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "from_user_id": 1,
+    "to_user_id": 2
+}
+
+### Obtener amistades del usuario 1
+GET {{baseUrl}}/friendship/user/1
+Authorization: Bearer {{authToken}}
+
+### Eliminar amistad
+DELETE {{baseUrl}}/friendship
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "from_user_id": 1,
+    "to_user_id": 2
+}
+
+### Caso de prueba: Solicitud duplicada
+# Ejecutar después de haber creado una solicitud y sin haberla eliminado
+POST {{baseUrl}}/friendship
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "from_user_id": 1,
+    "to_user_id": 2
+}
+
+### Caso de prueba: Solicitud a uno mismo
+POST {{baseUrl}}/friendship
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "from_user_id": 1,
+    "to_user_id": 1
+}
+
+### Caso de prueba: Aceptar solicitud ya aceptada
+# Ejecutar después de aceptar una solicitud
+PUT {{baseUrl}}/friendship/accept
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "from_user_id": 1,
+    "to_user_id": 2
+}
