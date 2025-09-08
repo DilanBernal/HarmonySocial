@@ -9,6 +9,6 @@ export default interface Friendship {
 
 export enum FrienshipStatus {
   PENDING = "PENDING",
-  ACCEPTED = "ACCEPTED",
+  ACCEPTED = "ACEPTED",
   REJECTED = "REJECTED",
 }

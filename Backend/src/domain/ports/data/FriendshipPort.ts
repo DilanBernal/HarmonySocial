@@ -14,8 +14,12 @@ export default interface FriendshipPort {
     id: number,
     name: string,
   ): Promise<ApplicationResponse<FriendshipsResponse>>;
-  removeFriendshipById(id: number): Promise<ApplicationResponse<boolean>>;
-  removeFriendshipByUsersIds(req: FriendshipUsersIdsRequest): Promise<ApplicationResponse<boolean>>;
-  aproveFrienshipRequest(id: number): Promise<ApplicationResponse<boolean>>;
-  rejectFrienshipRequest(id: number): Promise<ApplicationResponse<boolean>>;
+  getFriendshipByUsersIds(
+    req: FriendshipUsersIdsRequest,
+  ): Promise<ApplicationResponse<Friendship | null>>;
+  getFriendshipById(id: number): Promise<ApplicationResponse<Friendship | null>>;
+  removeFriendshipById(id: number): Promise<ApplicationResponse>;
+  removeFriendshipByUsersIds(req: FriendshipUsersIdsRequest): Promise<ApplicationResponse>;
+  aproveFrienshipRequest(id: number): Promise<ApplicationResponse>;
+  rejectFrienshipRequest(id: number): Promise<ApplicationResponse>;
 }

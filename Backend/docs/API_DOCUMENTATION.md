@@ -1,4 +1,4 @@
-# API Documentation - User Management
+# API Documentation - User Management & Friendships
 
 ## Endpoints Implementados
 
@@ -197,6 +197,107 @@
 - `PIANO = 1`
 - `BASS = 2`
 
+### Gestión de Amistades
+
+#### POST `/friendships`
+
+- **Descripción**: Crea una nueva solicitud de amistad entre dos usuarios
+- **Requiere autenticación**: Sí
+- **Body**:
+
+```json
+{
+  "user_id": "number", // ID del usuario que envía la solicitud
+  "friend_id": "number" // ID del usuario al que se le envía la solicitud
+}
+```
+
+- **Respuestas**:
+  - `201`: Solicitud de amistad creada exitosamente
+  - `200`: Mensaje informativo (si ya existe una relación entre los usuarios)
+  - `400`: Error de validación o usuarios inexistentes
+  - `401`: No autorizado
+  - `500`: Error del servidor
+
+#### PUT `/friendships/accept`
+
+- **Descripción**: Acepta una solicitud de amistad pendiente
+- **Requiere autenticación**: Sí
+- **Query params**: `id` (number) - ID de la amistad
+- **Respuestas**:
+  - `200`: Amistad aceptada correctamente o mensaje informativo si ya fue procesada
+  - `400`: Error de validación o solicitud inexistente
+  - `401`: No autorizado
+  - `500`: Error del servidor
+
+#### PUT `/friendships/reject`
+
+- **Descripción**: Rechaza una solicitud de amistad pendiente
+- **Requiere autenticación**: Sí
+- **Query params**: `id` (number) - ID de la amistad
+- **Respuestas**:
+  - `200`: Amistad rechazada correctamente o mensaje informativo si ya fue procesada
+  - `400`: Error de validación o solicitud inexistente
+  - `401`: No autorizado
+  - `500`: Error del servidor
+
+#### GET `/friendships/user/:id`
+
+- **Descripción**: Obtiene todas las amistades de un usuario específico
+- **Requiere autenticación**: Sí
+- **Parámetros**: `id` (number) - ID del usuario
+- **Respuestas**:
+  - `200`: Amistades obtenidas correctamente
+  - `400`: Error de validación o usuario inexistente
+  - `401`: No autorizado
+  - `500`: Error del servidor
+
+#### DELETE `/friendships/:id`
+
+- **Descripción**: Elimina una amistad por su ID
+- **Requiere autenticación**: Sí
+- **Parámetros**: `id` (number) - ID de la amistad
+- **Respuestas**:
+  - `200`: Amistad eliminada correctamente
+  - `400`: Error de validación o amistad inexistente
+  - `401`: No autorizado
+  - `500`: Error del servidor
+
+#### DELETE `/friendships/users`
+
+- **Descripción**: Elimina una amistad entre dos usuarios específicos
+- **Requiere autenticación**: Sí
+- **Body**:
+
+```json
+{
+  "user_id": "number", // ID del primer usuario
+  "friend_id": "number" // ID del segundo usuario
+}
+```
+
+- **Respuestas**:
+  - `200`: Amistad eliminada correctamente
+  - `400`: Error de validación o amistad inexistente
+  - `401`: No autorizado
+  - `500`: Error del servidor
+
+## Estados de Amistad
+
+- `PENDING`: Solicitud de amistad pendiente de aprobación
+- `ACCEPTED`: Amistad aceptada y activa
+- `REJECTED`: Solicitud de amistad rechazada
+
+## Validaciones Implementadas en Amistades
+
+- Se verifica que ambos usuarios existan antes de crear una amistad
+- Se verifica que no exista ya una relación entre los usuarios
+- Se valida el estado actual de la amistad antes de aceptar o rechazar
+- Se manejan casos especiales:
+  - Si ya son amigos, se notifica
+  - Si hay una solicitud pendiente, se notifica
+  - Si la solicitud fue rechazada, se puede crear una nueva
+
 ## Notas Importantes
 
 1. Los nuevos usuarios se registran con estado `SUSPENDED` y deben verificar su email
@@ -204,3 +305,5 @@
 3. Los tokens de recuperación y verificación incluyen el `security_stamp` del usuario
 4. Las búsquedas por email no revelan si el usuario existe (por seguridad)
 5. Todos los endpoints manejan errores de manera consistente con códigos HTTP apropiados
+6. Las solicitudes de amistad requieren confirmación del destinatario
+7. Una amistad en estado REJECTED se elimina y se crea una nueva si se vuelve a solicitar

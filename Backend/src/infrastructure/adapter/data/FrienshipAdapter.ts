@@ -98,6 +98,79 @@ export default class FriendshipAdapter implements FriendshipPort {
       return ApplicationResponse.failure(new ApplicationError("", ErrorCodes.SERVER_ERROR));
     }
   }
+
+  /**
+   * Busca una relación de amistad entre dos usuarios, comprobando ambas direcciones
+   * @param req Objeto con los IDs de usuario y amigo
+   * @returns ApplicationResponse con la relación de amistad encontrada o null si no existe
+   */
+  async getFriendshipByUsersIds(
+    req: FriendshipUsersIdsRequest,
+  ): Promise<ApplicationResponse<Friendship | null>> {
+    try {
+      const whereCondition: FindOptionsWhere<FriendshipEntity>[] = [
+        { user_id: req.user_id, friend_id: req.friend_id },
+        { user_id: req.friend_id, friend_id: req.user_id }, // Comprobamos también la relación inversa
+      ];
+
+      const entity = await this.frienshipRepository.findOne({
+        where: whereCondition,
+        select: {
+          id: true,
+          user_id: true,
+          friend_id: true,
+          status: true,
+          created_at: true,
+          updated_at: true,
+        },
+      });
+
+      if (!entity) {
+        return ApplicationResponse.success<Friendship | null>(null);
+      }
+
+      // Convertimos la entidad al modelo de dominio
+      const domainModel = this.toDomain(entity);
+      return ApplicationResponse.success<Friendship>(domainModel);
+    } catch (error) {
+      return ApplicationResponse.failure(
+        new ApplicationError("Error al buscar la relación de amistad", ErrorCodes.SERVER_ERROR),
+      );
+    }
+  }
+
+  /**
+   * Busca una relación de amistad por su ID
+   * @param id ID de la amistad a buscar
+   * @returns ApplicationResponse con la relación de amistad encontrada o null si no existe
+   */
+  async getFriendshipById(id: number): Promise<ApplicationResponse<Friendship | null>> {
+    try {
+      const entity = await this.frienshipRepository.findOne({
+        where: { id: id },
+        select: {
+          id: true,
+          user_id: true,
+          friend_id: true,
+          status: true,
+          created_at: true,
+          updated_at: true,
+        },
+      });
+
+      if (!entity) {
+        return ApplicationResponse.success<Friendship | null>(null);
+      }
+
+      // Convertimos la entidad al modelo de dominio
+      const domainModel = this.toDomain(entity);
+      return ApplicationResponse.success<Friendship>(domainModel);
+    } catch (error) {
+      return ApplicationResponse.failure(
+        new ApplicationError("Error al buscar la amistad por ID", ErrorCodes.SERVER_ERROR),
+      );
+    }
+  }
   async getAllFriendshipsByUser(id: number): Promise<ApplicationResponse<FriendshipsResponse>> {
     try {
       const whereCondition: FindOptionsWhere<FriendshipEntity>[] = [
@@ -142,7 +215,7 @@ export default class FriendshipAdapter implements FriendshipPort {
       return ApplicationResponse.failure(new ApplicationError("", ErrorCodes.SERVER_ERROR));
     }
   }
-  async removeFriendshipById(id: number): Promise<ApplicationResponse<boolean>> {
+  async removeFriendshipById(id: number): Promise<ApplicationResponse> {
     try {
       const whereCondition: FindOptionsWhere<FriendshipEntity>[] = [
         { id: id, status: In([FrienshipStatus.ACCEPTED, FrienshipStatus.PENDING]) },
@@ -161,14 +234,12 @@ export default class FriendshipAdapter implements FriendshipPort {
         );
       }
 
-      return ApplicationResponse.success(true);
+      return ApplicationResponse.emptySuccess();
     } catch (error) {
       return ApplicationResponse.failure(new ApplicationError("", ErrorCodes.SERVER_ERROR));
     }
   }
-  async removeFriendshipByUsersIds(
-    req: FriendshipUsersIdsRequest,
-  ): Promise<ApplicationResponse<boolean>> {
+  async removeFriendshipByUsersIds(req: FriendshipUsersIdsRequest): Promise<ApplicationResponse> {
     try {
       const whereCondition: FindOptionsWhere<FriendshipEntity>[] = [
         {
@@ -191,12 +262,12 @@ export default class FriendshipAdapter implements FriendshipPort {
         );
       }
 
-      return ApplicationResponse.success(true);
+      return ApplicationResponse.emptySuccess();
     } catch (error) {
       return ApplicationResponse.failure(new ApplicationError("", ErrorCodes.SERVER_ERROR));
     }
   }
-  async aproveFrienshipRequest(id: number): Promise<ApplicationResponse<boolean>> {
+  async aproveFrienshipRequest(id: number): Promise<ApplicationResponse> {
     try {
       const whereCondition: FindOptionsWhere<FriendshipEntity>[] = [
         { id: id, status: FrienshipStatus.PENDING },
@@ -219,12 +290,12 @@ export default class FriendshipAdapter implements FriendshipPort {
         );
       }
 
-      return ApplicationResponse.success(true);
+      return ApplicationResponse.emptySuccess();
     } catch (error) {
       return ApplicationResponse.failure(new ApplicationError("", ErrorCodes.SERVER_ERROR));
     }
   }
-  async rejectFrienshipRequest(id: number): Promise<ApplicationResponse<boolean>> {
+  async rejectFrienshipRequest(id: number): Promise<ApplicationResponse> {
     try {
       const whereCondition: FindOptionsWhere<FriendshipEntity>[] = [
         { id: id, status: FrienshipStatus.PENDING },
@@ -247,7 +318,7 @@ export default class FriendshipAdapter implements FriendshipPort {
         );
       }
 
-      return ApplicationResponse.success(true);
+      return ApplicationResponse.emptySuccess();
     } catch (error) {
       return ApplicationResponse.failure(new ApplicationError("", ErrorCodes.SERVER_ERROR));
     }

@@ -1,4 +1,4 @@
-# Testing Guide - User API
+# Testing Guide - User API & Friendships
 
 ## Instrucciones para Pruebas
 
@@ -124,6 +124,115 @@ curl -X DELETE http://localhost:3000/user/1
    - Email no existente
    - Token válido/inválido
 
+## Pruebas de Gestión de Amistades
+
+### 1. Endpoints para Pruebas
+
+#### Crear Nueva Solicitud de Amistad
+
+```bash
+curl -X POST http://localhost:4666/api/friendship \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{
+    "from_user_id": 1,
+    "to_user_id": 2
+  }'
+```
+
+#### Aceptar Solicitud de Amistad
+
+```bash
+curl -X PUT http://localhost:4666/api/friendship/accept \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{
+    "from_user_id": 1,
+    "to_user_id": 2
+  }'
+```
+
+#### Rechazar Solicitud de Amistad
+
+```bash
+curl -X PUT http://localhost:4666/api/friendship/reject \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{
+    "from_user_id": 1,
+    "to_user_id": 2
+  }'
+```
+
+#### Obtener Amistades de un Usuario
+
+```bash
+curl -X GET http://localhost:4666/api/friendship/user/1 \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+#### Eliminar Amistad
+
+```bash
+curl -X DELETE http://localhost:4666/api/friendship \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{
+    "from_user_id": 1,
+    "to_user_id": 2
+  }'
+```
+
+#### Eliminar Amistad por ID
+
+```bash
+curl -X DELETE http://localhost:4666/api/friendship/1 \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+### 2. Casos de Prueba Recomendados para Amistades
+
+1. **Validación de Nueva Solicitud**:
+   - Usuarios válidos
+   - Usuario remitente inexistente
+   - Usuario destinatario inexistente
+   - Solicitud duplicada (ya existe una relación)
+   - Solicitud a uno mismo (mismo ID de usuario)
+
+2. **Aceptar/Rechazar Solicitudes**:
+   - Solicitud en estado PENDING (flujo correcto)
+   - Solicitud inexistente
+   - Solicitud ya aceptada
+   - Solicitud ya rechazada
+   - Usuarios no existen
+
+3. **Consulta de Amistades**:
+   - Usuario con amistades
+   - Usuario sin amistades
+   - Usuario inexistente
+
+4. **Eliminación de Amistades**:
+   - Amistad existente
+   - Amistad inexistente
+   - ID de amistad inválido
+
+### 3. Pruebas de Estados de Amistad
+
+Para probar el flujo completo:
+
+1. **Crear una solicitud** de amistad del usuario 1 al usuario 2
+2. **Verificar** que aparece en estado PENDING
+3. **Aceptar la solicitud** desde el usuario 2
+4. **Verificar** que cambia a estado ACCEPTED
+5. **Eliminar la amistad**
+6. **Verificar** que ya no aparece en las consultas
+
+Para probar el rechazo:
+
+1. **Crear una solicitud** de amistad del usuario 1 al usuario 3
+2. **Rechazar la solicitud** desde el usuario 3
+3. **Verificar** que cambia a estado REJECTED
+
 ### 4. Notas Importantes
 
 - Todos los nuevos usuarios se crean con estado `SUSPENDED`
@@ -131,3 +240,6 @@ curl -X DELETE http://localhost:3000/user/1
 - Los tokens tienen expiración (configurada en TokenAdapter)
 - Las contraseñas se encriptan antes de guardar
 - Las búsquedas devuelven usuarios sin información sensible
+- Las solicitudes de amistad siempre comienzan en estado PENDING
+- Solo el usuario destinatario puede aceptar o rechazar una solicitud
+- Las amistades son bidireccionales (se puede consultar desde cualquiera de los usuarios)
