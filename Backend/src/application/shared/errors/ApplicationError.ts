@@ -35,6 +35,16 @@ export enum ErrorCodes {
   DATABASE_ERROR,
   NETWORK_ERROR,
 
+  // Errores de almacenamiento en la nube (Azure Blob Storage)
+  /** El blob (archivo) no fue encontrado en el almacenamiento */
+  BLOB_NOT_FOUND,
+  /** Conflicto al crear o actualizar un blob (por ejemplo, ya existe) */
+  BLOB_CONFLICT,
+  /** Permiso denegado para acceder al blob o contenedor */
+  BLOB_PERMISSION_DENIED,
+  /** Error genérico de Azure Blob Storage */
+  BLOB_STORAGE_ERROR,
+
   // Errores de negocio
   INSUFFICIENT_PERMISSIONS,
   BUSINESS_RULE_VIOLATION,
