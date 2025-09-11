@@ -1,0 +1,26 @@
+### Listar
+GET http://localhost:4200/api/songs
+
+### Crear
+POST http://localhost:4200/api/songs
+Content-Type: application/json
+
+{
+  "title": "baila baialaaa",
+  "artist": "Petit Biscuit",
+  "genre": "Electronicas",
+  "durationSec": 196
+}
+
+
+### Buscar
+GET http://localhost:4200/api/songs?query=sunset
+
+### Actualizar 
+PATCH http://localhost:4200/api/songs/3ac279c2-7276-4742-9278-e496212f0f04
+Content-Type: application/json
+
+{ "album": "Presence" }
+
+### Pa borrar 
+DELETE http://localhost:4200/api/songs/20e9f362-e209-4d7a-b075-d0cd8671337e
