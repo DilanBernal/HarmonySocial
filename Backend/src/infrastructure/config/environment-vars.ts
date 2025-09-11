@@ -20,6 +20,7 @@ export type ReturnEnvironmentVars = {
   SMTP_PASSWORD: string;
   EMAIL_FROM: string;
   FRONTEND_URL: string;
+  AZURE_STORAGE_CONNECTION_STRING: string;
 };
 
 type ValidationEnvironmentVars = {
@@ -47,6 +48,7 @@ function validateEnvVars(vars: NodeJS.ProcessEnv): ValidationEnvironmentVars {
       SMTP_PASSWORD: joi.string().allow("").optional(),
       EMAIL_FROM: joi.string().email().required(),
       FRONTEND_URL: joi.string().uri().required(),
+      AZURE_STORAGE_CONNECTION_STRING: joi.string().required(),
     })
     .unknown(true);
   const { error, value } = envSchem.validate(vars);
@@ -77,6 +79,7 @@ const loadEnvVars = (): ReturnEnvironmentVars => {
     SMTP_PASSWORD: value.SMTP_PASSWORD,
     EMAIL_FROM: value.EMAIL_FROM,
     FRONTEND_URL: value.FRONTEND_URL,
+    AZURE_STORAGE_CONNECTION_STRING: value.AZURE_STORAGE_CONNECTION_STRING,
   };
 };
 const envs = loadEnvVars();
