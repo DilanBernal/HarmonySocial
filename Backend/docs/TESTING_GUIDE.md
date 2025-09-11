@@ -243,3 +243,149 @@ Para probar el rechazo:
 - Las solicitudes de amistad siempre comienzan en estado PENDING
 - Solo el usuario destinatario puede aceptar o rechazar una solicitud
 - Las amistades son bidireccionales (se puede consultar desde cualquiera de los usuarios)
+
+---
+
+# Pruebas Unitarias Automatizadas (Jest)
+
+## ¿Cómo ejecutar las pruebas automáticas?
+
+1. Instala las dependencias:
+   ```bash
+   npm install
+   ```
+2. Ejecuta todas las pruebas unitarias:
+   ```bash
+   npm test
+   ```
+
+Esto ejecutará todos los tests ubicados en la carpeta `tests/` usando Jest y TypeScript.
+
+## Cobertura de pruebas
+
+- **Servicios principales:**
+  - UserService
+  - AuthService
+  - FriendshipService
+- **Utilidades y clases compartidas:**
+  - ApplicationResponse
+  - ApplicationError
+  - Validaciones regex
+
+**Tipos de casos cubiertos:**
+
+- Casos exitosos (flujos correctos)
+- Casos de error (validaciones, datos inválidos, usuarios inexistentes, errores de servidor)
+- Casos edge (duplicados, estados inconsistentes, etc.)
+
+**Mocking:**
+
+- Todas las dependencias externas (puertos, base de datos, email, logger, etc.) están mockeadas.
+- Las pruebas NO dependen de la base de datos real ni de servicios externos.
+
+## Archivos de prueba
+
+```
+tests/
+├── auth/
+│   └── AuthService.spec.ts
+├── friendship/
+│   └── FriendshipService.spec.ts
+├── shared/
+│   ├── ApplicationError.spec.ts
+│   └── ApplicationResponse.spec.ts
+├── user/
+│   ├── UserService.spec.ts
+│   └── userService.spec.ts
+└── utils/
+    └── regex.spec.ts
+```
+
+## Ejemplo de salida exitosa
+
+```
+PASS  tests/shared/ApplicationResponse.spec.ts
+PASS  tests/auth/AuthService.spec.ts
+PASS  tests/shared/ApplicationError.spec.ts
+PASS  tests/utils/regex.spec.ts
+PASS  tests/user/ userService.spec.ts
+PASS  tests/user/UserService.spec.ts
+PASS  tests/friendship/FriendshipService.spec.ts
+
+Test Suites: 7 passed, 7 total
+Tests:       148 passed, 148 total
+```
+
+---
+
+# Automated Unit Testing (English)
+
+## How to run automated tests?
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Run all unit tests:
+   ```bash
+   npm test
+   ```
+
+This will run all tests in the `tests/` folder using Jest and TypeScript.
+
+## Test coverage
+
+- **Main services:**
+  - UserService
+  - AuthService
+  - FriendshipService
+- **Utilities and shared classes:**
+  - ApplicationResponse
+  - ApplicationError
+  - Regex validations
+
+**Tested scenarios:**
+
+- Success cases (happy paths)
+- Error cases (validation, invalid data, not found, server errors)
+- Edge cases (duplicates, inconsistent states, etc.)
+
+**Mocking:**
+
+- All external dependencies (ports, database, email, logger, etc.) are mocked.
+- Tests do NOT depend on a real database or external services.
+
+## Test files
+
+```
+tests/
+├── auth/
+│   └── AuthService.spec.ts
+├── friendship/
+│   └── FriendshipService.spec.ts
+├── shared/
+│   ├── ApplicationError.spec.ts
+│   └── ApplicationResponse.spec.ts
+├── user/
+│   ├── UserService.spec.ts
+│   └── userService.spec.ts
+└── utils/
+    └── regex.spec.ts
+```
+
+## Example of successful output
+
+```
+PASS  tests/shared/ApplicationResponse.spec.ts
+PASS  tests/auth/AuthService.spec.ts
+PASS  tests/shared/ApplicationError.spec.ts
+PASS  tests/utils/regex.spec.ts
+PASS  tests/user/ userService.spec.ts
+PASS  tests/user/UserService.spec.ts
+PASS  tests/friendship/FriendshipService.spec.ts
+
+Test Suites: 7 passed, 7 total
+Tests:       148 passed, 148 total
+```
+
+---
