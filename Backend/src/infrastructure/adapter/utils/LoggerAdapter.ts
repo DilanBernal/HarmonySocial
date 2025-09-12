@@ -47,23 +47,23 @@ export default class LoggerAdapter implements LoggerPort {
     this.logger.level = level;
   }
 
-  appInfo(appError: ApplicationResponse): void {
+  appInfo(appError: ApplicationResponse<any>): void {
     this.logger.info({ msg: appError.error?.message, appError });
   }
 
-  appWarn(appError: ApplicationResponse): void {
+  appWarn(appError: ApplicationResponse<any>): void {
     this.logger.warn({ msg: appError.error?.message, appError });
   }
 
-  appError(appError: ApplicationResponse): void {
+  appError(appError: ApplicationResponse<any>): void {
     this.logger.error({ msg: appError.error?.message, appError });
     this.errorLogger.error({ msg: appError.error?.message, appError });
   }
 
-  appDebug(appError: ApplicationResponse): void {
+  appDebug(appError: ApplicationResponse<any>): void {
     this.logger.debug({ msg: appError.error?.message, appError });
   }
-  appFatal(appError: ApplicationResponse): void {
+  appFatal(appError: ApplicationResponse<any>): void {
     this.logger.fatal({ msg: appError.error?.message, appError });
   }
 
