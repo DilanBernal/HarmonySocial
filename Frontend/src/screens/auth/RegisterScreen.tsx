@@ -254,10 +254,11 @@ export const s = StyleSheet.create({
   affix: {
     position: 'absolute',
     right: 10,
-    top: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    top: 0,
+    paddingHorizontal: 15,
+    paddingVertical: 15.5,
     borderRadius: 10,
+    backgroundColor: 'blue',
   },
   affixText: {
     color: '#9AA3B2',
