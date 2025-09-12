@@ -1,24 +1,25 @@
 export type Song = {
-  id: string;              
+  id: number;                   
   title: string;
-  artist: string;
+  audioUrl: string;
+  
+  description?: string | null;
+  duration?: number | null;
+  bpm?: number | null;
+  keyNote?: string | null;
   album?: string | null;
-  durationSec?: number;
+  decade?: string | null;
   genre?: string | null;
-  coverUrl?: string | null;
-  audioUrl?: string | null;
-  createdAt: string;       
-  updatedAt: string;       
-};
+  country?: string | null;
+  instruments?: unknown | null;
+  difficultyLevel?: "EASY" | "INTERMEDIATE" | "HARD" | null;
 
-export type SongCreateDTO = {
-  title: string;
-  artist: string;
-  album?: string | null;
-  durationSec?: number;
-  genre?: string | null;
-  coverUrl?: string | null;
-  audioUrl?: string | null;
-};
+  artistId?: number | null;
+  userId?: number | null;
 
-export type SongUpdateDTO = Partial<SongCreateDTO>;
+  verifiedByArtist?: boolean;
+  verifiedByUsers?: boolean;
+
+  createdAt: string;
+  updatedAt?: string | null;
+};
