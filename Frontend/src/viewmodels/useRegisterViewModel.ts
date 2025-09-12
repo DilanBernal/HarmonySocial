@@ -10,6 +10,8 @@ import {
   transformToRegisterDTO,
 } from '../models/RegisterDTO';
 import { UserInstrument } from '../models/User';
+// Agregar import del servicio
+import { AuthUserService } from '../services/user/auth/AuthUserService';
 
 // Clave para persistencia local
 const STORAGE_KEY = '@harmony_register_form';
@@ -110,6 +112,9 @@ export const useRegisterViewModel = (): UseRegisterViewModelReturn => {
 
   // Auto-save cuando cambian los datos
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Instancia del servicio
+  const authService = useRef(new AuthUserService()).current;
 
   /**
    * Guarda progreso en almacenamiento local
@@ -350,23 +355,35 @@ export const useRegisterViewModel = (): UseRegisterViewModelReturn => {
       // Transformar datos al DTO del backend
       const registerDTO: RegisterDTO = transformToRegisterDTO(formData);
 
-      // TODO: Aquí hacer la llamada real al API
-      console.log('Sending registration data:', registerDTO);
+      // Llamada real al API usando el servicio
+      const response = await authService.register(registerDTO);
 
-      // Simular llamada al API
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      console.log('Registration successful:', response.data);
 
       // Limpiar datos guardados en éxito
       await AsyncStorage.removeItem(STORAGE_KEY);
 
-      // TODO: Navegar a pantalla de éxito o login
-    } catch (error) {
+      return response.data; // Retornar datos de respuesta
+    } catch (error: any) {
       console.error('Registration failed:', error);
-      throw error;
+
+      // Manejar diferentes tipos de errores
+      if (error.response) {
+        // Error del servidor (4xx, 5xx)
+        const errorMessage =
+          error.response.data?.message || 'Error del servidor';
+        throw new Error(errorMessage);
+      } else if (error.request) {
+        // Error de red
+        throw new Error('Error de conexión. Verifica tu internet.');
+      } else {
+        // Error de validación u otro
+        throw error;
+      }
     } finally {
       setIsLoading(false);
     }
-  }, [formData, totalSteps, validateCurrentStep]);
+  }, [formData, totalSteps, validateCurrentStep, authService]);
 
   /**
    * Resetea el formulario
