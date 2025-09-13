@@ -1,4 +1,3 @@
-// src/infrastructure/entities/SongEntity.ts
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -9,7 +8,7 @@ import {
 
 @Entity({ name: "songs" })
 export default class SongEntity {
-  @PrimaryGeneratedColumn()               // id SERIAL
+  @PrimaryGeneratedColumn()             
   id!: number;
 
   @Column({ type: "varchar", length: 100 })

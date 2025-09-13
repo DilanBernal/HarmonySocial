@@ -5,9 +5,6 @@ import { SongService } from "../../application/services/SongService"; // o defau
 const router = Router();
 const service = new SongService(new SongAdapter());
 
-// ❌ elimina el seed viejo (usaba artist/durationSec)
-// service.create({ title: "Midnight City", audioUrl: "https://example.com/midnight.mp3", genre: "Synthpop", duration: 284 }).catch(() => {});
-
 router.get("/", async (req, res) => {
   const { query = "", page = "1", limit = "20" } = req.query as Record<string, string>;
   const result = await service.search(String(query), Number(page), Number(limit));

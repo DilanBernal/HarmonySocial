@@ -4,12 +4,21 @@ POST http://localhost:4200/api/songs
 Content-Type: application/json
 
 {
-  "title": "Baila askldHSAJ",
-  "audioUrl": "https://www.youtube.com/watch?v=_KKN6WGebGg&list=RD_KKN6WGebGg&start_radio=1&ab_channel=NanpaBasicoVEVO",
-  "genre": "Electronica",
-  "duration": 192
+  "title": "Nanpa Básico - Me Da Lo Mismo (Video Oficial)",
+  "description": "Con el alma",
+  "bpm": 80,
+  "decade":2020,
+  "country": "Colombia",
+  "instruments": ["voz", "sintetizador"],
+  "difficultyLevel": 1,
+  "artistId": 4,
+  "userId": 1,
+  "audioUrl": "https://www.youtube.com/watch?v=SPdIWNqMvak&list=RDSPdIWNqMvak&start_radio=1&ab_channel=NanpaBasicoOficial",
+  "genre": "rap",
+  "duration": 284
 
 }
+
 
 
 ###Listar
@@ -17,7 +26,7 @@ GET http://localhost:4200/api/songs
 
 
 ### Buscar
-GET http://localhost:4200/api/songs?query=Electronic
+GET http://localhost:4200/api/songs?query=Con el alma
 
 ### Actualizar 
 PATCH http://localhost:4200/api/songs/3
@@ -27,4 +36,4 @@ Content-Type: application/json
 
 
 ### Pa borrar 
-DELETE http://localhost:4200/api/songs/5
+DELETE http://localhost:4200/api/songs/7

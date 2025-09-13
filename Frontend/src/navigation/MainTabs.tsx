@@ -3,9 +3,10 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { View, Text, StyleSheet } from 'react-native';
 
-import HomeHeader from '../components/home/HomeHeaderComponent';
+// import HomeHeader from '../components/home/HomeHeaderComponent';
 import ProfileScreen from '../screens/auth/ProfileScreen';
 import HomeScreen from '../screens/home/HomeScreen';
+import UploadSongScreen from '../screens/upload/UploadSongScreen';
 
 function SearchScreen() {
   return (
@@ -14,6 +15,15 @@ function SearchScreen() {
     </View>
   );
 }
+
+// function SubirCancion(){
+//   return(
+//     <View style={s.page}>
+//       <Text style={s.text}>+</Text>
+//     </View>
+//   );
+// }
+
 function LibraryScreen() {
   return (
     <View style={s.page}>
@@ -31,9 +41,11 @@ export type MainTabsParamList = {
   ResetPassword: undefined;
   Feed: undefined;
   Search: undefined;
+  Subir: undefined;
   Library: undefined;
   Profile: undefined;
 };
+
 
 const Tab = createBottomTabNavigator<MainTabsParamList>();
 
@@ -49,6 +61,7 @@ export default function MainTabs() {
           const map: Record<string, string> = {
             Feed: focused ? 'home' : 'home-outline',
             Search: focused ? 'search' : 'search-outline',
+            Subir: focused ? 'add-circle' : 'add-circle-outline', // ⬅️
             Library: focused ? 'musical-notes' : 'musical-notes-outline',
             Profile: focused ? 'person' : 'person-outline',
           };
@@ -66,6 +79,11 @@ export default function MainTabs() {
         name="Search"
         component={SearchScreen}
         options={{ title: 'Buscar' }}
+      />
+      <Tab.Screen
+        name="Subir"
+        component={UploadSongScreen}   
+        options={{ title: '+' }}
       />
       <Tab.Screen
         name="Library"
@@ -86,6 +104,7 @@ declare global {
     interface RootParamList extends MainTabsParamList {}
   }
 }
+
 
 const s = StyleSheet.create({
   page: {
