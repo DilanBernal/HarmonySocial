@@ -1,4 +1,4 @@
-import { REGISTER_STEPS } from '../../core/dtos/RegisterDTO';
+import { REGISTER_STEPS } from '../../core/dtos/REGISTER_STEPS';
 import { StepValidation } from '../../core/types/StepValidation';
 import { RegisterFormData } from '../../core/dtos/RegisterFormData';
 

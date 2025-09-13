@@ -1,12 +1,10 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Yup from 'yup';
-import {
-  RegisterDTO,
-  INITIAL_REGISTER_FORM,
-  REGISTER_STEPS,
-  transformToRegisterDTO,
-} from '../core/dtos/RegisterDTO';
+import { RegisterDTO } from '../core/dtos/RegisterDTO';
+import { transformToRegisterDTO } from '../core/utils/transforms/transformToRegisterDTO';
+import { INITIAL_REGISTER_FORM } from '../config/const/InitialRegisterForm';
+import { REGISTER_STEPS } from '../core/dtos/REGISTER_STEPS';
 import { StepValidation } from '../core/types/StepValidation';
 import { RegisterFormData } from '../core/dtos/RegisterFormData';
 // Agregar import del servicio

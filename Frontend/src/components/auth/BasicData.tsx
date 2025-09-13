@@ -148,8 +148,9 @@ export const BasicDataStep: React.FC<BasicDataStepProps> = ({
       <View style={localStyles.infoBox}>
         <Text style={localStyles.infoTitle}>🔒 Requisitos de contraseña:</Text>
         <Text style={localStyles.infoText}>
-          • Mínimo 8 caracteres{'\n'}• Al menos 1 mayúscula y 1 minúscula{'\n'}•
-          Al menos 1 número{'\n'}• Al menos 1 carácter especial (!@#$%^&*)
+          • Mínimo 8 caracteres{'\n'}• Al menos 1 mayúscula y 1 minúscula
+          {'\n'}• Al menos 1 número{'\n'}• Al menos 1 carácter especial
+          (!@#$%^&*)
         </Text>
       </View>
     </View>

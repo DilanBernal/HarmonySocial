@@ -138,7 +138,7 @@ export default function RegisterScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="default" />
       <LinearGradient
         colors={['#0c0f17', '#0c1222', '#0b0c16']}
         start={{ x: 0, y: 0 }}
