@@ -1,4 +1,6 @@
-import { UserInstrument } from './User';
+import { UserInstrument } from '../models/User';
+import { RegisterStep } from '../types/RegisterStep';
+import { RegisterFormData } from './RegisterFormData';
 
 /**
  * DTO para el registro de usuario que coincide exactamente
@@ -11,43 +13,6 @@ export interface RegisterDTO {
   password: string;
   profile_image: string;
   favorite_instrument: UserInstrument;
-}
-
-/**
- * Datos del formulario durante el flujo de registro
- * Incluye campos adicionales para validación
- */
-export interface RegisterFormData {
-  // Paso 1: Datos básicos
-  fullName: string;
-  username: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-
-  // Paso 2: Instrumento favorito
-  favoriteInstrument: UserInstrument | null;
-
-  // Paso 3: Imagen de perfil
-  profileImage: string;
-}
-
-/**
- * Estado de validación por cada paso
- */
-export interface StepValidation {
-  isValid: boolean;
-  errors: Record<string, string>;
-}
-
-/**
- * Configuración de cada paso del registro
- */
-export interface RegisterStep {
-  id: number;
-  title: string;
-  description: string;
-  fields: (keyof RegisterFormData)[];
 }
 
 export const REGISTER_STEPS: RegisterStep[] = [

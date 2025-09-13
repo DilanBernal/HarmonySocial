@@ -1,6 +1,7 @@
 import React from 'react';
 import { TextInput, View, Text, Pressable, StyleSheet } from 'react-native';
-import { RegisterFormData, StepValidation } from '../../models/RegisterDTO';
+import { StepValidation } from '../../core/types/StepValidation';
+import { RegisterFormData } from '../../core/dtos/RegisterFormData';
 import { s } from '../../screens/auth/RegisterScreen';
 
 interface BasicDataStepProps {

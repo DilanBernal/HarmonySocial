@@ -1,6 +1,6 @@
-import { AppConfig } from '../../../config/AppConfig';
-import { RegisterDTO } from '../../../models/RegisterDTO';
-import axios, { AxiosResponse } from 'axios';
+import ApiService from '../../general/ApiService';
+import { AppConfig } from '../../../../config/AppConfig';
+import { RegisterDTO } from '../../../dtos/RegisterDTO';
 
 export class AuthUserService {
   private readonly baseUrl: string;
@@ -8,7 +8,6 @@ export class AuthUserService {
 
   constructor() {
     this.baseUrl = AppConfig.apiBaseUrl;
-    console.log(this.baseUrl);
     this.timeout = AppConfig.apiTimeout;
 
     // Log de configuración para debugging
@@ -18,26 +17,12 @@ export class AuthUserService {
     });
   }
 
-  async register(data: RegisterDTO): Promise<AxiosResponse<any>> {
-    console.log(
-      'AuthUserService.register - Sending request to:',
-      `${this.baseUrl}/users/register`,
-    );
+  async register(data: RegisterDTO): Promise<any> {
     console.log('AuthUserService.register - Data:', data);
 
     try {
-      const response = await axios.post(
-        `${this.baseUrl}/users/register`,
-        data,
-        {
-          timeout: this.timeout,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        },
-      );
-
-      console.log('AuthUserService.register - Success:', response.status);
+      const response = await ApiService.post('users/register', data);
+      // console.log('AuthUserService.register - Success:', response.status);
       return response;
     } catch (error: any) {
       console.error('AuthUserService.register - Error:', {

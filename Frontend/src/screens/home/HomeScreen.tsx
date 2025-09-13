@@ -1,8 +1,8 @@
 import { FlatList, ImageSourcePropType, StyleSheet, View } from 'react-native';
 import HomeHeader from '../../components/home/HomeHeaderComponent';
 import PostCard from '../../components/home/PostCard';
-import Post from '../../models/Post';
-import User from '../../models/User';
+import Post from '../../core/models/Post';
+import User from '../../core/models/User';
 import { useMemo } from 'react';
 import defaultColors from '../../assets/style/colors';
 import DEFAULT_AVATARS, {

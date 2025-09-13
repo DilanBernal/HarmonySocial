@@ -7,8 +7,9 @@ import {
   ImageBackground,
   FlatList,
 } from 'react-native';
-import { UserInstrument } from '../../models/User';
-import { RegisterFormData, StepValidation } from '../../models/RegisterDTO';
+import { UserInstrument } from '../../core/models/User';
+import { StepValidation } from '../../core/types/StepValidation';
+import { RegisterFormData } from '../../core/dtos/RegisterFormData';
 
 const instrumentOptions = [
   {

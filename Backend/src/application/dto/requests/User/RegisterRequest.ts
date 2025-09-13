@@ -10,4 +10,6 @@ export default interface RegisterRequest
     | "updated_at"
     | "concurrency_stamp"
     | "security_stamp"
-  > {}
+  > {
+  usesDefaultImage?: boolean;
+}

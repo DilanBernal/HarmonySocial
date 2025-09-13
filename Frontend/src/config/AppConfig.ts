@@ -2,24 +2,22 @@ import { Platform } from 'react-native';
 
 // Para Android, necesitamos usar 10.0.2.2 en lugar de localhost en el emulador
 const getBaseUrl = () => {
-  if (Platform.OS === 'android') {
-    return __DEV__
-      ? 'https://fs571vhd-4666.use2.devtunnels.ms/api'
-      : 'https://fs571vhd-4666.use2.devtunnels.ms/api';
+  if (__DEV__) {
+    if (Platform.OS === 'android') {
+      return 'http://10.0.2.2:4666/api/';
+    } else {
+      return 'http://localhost:4666/api/';
+    }
   }
-  return 'https://fs571vhd-4666.use2.devtunnels.ms/api';
+  // URL de producción (DevTunnels o servidor real)
+  return 'https://fs571vhd-4666.use2.devtunnels.ms/api/';
 };
 
 export const AppConfig = {
   apiBaseUrl: getBaseUrl(),
-  apiTimeout: parseInt('10000', 10),
-  environment: 'development',
-  encryptionKey: 'asdflaksdjf;aldsfhjlaiksdjhfasd',
+  apiTimeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+    'User-Agent': 'User-App',
+  },
 } as const;
-
-// Validación de configuración requerida
-const validateConfig = () => {
-  const required = ['API_BASE_URL'];
-};
-
-validateConfig();

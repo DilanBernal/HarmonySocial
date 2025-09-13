@@ -15,9 +15,9 @@ import type { ImageSourcePropType } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { MainTabsParamList } from '../../navigation/MainTabs';
-import User from '../../models/User';
-import Playlist from '../../models/Playlist';
-import Post from '../../models/Post';
+import User from '../../core/models/User';
+import Playlist from '../../core/models/Playlist';
+import Post from '../../core/models/Post';
 import defaultColors from '../../assets/style/colors';
 import ProfileImage from '../general/ProfileImage';
 
