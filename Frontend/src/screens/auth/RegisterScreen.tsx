@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Pressable,
   SafeAreaView,
@@ -9,6 +9,7 @@ import {
   Text,
   View,
   Alert,
+  TouchableOpacity,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import type { RootStackParamList } from '../../App';
@@ -17,10 +18,11 @@ import { StyleSheet } from 'react-native';
 // Importar nuevos componentes
 import { StepIndicator } from '../../components/general/StepIndicator';
 import { StepTransition } from '../../components/general/StepTransition';
-import { BasicDataStep } from '../../components/auth/BasicData';
-import { FavoriteInstrumentStep } from '../../components/auth/FavoriteInstrument';
-import { ProfileImageStep } from '../../components/auth/ProfileImageStep';
+import { BasicDataStep } from '../../components/auth/register/BasicData';
+import { FavoriteInstrumentStep } from '../../components/auth/register/FavoriteInstrument';
+import { ProfileImageStep } from '../../components/auth/register/ProfileImageStep';
 import { useRegisterViewModel } from '../../viewmodels/useRegisterViewModel';
+import { MultiStep, MultiStepRef, Step } from '@brijen/react-native-multistep';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Register'>;
 
@@ -32,108 +34,42 @@ export default function RegisterScreen() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // ViewModel
-  const {
-    formData,
-    currentStep,
-    totalSteps,
-    stepValidations,
-    isCurrentStepValid,
-    isLoading,
-    goToNextStep,
-    goToPreviousStep,
-    goToStep,
-    updateField,
-    submitRegistration,
-    getStepInfo,
-    canNavigateToStep,
-  } = useRegisterViewModel();
-
-  // Renderizar el contenido del paso actual
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <BasicDataStep
-            formData={formData}
-            stepValidation={
-              stepValidations[currentStep] || { isValid: false, errors: {} }
-            }
-            onFieldChange={updateField}
-            showPassword={showPassword}
-            setShowPassword={setShowPassword}
-            showConfirmPassword={showConfirmPassword}
-            setShowConfirmPassword={setShowConfirmPassword}
-          />
-        );
-
-      case 2:
-        return (
-          <FavoriteInstrumentStep
-            formData={formData}
-            stepValidation={
-              stepValidations[currentStep] || { isValid: false, errors: {} }
-            }
-            onFieldChange={updateField}
-          />
-        );
-
-      case 3:
-        return (
-          <ProfileImageStep
-            selectedImage={formData.profileImage}
-            favoriteInstrument={formData.favoriteInstrument}
-            onImageSelect={imageUri => updateField('profileImage', imageUri)}
-            fullName={formData.fullName}
-            error={stepValidations[currentStep]?.errors?.profileImage}
-          />
-        );
-
-      default:
-        return null;
-    }
-  };
+  const { control, handleSubmit, errors, reset, getFieldState, getValues } =
+    useRegisterViewModel();
 
   // Manejar envío del formulario
-  const handleSubmit = async () => {
-    if (currentStep < totalSteps) {
-      // Ir al siguiente paso
-      await goToNextStep();
-    } else {
-      // Enviar registro
-      try {
-        await submitRegistration();
+  const onSubmit = async () => {
+    // Enviar registro
+    try {
+      handleSubmit(
+        async () => {},
+        () => {},
+      );
 
-        Alert.alert(
-          '¡Registro exitoso! 🎉',
-          'Bienvenido a Harmony Social. Tu cuenta ha sido creada exitosamente.',
-          [
-            {
-              text: 'Continuar',
-              onPress: () => {
-                // Navegar al login o pantalla principal
-                navigation.reset({
-                  index: 0,
-                  routes: [{ name: 'Login' }],
-                });
-              },
+      Alert.alert(
+        '¡Registro exitoso! 🎉',
+        'Bienvenido a Harmony Social. Tu cuenta ha sido creada exitosamente.',
+        [
+          {
+            text: 'Continuar',
+            onPress: () => {
+              // Navegar al login o pantalla principal
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'Login' }],
+              });
             },
-          ],
-        );
-      } catch (error) {
-        Alert.alert(
-          'Error en el registro',
-          'Ha ocurrido un error al crear tu cuenta. Por favor, inténtalo de nuevo.',
-          [{ text: 'Entendido' }],
-        );
-      }
+          },
+        ],
+      );
+      reset();
+    } catch (error) {
+      Alert.alert(
+        'Error en el registro',
+        'Ha ocurrido un error al crear tu cuenta. Por favor, inténtalo de nuevo.',
+        [{ text: 'Entendido' }],
+      );
     }
-  };
-
-  // Obtener texto del botón
-  const getButtonText = () => {
-    if (isLoading) return 'Creando cuenta...';
-    if (currentStep < totalSteps) return 'Continuar';
-    return 'Crear cuenta';
   };
 
   return (
@@ -150,41 +86,82 @@ export default function RegisterScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.card}>
-            {/* Header con botón de retroceso */}
-            {currentStep > 1 && (
-              <View style={styles.header}>
-                <Pressable
-                  onPress={goToPreviousStep}
-                  style={styles.backButton}
-                  accessibilityRole="button"
-                  accessibilityLabel="Paso anterior"
-                >
-                  <Text style={styles.backButtonText}>← Atrás</Text>
-                </Pressable>
-              </View>
-            )}
-
             {/* Título principal */}
             <Text style={styles.title}>Crea tu cuenta</Text>
             <Text style={styles.subtitle}>Únete a Harmony Social 🎧</Text>
 
+            <MultiStep
+              tintColor="rgba(128, 82, 255, 1)"
+              nextButtonText="Siguiente"
+              buttonContainerStyle={styles.btn}
+              submitButtonText="Registrarse"
+              progressCircleTrackColor="#1f1f71ff"
+              progressCircleSize={57}
+              globalNextStepTitleStyle={{ display: 'none' }}
+              nextButtonStyle={styles.btnNext}
+              progressCircleLabelStyle={styles.btnText}
+            >
+              <Step
+                title="Datos Personales"
+                stepContainerStyle={{
+                  width: '82%',
+                  justifyContent: 'center',
+                  display: 'flex',
+                }}
+              >
+                <BasicDataStep
+                  control={control}
+                  errors={errors}
+                  getFieldState={getFieldState}
+                  showPassword={showPassword}
+                  setShowPassword={setShowPassword}
+                  showConfirmPassword={showConfirmPassword}
+                  setShowConfirmPassword={setShowConfirmPassword}
+                />
+              </Step>
+              <Step title="Instrumento Favorito">
+                <View>
+                  <Text>Hola</Text>
+                </View>
+                {/* <FavoriteInstrumentStep
+                  formData={formData}
+                  stepValidation={
+                    stepValidations[currentStep] || {
+                      isValid: false,
+                      errors: {},
+                    }
+                  }
+                  onFieldChange={updateField}
+                /> */}
+              </Step>
+              <Step title="Imagen de perfil">
+                <Text>hola</Text>
+                {/* <ProfileImageStep
+                  selectedImage={formData.profileImage}
+                  favoriteInstrument={formData.favoriteInstrument}
+                  onImageSelect={imageUri => updateField('profileImage', imageUri)}
+                  fullName={formData.fullName}
+                  error={stepValidations[currentStep]?.errors?.profileImage}
+                /> */}
+              </Step>
+            </MultiStep>
             {/* Indicador de progreso */}
-            <StepIndicator
+            {/* <StepIndicator
               currentStep={currentStep}
               totalSteps={totalSteps}
               onStepPress={goToStep}
               canNavigateToStep={canNavigateToStep}
               getStepInfo={getStepInfo}
               stepValidations={stepValidations}
-            />
+            /> */}
 
             {/* Contenido del paso con animación */}
-            <StepTransition currentStep={currentStep}>
+            {/* <StepTransition currentStep={currentStep}>
               <View style={styles.stepContent}>{renderStepContent()}</View>
-            </StepTransition>
+            </StepTransition> */}
 
             {/* Botón principal */}
-            <LinearGradient
+            {/* <LinearGradient
               colors={['#7C4DFF', '#4C63F2']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
@@ -206,7 +183,7 @@ export default function RegisterScreen() {
               >
                 <Text style={styles.btnText}>{getButtonText()}</Text>
               </Pressable>
-            </LinearGradient>
+            </LinearGradient> */}
 
             {/* Link para volver al login */}
             <Pressable
@@ -253,12 +230,12 @@ export const s = StyleSheet.create({
   },
   affix: {
     position: 'absolute',
-    right: 10,
+    right: 0,
     top: 0,
     paddingHorizontal: 15,
     paddingVertical: 15.5,
-    borderRadius: 10,
-    backgroundColor: 'blue',
+    borderRadius: 100,
+    backgroundColor: '#39277d3c',
   },
   affixText: {
     color: '#9AA3B2',
@@ -343,6 +320,10 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+
+  btnNext: {
+    backgroundColor: '#ff00eeff',
   },
 
   btnDisabled: {

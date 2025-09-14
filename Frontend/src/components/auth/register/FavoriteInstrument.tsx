@@ -7,9 +7,10 @@ import {
   ImageBackground,
   FlatList,
 } from 'react-native';
-import { UserInstrument } from '../../core/models/User';
-import { StepValidation } from '../../core/types/StepValidation';
-import { RegisterFormData } from '../../core/dtos/RegisterFormData';
+import { UserInstrument } from '../../../core/models/User';
+import { StepValidation } from '../../../core/types/StepValidation';
+import { RegisterFormData } from '../../../core/dtos/RegisterFormData';
+import { Control } from 'react-hook-form';
 
 const instrumentOptions = [
   {
@@ -29,27 +30,24 @@ const instrumentOptions = [
   {
     key: UserInstrument.BASS,
     label: 'Bajo',
-    image:
-      'https://tse1.explicit.bing.net/th/id/OIP.SgcMDuaFIGIqbB-JPjstXwHaFl?rs=1&pid=ImgDetMain&o=7&rm=3',
+    image: 'https://d3puay5pkxu9s4.cloudfront.net/curso/1760/800_imagen.jpg',
     description: 'El ritmo del alma',
   },
 ];
 
-interface FavoriteInstrumentStepProps {
-  formData: RegisterFormData;
-  stepValidation: StepValidation;
-  onFieldChange: (field: keyof RegisterFormData, value: UserInstrument) => void;
-}
+type FavoriteInstrumentStepProps = {
+  control: Control<any>;
+  getValues: () => any;
+  errors: any;
+};
 
 export const FavoriteInstrumentStep: React.FC<FavoriteInstrumentStepProps> = ({
-  formData,
-  stepValidation,
-  onFieldChange,
-}) => {
-  const { errors } = stepValidation;
-
+  control,
+  getValues,
+  errors,
+}: FavoriteInstrumentStepProps) => {
   const handleInstrumentSelect = (instrument: UserInstrument) => {
-    onFieldChange('favoriteInstrument', instrument);
+    // onFieldChange('favoriteInstrument', instrument);
   };
 
   return (
@@ -66,7 +64,9 @@ export const FavoriteInstrumentStep: React.FC<FavoriteInstrumentStepProps> = ({
         contentContainerStyle={styles.listContainer}
         keyExtractor={item => item.key.toString()}
         renderItem={({ item }) => {
-          const isSelected = formData.favoriteInstrument === item.key;
+          // const isSelected = con.favoriteInstrument === item.key;
+          const isSelected: boolean =
+            getValues().favoriteInstrument === item.key;
 
           return (
             <Pressable

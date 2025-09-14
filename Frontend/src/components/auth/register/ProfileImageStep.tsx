@@ -8,24 +8,24 @@ import {
   Alert,
   ScrollView,
 } from 'react-native';
-import { UserInstrument } from '../../core/models/User';
+import { UserInstrument } from '../../../core/models/User';
 
 // Avatares por defecto basados en el instrumento favorito
 const DEFAULT_AVATARS = {
   [UserInstrument.GUITAR]: [
-    require('../../assets/img/profile-generig-img-1.png'),
-    require('../../assets/img/profile-generig-img-2.png'),
-    require('../../assets/img/profile-generig-img-3.png'),
+    require('../../../assets/img/profile-generig-img-1.png'),
+    require('../../../assets/img/profile-generig-img-2.png'),
+    require('../../../assets/img/profile-generig-img-3.png'),
   ],
   [UserInstrument.PIANO]: [
-    require('../../assets/img/profile-generig-img-4.png'),
-    require('../../assets/img/profile-generig-img-5.png'),
-    require('../../assets/img/profile-generig-img-6.png'),
+    require('../../../assets/img/profile-generig-img-4.png'),
+    require('../../../assets/img/profile-generig-img-5.png'),
+    require('../../../assets/img/profile-generig-img-6.png'),
   ],
   [UserInstrument.BASS]: [
-    require('../../assets/img/profile-generig-img-7.png'),
-    require('../../assets/img/profile-generig-img-8.png'),
-    require('../../assets/img/profile-generig-img-1.png'),
+    require('../../../assets/img/profile-generig-img-7.png'),
+    require('../../../assets/img/profile-generig-img-8.png'),
+    require('../../../assets/img/profile-generig-img-1.png'),
   ],
 };
 

@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@brijen/react-native-multistep": "^1.0.0",
+    "@hookform/resolvers": "^5.2.1",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-navigation/bottom-tabs": "7.4.6",
     "@react-navigation/native": "7.1.17",
