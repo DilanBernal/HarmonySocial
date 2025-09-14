@@ -4,7 +4,7 @@ import FriendshipEntity from "../entities/FriendshipEntity";
 import envs from "./environment-vars";
 
 export const AppDataSource = new DataSource({
-  type: "postgres",
+  type: "mysql",
   host: envs.DB_HOST,
   port: Number(envs.DB_PORT),
   username: envs.DB_USER,
@@ -12,7 +12,7 @@ export const AppDataSource = new DataSource({
   database: envs.DB_NAME,
   synchronize: envs.DB_SYNC,
   logging: envs.ENVIRONMENT === "dev" ? true : false,
-  schema: envs.DB_SCHEMA,
+  // schema: envs.DB_SCHEMA,
   entities: [UserEntity, FriendshipEntity],
 });
 

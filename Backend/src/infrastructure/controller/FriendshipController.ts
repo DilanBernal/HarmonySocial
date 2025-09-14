@@ -1,249 +1,86 @@
+// Backend/src/infrastructure/controller/FriendshipController.ts
 import { Request, Response } from "express";
-import FriendshipService from "../../application/services/FriendshipService";
-import { ApplicationResponse } from "../../application/shared/ApplicationReponse";
+import { FriendshipService } from "../../application/services/FriendshipService";
+import { FriendshipUsersIdsRequest } from "../../application/dto/requests/Friendship/FriendshipUsersIdsRequest";
+import { FriendshipsResponse } from "../../application/dto/responses/FriendshipsResponse";
 
-export default class FriendshipController {
-  constructor(private friendshipService: FriendshipService) {}
+/**
+ * Controlador que se encarga de recibir peticiones HTTP y usar el servicio.
+ * Inyecta FriendshipService en el constructor.
+ */
+export class FriendshipController {
+  constructor(private service: FriendshipService) {}
 
-  /**
-   * Crea una nueva solicitud de amistad entre dos usuarios
-   * @param req Request con los IDs de usuario y amigo en el body
-   * @param res Response con el resultado de la operación
-   * @returns Respuesta HTTP con estado 201 si se creó correctamente, 200 si ya existe relación, 400 si hubo error
-   */
-  async newFriendship(req: Request, res: Response) {
+  // POST /friendship/follow
+  async follow(req: Request, res: Response) {
     try {
-      const authenticatedUserId = (req as any).userId as number | undefined;
-
-      if (!authenticatedUserId) {
-        return res.status(401).json({ message: "Usuario no autenticado" });
+      const body = req.body as FriendshipUsersIdsRequest;
+      // validaciones básicas
+      if (!body || typeof body.followerId !== "number" || typeof body.followedId !== "number") {
+        return res.status(400).json({ message: "followerId y followedId son requeridos y deben ser números." });
       }
 
-      if (req.body.user_id === req.body.friend_id) {
-        return res.status(422).send("El usuario no se puede agregar a si mismo como amigo");
-      }
-
-      // Ensure that the authenticated user is the same as the creator (user_id)
-      if (Number(req.body.user_id) !== Number(authenticatedUserId)) {
-        return res
-          .status(403)
-          .json({ message: "No está autorizado para crear solicitudes en nombre de otro usuario" });
-      }
-      const servResponse = await this.friendshipService.createNewFriendship(req.body);
-      if (!servResponse!.success) {
-        return res.status(400).json(servResponse?.error);
-      }
-
-      // Si la respuesta es un string, es un mensaje informativo (ya son amigos o hay solicitud pendiente)
-      if (typeof servResponse.data === "string") {
-        return res.status(200).json({
-          message: servResponse.data,
-        });
-      }
-
-      // Si no es un string, es un booleano que indica éxito en la creación de la solicitud
-      return res.status(201).json({
-        message: "Solicitud de amistad creada correctamente",
-        data: servResponse?.data,
-      });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        return res.status(500).json({
-          message: "Ocurrió un error inesperado",
-          details: error.message,
-        });
-      }
-      return res.status(500).json({ message: "Error desconocido" });
+      const saved = await this.service.followUser(body.followerId, body.followedId);
+      const dto = {
+        id: saved.id!,
+        followerId: saved.followerId,
+        followedId: saved.followedId,
+        createdAt: saved.createdAt ? saved.createdAt.toISOString() : new Date().toISOString(),
+      };
+      const response: FriendshipsResponse = { data: dto, message: "Seguido correctamente" };
+      return res.status(201).json(response);
+    } catch (err: any) {
+      return res.status(500).json({ message: err.message || "Error interno" });
     }
   }
 
-  /**
-   * Acepta una solicitud de amistad pendiente
-   * @param req Request con el ID de la amistad en los parámetros
-   * @param res Response con el resultado de la operación
-   * @returns Respuesta HTTP con estado 200 si se aceptó correctamente o hay un mensaje informativo, 400 si hubo error
-   */
-  async acceptFriendship(req: Request, res: Response) {
-    const { id } = req.query;
-    const authenticatedUserId = (req as any).userId as number | undefined;
-    if (!authenticatedUserId) {
-      return res.status(401).json({ message: "Usuario no autenticado" });
-    }
+  // DELETE /friendship/unfollow/:id
+  async unfollow(req: Request, res: Response) {
     try {
-      // Before calling service, validate that the authenticated user is the friend (receiver)
-      // We need to fetch the friendship to check friend_id
-      const friendshipCheck = await this.friendshipService.getFriendshipById(Number(id));
-      if (!friendshipCheck.success) {
-        return res.status(400).json(friendshipCheck.error);
-      }
-      const friendship = friendshipCheck.data;
-      if (!friendship) {
-        return res.status(404).json({ message: "Solicitud de amistad no encontrada" });
-      }
-
-      if (Number(friendship.friend_id) !== Number(authenticatedUserId)) {
-        return res.status(403).json({ message: "Solo el destinatario puede aceptar la solicitud" });
-      }
-
-      const servResponse = await this.friendshipService.aceptFriendship(Number(id));
-      if (!servResponse.success) {
-        return res.status(400).json(servResponse.error);
-      }
-
-      // Si la respuesta contiene un mensaje informativo (string)
-      if (typeof servResponse.data === "string") {
-        return res.status(200).json({
-          message: servResponse.data,
-        });
-      }
-
-      return res.status(200).json({
-        message: "Solicitud de amistad aceptada correctamente",
-      });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        return res.status(500).json({
-          message: "Ocurrió un error inesperado",
-          details: error.message,
-        });
-      }
-      return res.status(500).json({ message: "Error desconocido" });
+      const id = Number(req.params.id);
+      if (Number.isNaN(id)) return res.status(400).json({ message: "Id inválido." });
+      await this.service.unfollowUser(id);
+      return res.status(200).json({ message: "Dejado de seguir correctamente." });
+    } catch (err: any) {
+      return res.status(500).json({ message: err.message || "Error interno" });
     }
   }
 
-  /**
-   * Rechaza una solicitud de amistad pendiente
-   * @param req Request con el ID de la amistad en los parámetros
-   * @param res Response con el resultado de la operación
-   * @returns Respuesta HTTP con estado 200 si se rechazó correctamente o hay un mensaje informativo, 400 si hubo error
-   */
-  async rejectFriendship(req: Request, res: Response) {
-    const { id } = req.query;
-    const authenticatedUserId = (req as any).userId as number | undefined;
-    if (!authenticatedUserId) {
-      return res.status(401).json({ message: "Usuario no autenticado" });
-    }
+  // GET /friendship/followers/:userId
+  async getFollowers(req: Request, res: Response) {
     try {
-      // Validate actor is the friend (recipient)
-      const friendshipCheck = await this.friendshipService.getFriendshipById(Number(id));
-      if (!friendshipCheck.success) {
-        return res.status(400).json(friendshipCheck.error);
-      }
-      const friendship = friendshipCheck.data;
-      if (!friendship) {
-        return res.status(404).json({ message: "Solicitud de amistad no encontrada" });
-      }
-
-      if (Number(friendship.friend_id) !== Number(authenticatedUserId)) {
-        return res
-          .status(403)
-          .json({ message: "Solo el destinatario puede rechazar la solicitud" });
-      }
-
-      const servResponse = await this.friendshipService.rejectFriendship(Number(id));
-      if (!servResponse.success) {
-        return res.status(400).json(servResponse.error);
-      }
-
-      // Si la respuesta contiene un mensaje informativo (string)
-      if (typeof servResponse.data === "string") {
-        return res.status(200).json({
-          message: servResponse.data,
-        });
-      }
-
-      return res.status(200).json({
-        message: "Solicitud de amistad rechazada correctamente",
-      });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        return res.status(500).json({
-          message: "Ocurrió un error inesperado",
-          details: error.message,
-        });
-      }
-      return res.status(500).json({ message: "Error desconocido" });
+      const userId = Number(req.params.userId);
+      if (Number.isNaN(userId)) return res.status(400).json({ message: "userId inválido." });
+      const followers = await this.service.getFollowers(userId);
+      const data = followers.map((f) => ({
+        id: f.id!,
+        followerId: f.followerId,
+        followedId: f.followedId,
+        createdAt: f.createdAt ? f.createdAt.toISOString() : null,
+      }));
+      const response: FriendshipsResponse = { data };
+      return res.status(200).json(response);
+    } catch (err: any) {
+      return res.status(500).json({ message: err.message || "Error interno" });
     }
   }
 
-  /**
-   * Obtiene todas las amistades de un usuario específico
-   * @param req Request con el ID del usuario en los parámetros
-   * @param res Response con el resultado de la operación
-   * @returns Respuesta HTTP con estado 200 y la lista de amistades, 400 si hubo error
-   */
-  async getUserFriendships(req: Request, res: Response) {
-    const { id } = req.params;
+  // GET /friendship/following/:userId
+  async getFollowing(req: Request, res: Response) {
     try {
-      const servResponse = await this.friendshipService.getUserFriendships(Number(id));
-      if (!servResponse.success) {
-        return res.status(400).json(servResponse.error);
-      }
-      return res.status(200).json({
-        message: "Amistades obtenidas correctamente",
-        data: servResponse.data,
-      });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        return res.status(500).json({
-          message: "Ocurrió un error inesperado",
-          details: error.message,
-        });
-      }
-      return res.status(500).json({ message: "Error desconocido" });
-    }
-  }
-
-  /**
-   * Elimina una amistad por su ID
-   * @param req Request con el ID de la amistad en los parámetros
-   * @param res Response con el resultado de la operación
-   * @returns Respuesta HTTP con estado 200 si se eliminó correctamente, 400 si hubo error
-   */
-  async deleteFriendshipById(req: Request, res: Response) {
-    const { id } = req.params;
-    try {
-      const servResponse = await this.friendshipService.deleteFriendshipById(Number(id));
-      if (!servResponse.success) {
-        return res.status(400).json(servResponse.error);
-      }
-      return res.status(200).json({
-        message: "Amistad eliminada correctamente",
-      });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        return res.status(500).json({
-          message: "Ocurrió un error inesperado",
-          details: error.message,
-        });
-      }
-      return res.status(500).json({ message: "Error desconocido" });
-    }
-  }
-
-  /**
-   * Elimina una amistad por los IDs de los usuarios
-   * @param req Request con los IDs de usuario y amigo en el body
-   * @param res Response con el resultado de la operación
-   * @returns Respuesta HTTP con estado 200 si se eliminó correctamente, 400 si hubo error
-   */
-  async deleteFriendship(req: Request, res: Response) {
-    try {
-      const servResponse = await this.friendshipService.deleteFriendship(req.body);
-      if (!servResponse.success) {
-        return res.status(400).json(servResponse.error);
-      }
-      return res.status(200).json({
-        message: "Amistad eliminada correctamente",
-      });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        return res.status(500).json({
-          message: "Ocurrió un error inesperado",
-          details: error.message,
-        });
-      }
-      return res.status(500).json({ message: "Error desconocido" });
+      const userId = Number(req.params.userId);
+      if (Number.isNaN(userId)) return res.status(400).json({ message: "userId inválido." });
+      const following = await this.service.getFollowing(userId);
+      const data = following.map((f) => ({
+        id: f.id!,
+        followerId: f.followerId,
+        followedId: f.followedId,
+        createdAt: f.createdAt ? f.createdAt.toISOString() : null,
+      }));
+      const response: FriendshipsResponse = { data };
+      return res.status(200).json(response);
+    } catch (err: any) {
+      return res.status(500).json({ message: err.message || "Error interno" });
     }
   }
 }

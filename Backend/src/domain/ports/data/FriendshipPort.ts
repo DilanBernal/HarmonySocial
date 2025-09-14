@@ -1,25 +1,11 @@
-import FriendshipUsersIdsRequest from "../../../application/dto/requests/Friendship/FriendshipUsersIdsRequest";
-import Friendship from "../../models/Friendship";
-import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
-import FriendshipsResponse from "../../../application/dto/responses/FriendshipsResponse";
+// Backend/src/domain/ports/data/FriendshipPort.ts
+import { Friendship } from "../../models/Friendship";
 
-export default interface FriendshipPort {
-  createFriendship(req: FriendshipUsersIdsRequest): Promise<ApplicationResponse<boolean>>;
-  deleteFriendship(id: number): Promise<ApplicationResponse<boolean>>;
-  getAllFriendshipsByUser(id: number): Promise<ApplicationResponse<FriendshipsResponse>>;
-  getAllCommonFriendships(
-    req: FriendshipUsersIdsRequest,
-  ): Promise<ApplicationResponse<FriendshipsResponse>>;
-  getFrienshipsByUserAndSimilarName(
-    id: number,
-    name: string,
-  ): Promise<ApplicationResponse<FriendshipsResponse>>;
-  getFriendshipByUsersIds(
-    req: FriendshipUsersIdsRequest,
-  ): Promise<ApplicationResponse<Friendship | null>>;
-  getFriendshipById(id: number): Promise<ApplicationResponse<Friendship | null>>;
-  removeFriendshipById(id: number): Promise<ApplicationResponse>;
-  removeFriendshipByUsersIds(req: FriendshipUsersIdsRequest): Promise<ApplicationResponse>;
-  aproveFrienshipRequest(id: number): Promise<ApplicationResponse>;
-  rejectFrienshipRequest(id: number): Promise<ApplicationResponse>;
+export interface FriendshipPort {
+  followUser(friendship: Friendship): Promise<Friendship>;
+  unfollowUser(id: number): Promise<void>;
+  getFollowers(userId: number): Promise<Friendship[]>;
+  getFollowing(userId: number): Promise<Friendship[]>;
+  // adicionalmente obtener por par follower-followed
+  findByFollowerAndFollowed(followerId: number, followedId: number): Promise<Friendship | null>;
 }

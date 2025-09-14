@@ -1,23 +1,24 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
-import { FrienshipStatus } from "../../domain/models/Friendship";
+// Backend/src/infrastructure/entities/FriendshipEntity.ts
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, Index } from "typeorm";
 
+/**
+ * FriendshipEntity
+ * - Representa la tabla que guarda las relaciones de seguimiento (follower -> followed).
+ * - Campos: id, followerId, followedId, createdAt.
+ * - El índice único evita que un usuario siga a otro más de una vez.
+ */
 @Entity({ name: "friendships" })
+@Index(["followerId", "followedId"], { unique: true }) // evita duplicados
 export default class FriendshipEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
   @Column({ type: "int" })
-  user_id!: number;
+  followerId!: number;
 
   @Column({ type: "int" })
-  friend_id!: number;
+  followedId!: number;
 
-  @Column({ type: "enum", enum: FrienshipStatus, default: "PENDING" })
-  status!: FrienshipStatus;
-
-  @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
-  created_at!: Date;
-
-  @Column({ type: "timestamp", nullable: true })
-  updated_at?: Date;
+  @CreateDateColumn({ type: "timestamp" })
+  createdAt!: Date;
 }
