@@ -37,7 +37,7 @@ export default class ServerBootstrap {
   init(): Promise<void> {
     return new Promise((resolve, reject) => {
       const PORT = Number(process.env.PORT || 4200);
-      const HOST = process.env.HOST || '0.0.0.0'; // para que me escuche todas
+      const HOST = process.env.HOST || '0.0.0.0'; 
 
       const server = http.createServer(this.expressApp);
       server.listen(PORT, HOST, () => {

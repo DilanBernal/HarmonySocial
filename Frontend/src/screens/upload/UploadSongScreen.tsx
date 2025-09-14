@@ -67,7 +67,7 @@ export default function UploadSongScreen() {
       <TextInput style={s.input} value={form.title ?? ""} onChangeText={(t) => change("title", t)} placeholder="Escribe el nombre tu cación" />
 
       <Text style={s.label}>Description </Text>
-      <TextInput style={s.input} value={form.title ?? ""} onChangeText={(t) => change("description", t)} placeholder="Escribe la descripción"/>
+      <TextInput style={s.input} value={form.description ?? ""} onChangeText={(t) => change("description", t)} placeholder="Escribe la descripción"/>
 
       <Text style={s.label}>audioUrl </Text>
       <TextInput style={s.input} value={form.audioUrl ?? ""} onChangeText={(t) => change("audioUrl", t)} placeholder="https://..." autoCapitalize="none" />

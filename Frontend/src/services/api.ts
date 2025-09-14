@@ -1,7 +1,9 @@
 import { Platform, } from "react-native";
 
 const HOST = Platform.OS === "android" ? "localhost" : "localhost";
-export const API_BASE = `http://${HOST}:4200/api`;
+// export const API_BASE = `http://${HOST}:4200/api`;
+export const API_BASE = `http://192.168.1.3:4200/api`;
+
 
 
 async function request<T>(path: string, options: RequestInit = {}, timeoutMs = 10000): Promise<T> {
