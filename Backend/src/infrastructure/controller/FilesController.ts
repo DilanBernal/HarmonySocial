@@ -19,4 +19,20 @@ export default class FilesController {
     const response = await this.fileService.uploadNewImage(filePayload);
     res.status(200).json(response);
   }
+
+  async uploadNewSong(req: Request, res: Response) {
+    const file = req.file;
+    if (!file) {
+      return res.status(400).json({ message: "No file uploader" });
+    }
+
+    const filePayload: FilePayload = {
+      data: file.buffer,
+      filename: file.originalname,
+      mimeType: file.mimetype,
+      metadata: { size: file.size },
+    };
+
+    const response = await this.fileService.uploadNewSong(filePayload);
+  }
 }

@@ -24,4 +24,10 @@ fileRouter.post("/image", authenticateToken, upload.single("file"), async (req, 
   } catch (error) {}
 });
 
+fileRouter.post("/song", authenticateToken, upload.single("file"), async (req, res) => {
+  try {
+    await filesController;
+  } catch (error) {}
+});
+
 export default fileRouter;
