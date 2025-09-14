@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -8,11 +8,23 @@ import {
   FlatList,
 } from 'react-native';
 import { UserInstrument } from '../../../core/models/User';
-import { StepValidation } from '../../../core/types/StepValidation';
 import { RegisterFormData } from '../../../core/dtos/RegisterFormData';
-import { Control } from 'react-hook-form';
+import {
+  Control,
+  UseFormGetValues,
+  UseFormSetValue,
+  useWatch,
+} from 'react-hook-form';
+import InstrumentOption from './InstrumentOption';
 
-const instrumentOptions = [
+export type instrumentOptionType = {
+  key: UserInstrument;
+  label: string;
+  image: string;
+  description: string;
+};
+
+const instrumentOptions: instrumentOptionType[] = [
   {
     key: UserInstrument.GUITAR,
     label: 'Guitarra',
@@ -37,18 +49,28 @@ const instrumentOptions = [
 
 type FavoriteInstrumentStepProps = {
   control: Control<any>;
-  getValues: () => any;
+  getValues: UseFormGetValues<RegisterFormData>;
+  setValue: UseFormSetValue<RegisterFormData>;
   errors: any;
 };
 
 export const FavoriteInstrumentStep: React.FC<FavoriteInstrumentStepProps> = ({
   control,
   getValues,
+  setValue,
   errors,
 }: FavoriteInstrumentStepProps) => {
   const handleInstrumentSelect = (instrument: UserInstrument) => {
+    setValue('favoriteInstrument', instrument);
+    // console.log(getValues('favoriteInstrument'));
     // onFieldChange('favoriteInstrument', instrument);
   };
+
+  const favoriteInstrument = useWatch({
+    control,
+    name: 'favoriteInstrument',
+  });
+  console.log(favoriteInstrument);
 
   return (
     <View style={styles.container}>
@@ -64,56 +86,20 @@ export const FavoriteInstrumentStep: React.FC<FavoriteInstrumentStepProps> = ({
         contentContainerStyle={styles.listContainer}
         keyExtractor={item => item.key.toString()}
         renderItem={({ item }) => {
-          // const isSelected = con.favoriteInstrument === item.key;
-          const isSelected: boolean =
-            getValues().favoriteInstrument === item.key;
+          const isSelected = favoriteInstrument === item.key;
 
           return (
-            <Pressable
-              style={[
-                styles.instrumentCard,
-                isSelected && styles.instrumentCardSelected,
-              ]}
-              onPress={() => handleInstrumentSelect(item.key)}
-              accessibilityRole="button"
-              accessibilityLabel={`Seleccionar ${item.label}`}
-              accessibilityHint={item.description}
-              accessibilityState={{ selected: isSelected }}
-            >
-              <ImageBackground
-                source={{ uri: item.image }}
-                style={styles.instrumentImage}
-                imageStyle={styles.instrumentImageStyle}
-              >
-                <View style={styles.instrumentOverlay}>
-                  <View
-                    style={[
-                      styles.instrumentLabelContainer,
-                      isSelected && styles.instrumentLabelSelected,
-                    ]}
-                  >
-                    <Text style={styles.instrumentLabel}>{item.label}</Text>
-                    <Text style={styles.instrumentDescription}>
-                      {item.description}
-                    </Text>
-                  </View>
-
-                  {isSelected && (
-                    <View style={styles.selectedIndicator}>
-                      <Text style={styles.selectedCheckmark}>✓</Text>
-                    </View>
-                  )}
-                </View>
-              </ImageBackground>
-            </Pressable>
+            <InstrumentOption
+              item={item}
+              isSelected={isSelected}
+              handleInstrumentSelect={handleInstrumentSelect}
+            />
           );
         }}
       />
-
       {errors.favoriteInstrument && (
         <Text style={styles.errorText}>{errors.favoriteInstrument}</Text>
       )}
-
       {/* Información adicional */}
       <View style={styles.infoBox}>
         <Text style={styles.infoTitle}>🎯 ¿Por qué preguntamos esto?</Text>
@@ -126,7 +112,7 @@ export const FavoriteInstrumentStep: React.FC<FavoriteInstrumentStepProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   container: {
     flex: 1,
   },

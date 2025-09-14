@@ -34,8 +34,15 @@ export default function RegisterScreen() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // ViewModel
-  const { control, handleSubmit, errors, reset, getFieldState, getValues } =
-    useRegisterViewModel();
+  const {
+    control,
+    handleSubmit,
+    errors,
+    reset,
+    getFieldState,
+    getValues,
+    setValue,
+  } = useRegisterViewModel();
 
   // Manejar envío del formulario
   const onSubmit = async () => {
@@ -95,6 +102,7 @@ export default function RegisterScreen() {
               nextButtonText="Siguiente"
               buttonContainerStyle={styles.btn}
               submitButtonText="Registrarse"
+              prevButtonText="Anterior"
               progressCircleTrackColor="#1f1f71ff"
               progressCircleSize={57}
               globalNextStepTitleStyle={{ display: 'none' }}
@@ -119,20 +127,19 @@ export default function RegisterScreen() {
                   setShowConfirmPassword={setShowConfirmPassword}
                 />
               </Step>
-              <Step title="Instrumento Favorito">
+              <Step
+                title="Instrumento Favorito"
+                stepContainerStyle={{ width: '80%' }}
+              >
                 <View>
-                  <Text>Hola</Text>
+                  {/* <Text>Hola</Text> */}
+                  <FavoriteInstrumentStep
+                    errors={errors}
+                    setValue={setValue}
+                    control={control}
+                    getValues={getValues}
+                  />
                 </View>
-                {/* <FavoriteInstrumentStep
-                  formData={formData}
-                  stepValidation={
-                    stepValidations[currentStep] || {
-                      isValid: false,
-                      errors: {},
-                    }
-                  }
-                  onFieldChange={updateField}
-                /> */}
               </Step>
               <Step title="Imagen de perfil">
                 <Text>hola</Text>

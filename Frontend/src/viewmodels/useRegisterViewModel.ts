@@ -14,21 +14,19 @@ import { completeValidationSchemas } from './types/stepValidationSchemas';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
-// Clave para persistencia local
-const STORAGE_KEY = '@harmony_register_form';
-
 export const useRegisterViewModel = (): UseRegisterViewModelReturn => {
   const {
     control,
     reset,
     getFieldState,
     getValues,
+    setValue,
     handleSubmit,
     formState: { errors },
   } = useForm({
     defaultValues: INITIAL_REGISTER_FORM,
     resolver: yupResolver(completeValidationSchemas),
-    mode: 'onBlur',
+    mode: 'onChange',
     delayError: 0,
   });
 
@@ -38,6 +36,7 @@ export const useRegisterViewModel = (): UseRegisterViewModelReturn => {
     getFieldState,
     getValues,
     errors,
+    setValue,
     reset,
   };
 };

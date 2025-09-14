@@ -14,7 +14,7 @@ export interface RegisterFormData {
   confirmPassword: string;
 
   // Paso 2: Instrumento favorito
-  favoriteInstrument: UserInstrument | null;
+  favoriteInstrument: UserInstrument | null | undefined;
 
   // Paso 3: Imagen de perfil
   profileImage: string;
