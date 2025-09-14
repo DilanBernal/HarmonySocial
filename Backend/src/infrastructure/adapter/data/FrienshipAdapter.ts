@@ -2,7 +2,7 @@
 import { FriendshipPort } from "../../../domain/ports/data/FriendshipPort";
 import { Friendship } from "../../../domain/models/Friendship";
 import { DataSource, Repository } from "typeorm";
-import { FriendshipEntity } from "../../entities/FriendshipEntity";
+import FriendshipEntity from "../../entities/FriendshipEntity";
 
 /**
  * Adapter que usa TypeORM para persistir relaciones de amistad.

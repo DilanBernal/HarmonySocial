@@ -1,5 +1,5 @@
-export default interface Friendship {
-  id: number;
+export interface IFriendship {
+  id?: number;
   user_id: number;   // el que sigue (follower)
   friend_id: number; // el seguido (followed)
   created_at: Date;

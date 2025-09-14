@@ -8,15 +8,15 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, Index } from 
  * - El índice único evita que un usuario siga a otro más de una vez.
  */
 @Entity({ name: "friendships" })
-@Index(["followerId", "followedId"], { unique: true }) // evita duplicados
+@Index(["followerId", "followedId"], { unique: true }) // usa los nombres de la clase
 export default class FriendshipEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({ type: "int" })
+  @Column({ name: "userId", type: "int" })  // columna en DB: userId
   followerId!: number;
 
-  @Column({ type: "int" })
+  @Column({ name: "friendId", type: "int" }) // columna en DB: friendId
   followedId!: number;
 
   @CreateDateColumn({ type: "timestamp" })

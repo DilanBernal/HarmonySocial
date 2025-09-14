@@ -1,5 +1,5 @@
 ### Follow - crear relación (POST)
-POST http://localhost:4200/friendship/follow
+POST http://localhost:4200/friendships/follow
 Content-Type: application/json
 
 {

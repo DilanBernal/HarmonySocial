@@ -15,18 +15,20 @@ export class FriendshipController {
   async follow(req: Request, res: Response) {
     try {
       const body = req.body as FriendshipUsersIdsRequest;
-      // validaciones básicas
+
       if (!body || typeof body.followerId !== "number" || typeof body.followedId !== "number") {
         return res.status(400).json({ message: "followerId y followedId son requeridos y deben ser números." });
       }
 
       const saved = await this.service.followUser(body.followerId, body.followedId);
+
       const dto = {
         id: saved.id!,
         followerId: saved.followerId,
         followedId: saved.followedId,
         createdAt: saved.createdAt ? saved.createdAt.toISOString() : new Date().toISOString(),
       };
+
       const response: FriendshipsResponse = { data: dto, message: "Seguido correctamente" };
       return res.status(201).json(response);
     } catch (err: any) {
@@ -39,6 +41,7 @@ export class FriendshipController {
     try {
       const id = Number(req.params.id);
       if (Number.isNaN(id)) return res.status(400).json({ message: "Id inválido." });
+
       await this.service.unfollowUser(id);
       return res.status(200).json({ message: "Dejado de seguir correctamente." });
     } catch (err: any) {
@@ -51,13 +54,16 @@ export class FriendshipController {
     try {
       const userId = Number(req.params.userId);
       if (Number.isNaN(userId)) return res.status(400).json({ message: "userId inválido." });
+
       const followers = await this.service.getFollowers(userId);
+
       const data = followers.map((f) => ({
         id: f.id!,
         followerId: f.followerId,
         followedId: f.followedId,
-        createdAt: f.createdAt ? f.createdAt.toISOString() : null,
+        createdAt: f.createdAt ? f.createdAt.toISOString() : new Date().toISOString(),
       }));
+
       const response: FriendshipsResponse = { data };
       return res.status(200).json(response);
     } catch (err: any) {
@@ -70,13 +76,16 @@ export class FriendshipController {
     try {
       const userId = Number(req.params.userId);
       if (Number.isNaN(userId)) return res.status(400).json({ message: "userId inválido." });
+
       const following = await this.service.getFollowing(userId);
+
       const data = following.map((f) => ({
         id: f.id!,
         followerId: f.followerId,
         followedId: f.followedId,
-        createdAt: f.createdAt ? f.createdAt.toISOString() : null,
+        createdAt: f.createdAt ? f.createdAt.toISOString() : new Date().toISOString(),
       }));
+
       const response: FriendshipsResponse = { data };
       return res.status(200).json(response);
     } catch (err: any) {
