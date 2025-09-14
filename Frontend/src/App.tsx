@@ -6,6 +6,7 @@ import MainTabs from './navigation/MainTabs';
 import RegisterScreen from './screens/auth/RegisterScreen';
 import ResetPasswordScreen from './screens/auth/ResetPasswordScreen';
 import LoginScreen from './screens/auth/LoginScreen';
+import defaultColors from './assets/style/colors';
 
 export type RootStackParamList = {
   Login: undefined;
@@ -28,12 +29,22 @@ export default function App() {
         <Stack.Screen
           name="Register"
           component={RegisterScreen}
-          options={{ headerShown: true, title: 'Crear cuenta' }}
+          options={{
+            headerShown: true,
+            title: 'Crear cuenta',
+            headerStyle: { backgroundColor: defaultColors.lightBackground },
+            headerTintColor: '#fff',
+          }}
         />
         <Stack.Screen
           name="ResetPassword"
           component={ResetPasswordScreen}
-          options={{ headerShown: true, title: 'Restablecer contraseña' }}
+          options={{
+            headerShown: true,
+            title: 'Restablecer contraseña',
+            headerStyle: { backgroundColor: defaultColors.lightBackground },
+            headerTintColor: '#fff',
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>

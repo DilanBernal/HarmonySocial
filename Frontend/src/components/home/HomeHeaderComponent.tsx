@@ -15,38 +15,50 @@ import type { ImageSourcePropType } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { MainTabsParamList } from '../../navigation/MainTabs';
-import User from '../../models/User';
-import Playlist from '../../models/Playlist';
-import Post from '../../models/Post';
+import User from '../../core/models/User';
+import Playlist from '../../core/models/Playlist';
+import Post from '../../core/models/Post';
 import defaultColors from '../../assets/style/colors';
+import ProfileImage from '../general/ProfileImage';
 
 const AVATAR: ImageSourcePropType = require('../../assets/img/yoxd.jpg');
 // 'https://images.unsplash.com/photo-1544006659-f0b21884ce1d?q=80&w=256&fit=crop';
 
 const IMG_CHINACOTA: ImageSourcePropType = require('../../assets/img/chinacotaxd.jpg');
 
-const FRIENDS: User[] = [
-  { id: 's1', name: 'Chinacota', avatar: IMG_CHINACOTA }, // local
+const FRIENDS: Array<Omit<User, 'password' | 'email'>> = [
+  {
+    id: 's1',
+    full_name: 'Chinacota',
+    profile_image: AVATAR,
+    username: '',
+  }, // local
   {
     id: 's2',
-    name: 'Sarah',
-    avatar: {
-      uri: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=256&q=80',
-    },
+    full_name: 'Sarah',
+    username: 'sarah',
+    profile_image:
+      'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=256&q=80',
   },
   {
     id: 's3',
-    name: 'Daniel',
-    avatar: {
-      uri: 'https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?w=256&q=80',
-    },
+    full_name: 'Daniel',
+    username: 'daniel',
+    profile_image:
+      'https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?w=256&q=80',
   },
   {
     id: 's4',
-    name: 'Leo',
-    avatar: {
-      uri: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=256&q=80',
-    },
+    full_name: 'Leo',
+    username: 'leo',
+    profile_image:
+      'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=256&q=80',
+  },
+  {
+    id: 's5',
+    full_name: 'Nell Jimenez',
+    username: 'Lettie',
+    profile_image: 'avatar6',
   },
 ];
 
@@ -55,7 +67,7 @@ const PLAYLISTS: Playlist[] = [
     id: 'p1',
     title: 'Mezcla diaria',
     cover: {
-      uri: 'https://images.unsplash.com/photo-1458560871784-56d23406c091?w=800&q=80',
+      uri: '.',
     },
   },
   {
@@ -95,7 +107,7 @@ const HomeHeader = () => {
           android_ripple={{ color: '#ffffff22', borderless: true }}
           style={{ borderRadius: 17 }}
         >
-          <Image source={AVATAR} style={s.avatar} />
+          {/* <Image source={AVATAR} style={s.avatar} /> */}
         </Pressable>
       </View>
 
@@ -128,10 +140,15 @@ const HomeHeader = () => {
         renderItem={({ item }) => (
           <Pressable android_ripple={{ color: '#ffffff22', borderless: true }}>
             <LinearGradient colors={['#7C4DFF', '#4C63F2']} style={s.storyRing}>
-              <Image source={item.avatar} style={s.storyImg} />
+              <ProfileImage
+                image={item.profile_image}
+                onPress={() => tabNav.navigate('Profile')}
+                imageStyle={s.storyImg}
+              />
+              {/* <Image source={item.profile_image} style={s.storyImg} /> */}
             </LinearGradient>
             <Text numberOfLines={1} style={s.storyName}>
-              {item.name}
+              {item.full_name}
             </Text>
           </Pressable>
         )}

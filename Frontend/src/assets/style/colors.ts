@@ -1,7 +1,8 @@
-import ColorsContainer from '../../types/colorsContainer';
+import ColorsContainer from '../../core/types/colorsContainer';
 
 const defaultColors: ColorsContainer = {
   background: '#0b0c16',
+  lightBackground: '#272a4dff',
   borderDark: '#242b37',
 };
 
