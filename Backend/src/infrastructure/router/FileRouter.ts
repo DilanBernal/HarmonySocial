@@ -26,7 +26,7 @@ fileRouter.post("/image", authenticateToken, upload.single("file"), async (req, 
 
 fileRouter.post("/song", authenticateToken, upload.single("file"), async (req, res) => {
   try {
-    await filesController;
+    await filesController.uploadNewSong(req, res);
   } catch (error) {}
 });
 

@@ -35,15 +35,15 @@ export default class UserEntity {
   @Column({ type: "boolean" })
   is_artist!: boolean;
 
-  @Column({ type: "varchar", length: 36 })
+  @Column({ type: "varchar", length: 36, nullable: true })
   concurrency_stamp!: string;
 
-  @Column({ type: "varchar", length: 36 })
+  @Column({ type: "varchar", length: 36, nullable: true })
   security_stamp!: string;
 
   @Column({ type: "timestamp" })
   created_at!: Date;
 
-  @Column({ type: "timestamp" })
+  @Column({ type: "timestamp", nullable: true })
   updated_at?: Date;
 }
