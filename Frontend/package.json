@@ -10,7 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@brijen/react-native-multistep": "^1.0.0",
+    "react-native-multistep": "https://github.com/DilanBernal/react-native-multistep.git",
     "@hookform/resolvers": "^5.2.1",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-navigation/bottom-tabs": "7.4.6",

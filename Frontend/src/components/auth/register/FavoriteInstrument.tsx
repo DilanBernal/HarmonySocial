@@ -49,14 +49,12 @@ const instrumentOptions: instrumentOptionType[] = [
 
 type FavoriteInstrumentStepProps = {
   control: Control<any>;
-  getValues: UseFormGetValues<RegisterFormData>;
   setValue: UseFormSetValue<RegisterFormData>;
   errors: any;
 };
 
 export const FavoriteInstrumentStep: React.FC<FavoriteInstrumentStepProps> = ({
   control,
-  getValues,
   setValue,
   errors,
 }: FavoriteInstrumentStepProps) => {

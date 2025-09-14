@@ -22,7 +22,8 @@ import { BasicDataStep } from '../../components/auth/register/BasicData';
 import { FavoriteInstrumentStep } from '../../components/auth/register/FavoriteInstrument';
 import { ProfileImageStep } from '../../components/auth/register/ProfileImageStep';
 import { useRegisterViewModel } from '../../viewmodels/useRegisterViewModel';
-import { MultiStep, MultiStepRef, Step } from '@brijen/react-native-multistep';
+import { MultiStep, Step } from 'react-native-multistep';
+// import { MultiStep, MultiStepRef, Step } from '@brijen/react-native-multistep';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Register'>;
 
@@ -42,17 +43,14 @@ export default function RegisterScreen() {
     getFieldState,
     getValues,
     setValue,
+    onSubmit: submitFromVM,
   } = useRegisterViewModel();
 
   // Manejar envío del formulario
-  const onSubmit = async () => {
-    // Enviar registro
-    try {
-      handleSubmit(
-        async () => {},
-        () => {},
-      );
-
+  const finalSubmitHandler = handleSubmit(
+    async () => {
+      console.log('Sending from view the register request');
+      await submitFromVM(null);
       Alert.alert(
         '¡Registro exitoso! 🎉',
         'Bienvenido a Harmony Social. Tu cuenta ha sido creada exitosamente.',
@@ -60,9 +58,7 @@ export default function RegisterScreen() {
           {
             text: 'Continuar',
             onPress: () => {
-              // Navegar al login o pantalla principal
               navigation.reset({
-                index: 0,
                 routes: [{ name: 'Login' }],
               });
             },
@@ -70,14 +66,11 @@ export default function RegisterScreen() {
         ],
       );
       reset();
-    } catch (error) {
-      Alert.alert(
-        'Error en el registro',
-        'Ha ocurrido un error al crear tu cuenta. Por favor, inténtalo de nuevo.',
-        [{ text: 'Entendido' }],
-      );
-    }
-  };
+    },
+    (error: any) => {
+      console.error('ocurrio un error', error);
+    },
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -103,6 +96,7 @@ export default function RegisterScreen() {
               buttonContainerStyle={styles.btn}
               submitButtonText="Registrarse"
               prevButtonText="Anterior"
+              onFinalStepSubmit={finalSubmitHandler}
               progressCircleTrackColor="#1f1f71ff"
               progressCircleSize={57}
               globalNextStepTitleStyle={{ display: 'none' }}
@@ -129,7 +123,11 @@ export default function RegisterScreen() {
               </Step>
               <Step
                 title="Instrumento Favorito"
-                stepContainerStyle={{ width: '80%' }}
+                stepContainerStyle={{
+                  width: '82%',
+                  justifyContent: 'center',
+                  display: 'flex',
+                }}
               >
                 <View>
                   {/* <Text>Hola</Text> */}
@@ -137,19 +135,25 @@ export default function RegisterScreen() {
                     errors={errors}
                     setValue={setValue}
                     control={control}
-                    getValues={getValues}
                   />
                 </View>
               </Step>
-              <Step title="Imagen de perfil">
-                <Text>hola</Text>
-                {/* <ProfileImageStep
-                  selectedImage={formData.profileImage}
-                  favoriteInstrument={formData.favoriteInstrument}
-                  onImageSelect={imageUri => updateField('profileImage', imageUri)}
-                  fullName={formData.fullName}
-                  error={stepValidations[currentStep]?.errors?.profileImage}
-                /> */}
+              <Step
+                title="Imagen de perfil"
+                stepContainerStyle={{
+                  width: '82%',
+                  justifyContent: 'center',
+                  display: 'flex',
+                }}
+              >
+                {/* <Text>hola</Text> */}
+                <ProfileImageStep
+                  control={control}
+                  getState={getFieldState}
+                  favoriteInstrument={getValues('favoriteInstrument')}
+                  onImageSelect={setValue}
+                  fullName={''}
+                />
               </Step>
             </MultiStep>
             {/* Indicador de progreso */}

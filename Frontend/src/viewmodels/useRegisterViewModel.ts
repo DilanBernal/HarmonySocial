@@ -13,6 +13,7 @@ import { UseRegisterViewModelReturn } from './types/RegisterViewModelTypes';
 import { completeValidationSchemas } from './types/stepValidationSchemas';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import UserService from '../../../Backend/src/application/services/UserService';
 
 export const useRegisterViewModel = (): UseRegisterViewModelReturn => {
   const {
@@ -30,9 +31,34 @@ export const useRegisterViewModel = (): UseRegisterViewModelReturn => {
     delayError: 0,
   });
 
+  const UserService: AuthUserService = new AuthUserService();
+
+  const onSubmit = async () => {
+    console.log('sending register petition');
+    try {
+      const userRegisterForm: RegisterFormData = {
+        fullName: getValues('fullName'),
+        username: getValues('username'),
+        email: getValues('email'),
+        password: getValues('password'),
+        confirmPassword: getValues('confirmPassword'),
+        favoriteInstrument: getValues('favoriteInstrument'),
+        profileImage: getValues('profileImage'),
+      };
+      const userDTO: RegisterDTO = transformToRegisterDTO(userRegisterForm);
+
+      const serviceResponse = await UserService.register(userDTO);
+
+      console.log(serviceResponse);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return {
     control,
     handleSubmit,
+    onSubmit,
     getFieldState,
     getValues,
     errors,

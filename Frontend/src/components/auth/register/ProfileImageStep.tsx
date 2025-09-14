@@ -9,6 +9,9 @@ import {
   ScrollView,
 } from 'react-native';
 import { UserInstrument } from '../../../core/models/User';
+import { Control, UseFormSetValue, useWatch } from 'react-hook-form';
+import { RegisterFormData } from '../../../core/dtos/RegisterFormData';
+import ProfileImage from '../../general/ProfileImage';
 
 // Avatares por defecto basados en el instrumento favorito
 const DEFAULT_AVATARS = {
@@ -29,23 +32,26 @@ const DEFAULT_AVATARS = {
   ],
 };
 
-interface ProfileImageStepProps {
-  selectedImage: string;
-  favoriteInstrument: UserInstrument | null;
-  onImageSelect: (imageUri: string) => void;
+type ProfileImageStepProps = {
+  control: Control;
+  getState: any;
+  favoriteInstrument: UserInstrument | null | undefined;
+  onImageSelect: UseFormSetValue<RegisterFormData>;
   fullName: string;
   error?: string;
-}
+};
 
 export const ProfileImageStep: React.FC<ProfileImageStepProps> = ({
-  selectedImage,
+  control,
   favoriteInstrument,
   onImageSelect,
   fullName,
   error,
-}) => {
-  const [showCustomImageOptions, setShowCustomImageOptions] = useState(false);
-
+}: ProfileImageStepProps) => {
+  const selectedImage = useWatch({
+    control: control,
+    name: 'profileImage',
+  });
   // Obtener avatares recomendados basados en el instrumento
   const getRecommendedAvatars = () => {
     if (!favoriteInstrument) {
@@ -87,7 +93,7 @@ export const ProfileImageStep: React.FC<ProfileImageStepProps> = ({
 
       {/* Vista previa de la imagen seleccionada */}
       <View style={styles.previewContainer}>
-        {selectedImage ? (
+        {/* {selectedImage ? (
           <Image
             source={
               selectedImage.startsWith('asset_')
@@ -105,7 +111,7 @@ export const ProfileImageStep: React.FC<ProfileImageStepProps> = ({
               {fullName.charAt(0).toUpperCase()}
             </Text>
           </View>
-        )}
+        )} */}
       </View>
 
       {/* Avatares recomendados */}
@@ -132,7 +138,7 @@ export const ProfileImageStep: React.FC<ProfileImageStepProps> = ({
                 styles.avatarOption,
                 isSelected && styles.avatarOptionSelected,
               ]}
-              onPress={() => onImageSelect(avatarUri)}
+              onPress={() => onImageSelect('profileImage', avatarUri)}
               accessibilityRole="button"
               accessibilityLabel={`Avatar opción ${index + 1}`}
               accessibilityState={{ selected: isSelected }}
@@ -148,19 +154,6 @@ export const ProfileImageStep: React.FC<ProfileImageStepProps> = ({
         })}
       </ScrollView>
 
-      {/* Opción para imagen personalizada */}
-      <Pressable
-        style={styles.customImageButton}
-        onPress={handleCustomImagePress}
-        accessibilityRole="button"
-        accessibilityLabel="Subir imagen personalizada"
-      >
-        <View style={styles.customImageIcon}>
-          <Text style={styles.customImageIconText}>+</Text>
-        </View>
-        <Text style={styles.customImageText}>Subir mi propia imagen</Text>
-      </Pressable>
-
       {/* Mostrar error si existe */}
       {error && <Text style={styles.errorText}>{error}</Text>}
 
@@ -168,8 +161,7 @@ export const ProfileImageStep: React.FC<ProfileImageStepProps> = ({
       <View style={styles.tipsContainer}>
         <Text style={styles.tipsTitle}>💡 Tips para tu foto de perfil:</Text>
         <Text style={styles.tipsText}>
-          • Elige una imagen que te represente{'\n'}• Asegúrate de que se vea
-          claramente tu rostro{'\n'}• Evita imágenes borrosas o muy oscuras
+          • Elige una imagen que te represente{'\n'}
         </Text>
       </View>
     </View>

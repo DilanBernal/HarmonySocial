@@ -11,6 +11,9 @@ export const transformToRegisterDTO = (
   if (!formData.favoriteInstrument) {
     throw new Error('Favorite instrument is required');
   }
+  if (formData.password !== formData.confirmPassword) {
+    throw new Error('The passwords not match');
+  }
 
   return {
     full_name: formData.fullName.trim(),
