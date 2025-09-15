@@ -5,7 +5,7 @@ export default interface LoggerPort {
   warn(message: string, ...args: any[]): void;
   error(message: string, ...args: any[]): void;
   debug(message: string, ...args: any[]): void;
-  fatal?(message: string, ...args: any[]): void;
+  fatal(message: string, ...args: any[]): void;
   appInfo(appError: ApplicationResponse<any>): void;
   appWarn(appError: ApplicationResponse<any>): void;
   appError(appError: ApplicationResponse<any>): void;

@@ -16,6 +16,8 @@ import Email from "../dto/utils/Email";
 import envs from "../../infrastructure/config/environment-vars";
 import TokenPort from "../../domain/ports/utils/TokenPort";
 import { findRegex } from "../shared/utils/regex";
+import NotFoundResponse from "../shared/responses/NotFoundResponse";
+import UserBasicDataResponse from "../dto/responses/UserBasicDataResponse";
 
 export default class UserService {
   private userPort: UserPort;
@@ -119,12 +121,13 @@ export default class UserService {
 
   async deleteUser(id: number): Promise<ApplicationResponse> {
     try {
-      if (await this.userPort.existsUserById(id)) {
+      const existsUserByIdResponse = await this.userPort.existsUserById(id);
+      if (existsUserByIdResponse.data && existsUserByIdResponse.success) {
         return await this.userPort.deleteUser(id);
       }
-      return ApplicationResponse.failure(
-        new ApplicationError("El usuario no se encontro", ErrorCodes.VALUE_NOT_FOUND),
-      );
+      if (!existsUserByIdResponse.success) {
+      }
+      return new NotFoundResponse({ entity: "Usuario" });
     } catch (error: unknown) {
       if (error instanceof EntityNotFoundError) {
         this.loggerPort.info("Se intento eliminar un usuario que no existe", error);
@@ -157,6 +160,25 @@ export default class UserService {
       return ApplicationResponse.failure(
         new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR, undefined, undefined),
       );
+    }
+  }
+
+  async getUserData(id: number): Promise<ApplicationResponse<UserBasicDataResponse>> {
+    try {
+      const existsUser = await this.userPort.existsUserById(id);
+      if (!existsUser) {
+        return new NotFoundResponse<UserBasicDataResponse>({ message: "El usuario no existe" });
+      }
+
+      const response = await this.userPort.getUserBasicDataById(id);
+
+      if (response.error?.code == ErrorCodes.DATABASE_ERROR) {
+        this.loggerPort.appError(response);
+      }
+      return response;
+    } catch (error) {
+      this.loggerPort.fatal!(`Ocurrio un error al traer la data del usuario ${id}`, error);
+      throw error;
     }
   }
 

@@ -16,6 +16,8 @@ import {
   ErrorCodes,
   ErrorResponse,
 } from "../../../application/shared/errors/ApplicationError";
+import UserBasicDataResponse from "../../../application/dto/responses/UserBasicDataResponse";
+import NotFoundResponse from "../../../application/shared/responses/NotFoundResponse";
 
 export default class UserAdapter implements UserPort {
   private userRepository: Repository<UserEntity>;
@@ -453,6 +455,47 @@ export default class UserAdapter implements UserPort {
     }
   }
 
+  async getUserBasicDataById(id: number): Promise<ApplicationResponse<UserBasicDataResponse>> {
+    try {
+      const userData: UserEntity = await this.userRepository.findOneOrFail({
+        where: { id: id },
+        select: [
+          "id",
+          "full_name",
+          "learning_points",
+          "created_at",
+          "email",
+          "profile_image",
+          "favorite_instrument",
+          "username",
+        ],
+      });
+
+      const userBasicData: UserBasicDataResponse = {
+        id: userData.id,
+        fullName: userData.full_name,
+        email: userData.email,
+        activeFrom: userData.created_at.getFullYear(),
+        profileImage: userData.profile_image,
+        username: userData.username,
+        learningPoints: userData.learning_points,
+        favoriteInstrument: userData.favorite_instrument,
+      };
+
+      return ApplicationResponse.success(userBasicData);
+    } catch (error: unknown) {
+      if (error instanceof EntityNotFoundError) {
+        return new NotFoundResponse<UserBasicDataResponse>({ message: "El usuario no existe" });
+      }
+      if (error instanceof QueryFailedError) {
+        return ApplicationResponse.failure(
+          new ApplicationError("Ocurrio un error con la base de datos", ErrorCodes.DATABASE_ERROR),
+        );
+      }
+      throw error;
+    }
+  }
+
   async getUserStampsAndUserInfoByUserOrEmail(
     userOrEmail: string,
   ): Promise<ApplicationResponse<[string, string, number, string]>> {
@@ -584,14 +627,7 @@ export default class UserAdapter implements UserPort {
       return ApplicationResponse.success(userExists != null);
     } catch (error: unknown) {
       if (error instanceof EntityNotFoundError) {
-        return ApplicationResponse.failure(
-          new ApplicationError(
-            "No se encontro el usuario",
-            ErrorCodes.VALUE_NOT_FOUND,
-            { errorName: error.name, errorMessage: error.message },
-            error,
-          ),
-        );
+        return ApplicationResponse.success(false);
       }
       if (error instanceof Error) {
         return ApplicationResponse.failure(

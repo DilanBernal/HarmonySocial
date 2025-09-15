@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import { Formik } from 'formik';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Image,
   KeyboardAvoidingView,
@@ -18,6 +18,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import * as Yup from 'yup';
 import { EqBars } from '../../components/general/EqBars';
 import { AuthUserService } from '../../core/services/user/auth/AuthUserService';
+import UserService from '../../core/services/user/user/UserService';
 
 const validationSchema = Yup.object().shape({
   userOrEmail: Yup.string().required('El nombre de usuario es obligatorio'),
@@ -32,6 +33,11 @@ const LoginScreen = () => {
   const [focus, setFocus] = useState<'user' | 'pass' | null>(null);
 
   const authService: AuthUserService = new AuthUserService();
+  const userService = new UserService();
+
+  useEffect(() => {
+    userService.getUserData(22);
+  }, []);
   const loginFunction = authService.login;
 
   const userRef = useRef<TextInput>(null);

@@ -2,7 +2,7 @@ import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { AppConfig } from '../../../config/AppConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-class ApiService {
+export class ApiService {
   private api: AxiosInstance;
 
   constructor() {
