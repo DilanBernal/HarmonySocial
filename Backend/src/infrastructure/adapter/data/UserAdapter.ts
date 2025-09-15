@@ -453,9 +453,9 @@ export default class UserAdapter implements UserPort {
     }
   }
 
-  async getUserStampsAndIdByUserOrEmail(
+  async getUserStampsAndUserInfoByUserOrEmail(
     userOrEmail: string,
-  ): Promise<ApplicationResponse<[string, string, number]>> {
+  ): Promise<ApplicationResponse<[string, string, number, string]>> {
     try {
       const whereCondition: FindOptionsWhere<UserEntity>[] = [
         { email: userOrEmail, status: Not(In(this.negativeStatus)) },
@@ -464,7 +464,7 @@ export default class UserAdapter implements UserPort {
 
       const response = await this.userRepository.findOne({
         where: whereCondition,
-        select: ["concurrency_stamp", "security_stamp", "id"],
+        select: ["concurrency_stamp", "security_stamp", "id", "profile_image"],
       });
 
       if (!response) {
@@ -476,6 +476,7 @@ export default class UserAdapter implements UserPort {
         response.concurrency_stamp,
         response.security_stamp,
         response.id,
+        response.profile_image,
       ]);
     } catch (error) {
       return ApplicationResponse.failure(

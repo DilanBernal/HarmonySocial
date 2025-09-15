@@ -1,17 +1,16 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  Image,
-  Alert,
-  ScrollView,
-} from 'react-native';
-import { UserInstrument } from '../../../core/models/User';
+import React from 'react';
 import { Control, UseFormSetValue, useWatch } from 'react-hook-form';
+import {
+  Alert,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { RegisterFormData } from '../../../core/dtos/RegisterFormData';
-import ProfileImage from '../../general/ProfileImage';
+import { UserInstrument } from '../../../core/models/User';
 
 // Avatares por defecto basados en el instrumento favorito
 const DEFAULT_AVATARS = {
@@ -93,7 +92,7 @@ export const ProfileImageStep: React.FC<ProfileImageStepProps> = ({
 
       {/* Vista previa de la imagen seleccionada */}
       <View style={styles.previewContainer}>
-        {/* {selectedImage ? (
+        {selectedImage ? (
           <Image
             source={
               selectedImage.startsWith('asset_')
@@ -111,7 +110,7 @@ export const ProfileImageStep: React.FC<ProfileImageStepProps> = ({
               {fullName.charAt(0).toUpperCase()}
             </Text>
           </View>
-        )} */}
+        )}
       </View>
 
       {/* Avatares recomendados */}

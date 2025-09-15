@@ -1,14 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NavigationProp } from '@react-navigation/native';
 import type { RootStackParamList } from '../../App';
 import type { ImageSourcePropType } from 'react-native';
 
-const AVATAR: ImageSourcePropType = require('../../assets/img/yoxd.jpg');
+// const AVATAR: ImageSourcePropType = require('../../assets/img/yoxd.jpg');
 
 export default function ProfileScreen() {
   const rootNav = useNavigation<NavigationProp<RootStackParamList>>();
+
+  const AVATAR: ImageSourcePropType = {};
+
+  // useState
 
   const onLogout = () => {
     // aquí podrías borrar token/estado (AsyncStorage, contexto, etc.)
