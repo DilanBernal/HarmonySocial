@@ -15,19 +15,46 @@ import { UserInstrument } from '../../../core/models/User';
 // Avatares por defecto basados en el instrumento favorito
 const DEFAULT_AVATARS = {
   [UserInstrument.GUITAR]: [
-    require('../../../assets/img/profile-generig-img-1.png'),
-    require('../../../assets/img/profile-generig-img-2.png'),
-    require('../../../assets/img/profile-generig-img-3.png'),
+    {
+      key: 'avatar1',
+      src: require('../../../assets/img/profile-generig-img-1.png'),
+    },
+    {
+      key: 'avatar2',
+      src: require('../../../assets/img/profile-generig-img-2.png'),
+    },
+    {
+      key: 'avatar3',
+      src: require('../../../assets/img/profile-generig-img-3.png'),
+    },
   ],
   [UserInstrument.PIANO]: [
-    require('../../../assets/img/profile-generig-img-4.png'),
-    require('../../../assets/img/profile-generig-img-5.png'),
-    require('../../../assets/img/profile-generig-img-6.png'),
+    {
+      key: 'avatar4',
+      src: require('../../../assets/img/profile-generig-img-4.png'),
+    },
+    {
+      key: 'avatar5',
+      src: require('../../../assets/img/profile-generig-img-5.png'),
+    },
+    {
+      key: 'avatar6',
+      src: require('../../../assets/img/profile-generig-img-6.png'),
+    },
   ],
   [UserInstrument.BASS]: [
-    require('../../../assets/img/profile-generig-img-7.png'),
-    require('../../../assets/img/profile-generig-img-8.png'),
-    require('../../../assets/img/profile-generig-img-1.png'),
+    {
+      key: 'avatar7',
+      src: require('../../../assets/img/profile-generig-img-7.png'),
+    },
+    {
+      key: 'avatar8',
+      src: require('../../../assets/img/profile-generig-img-8.png'),
+    },
+    {
+      key: 'avatar1',
+      src: require('../../../assets/img/profile-generig-img-1.png'),
+    },
   ],
 };
 
@@ -65,21 +92,10 @@ export const ProfileImageStep: React.FC<ProfileImageStepProps> = ({
     return DEFAULT_AVATARS[favoriteInstrument];
   };
 
-  // Generar URI string para las imágenes locales
-  const getImageUri = (imageSource: any): string => {
-    if (typeof imageSource === 'number') {
-      return `asset_${imageSource}`;
-    }
-    return imageSource;
-  };
-
-  // Manejar selección de imagen personalizada
-  const handleCustomImagePress = () => {
-    Alert.alert(
-      'Imagen personalizada',
-      'Esta funcionalidad estará disponible próximamente. Por ahora, selecciona uno de los avatares disponibles.',
-      [{ text: 'Entendido' }],
-    );
+  // Obtener la key del avatar si es local, o la url si es remota
+  const getImageKeyOrUri = (avatarObj: any): string => {
+    if (avatarObj && avatarObj.key) return avatarObj.key;
+    return avatarObj;
   };
 
   const recommendedAvatars = getRecommendedAvatars();
@@ -95,12 +111,10 @@ export const ProfileImageStep: React.FC<ProfileImageStepProps> = ({
         {selectedImage ? (
           <Image
             source={
-              selectedImage.startsWith('asset_')
-                ? recommendedAvatars.find(
-                    (_, index) =>
-                      getImageUri(recommendedAvatars[index]) === selectedImage,
-                  ) || recommendedAvatars[0]
-                : { uri: selectedImage }
+              // Si es una key de avatar local, busca el objeto y usa su src
+              recommendedAvatars.find(a => a.key === selectedImage)?.src || { // Si no, asume que es una url remota
+                uri: selectedImage,
+              }
             }
             style={styles.previewImage}
           />
@@ -127,22 +141,22 @@ export const ProfileImageStep: React.FC<ProfileImageStepProps> = ({
         contentContainerStyle={styles.avatarScrollContainer}
       >
         {recommendedAvatars.map((avatar, index) => {
-          const avatarUri = getImageUri(avatar);
-          const isSelected = selectedImage === avatarUri;
+          const avatarKey = getImageKeyOrUri(avatar);
+          const isSelected = selectedImage === avatarKey;
 
           return (
             <Pressable
-              key={index}
+              key={avatar.key || index}
               style={[
                 styles.avatarOption,
                 isSelected && styles.avatarOptionSelected,
               ]}
-              onPress={() => onImageSelect('profileImage', avatarUri)}
+              onPress={() => onImageSelect('profileImage', avatarKey)}
               accessibilityRole="button"
               accessibilityLabel={`Avatar opción ${index + 1}`}
               accessibilityState={{ selected: isSelected }}
             >
-              <Image source={avatar} style={styles.avatarImage} />
+              <Image source={avatar.src || avatar} style={styles.avatarImage} />
               {isSelected && (
                 <View style={styles.selectedOverlay}>
                   <Text style={styles.selectedCheckmark}>✓</Text>
