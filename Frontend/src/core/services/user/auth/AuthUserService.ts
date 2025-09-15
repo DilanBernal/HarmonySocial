@@ -47,7 +47,16 @@ export class AuthUserService {
         data,
       );
 
-      AsyncStorage.setItem('user', JSON.stringify(response));
+      await AsyncStorage.setItem('user', JSON.stringify(response));
+
+      await AsyncStorage.setItem(
+        'userData',
+        JSON.stringify({
+          profileImage: response.data.profile_image,
+          username: response.data.username,
+          id: response.data.id,
+        }),
+      );
 
       return response;
     } catch (error: any) {

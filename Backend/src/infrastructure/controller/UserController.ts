@@ -11,6 +11,7 @@ import UpdateUserRequest from "../../application/dto/requests/User/UpdateUserReq
 import ForgotPasswordRequest from "../../application/dto/requests/User/ForgotPasswordRequest";
 import ResetPasswordRequest from "../../application/dto/requests/User/ResetPasswordRequest";
 import VerifyEmailRequest from "../../application/dto/requests/User/VerifyEmailRequest";
+import NotFoundResponse from "../../application/shared/responses/NotFoundResponse";
 
 export default class UserController {
   private userService: UserService;
@@ -24,7 +25,6 @@ export default class UserController {
   async registerUser(req: Request, res: Response) {
     const regRequest: RegisterRequest = req.body;
     try {
-      console.log(regRequest);
       const user: Omit<
         User,
         | "id"
@@ -250,6 +250,39 @@ export default class UserController {
           .json({ message: "Ocurrió un error inesperado", details: error.message });
       }
       return res.status(500).json({ message: "Error desconocido" });
+    }
+  }
+
+  async getBasicUserData(req: Request, res: Response) {
+    const { id } = req.query;
+    try {
+      const response = await this.userService.getUserData(Number(id));
+      if (response.success) {
+        res.status(200).json(response.data).cookie("cookie prueba", "prueba", {});
+      } else {
+        if (response instanceof NotFoundResponse) {
+          res.status(404).json({ message: "No se pudo encontrar el usuario" });
+        } else if (response instanceof ApplicationResponse) {
+          switch (response.error?.code) {
+            case ErrorCodes.DATABASE_ERROR:
+              res.status(500).json({
+                messae: "Ocurrio un error, intente mas tarde",
+              });
+            default:
+              res.status(500).json({
+                messae: "Ocurrio un error, intente mas tarde",
+              });
+          }
+        } else {
+          res.status(500).json({
+            messae: "Ocurrio un error, intente mas tarde",
+          });
+        }
+      }
+    } catch (error) {
+      res.status(500).json({
+        messae: "Ocurrio un error, intente mas tarde",
+      });
     }
   }
 

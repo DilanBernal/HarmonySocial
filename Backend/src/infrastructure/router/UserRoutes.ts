@@ -93,6 +93,18 @@ router.get("/email/:email", authenticateToken, async (req, res) => {
   }
 });
 
+router.get("/basic-info", async (req, res) => {
+  try {
+    await userController.getBasicUserData(req, res);
+  } catch (error: any) {
+    const errorMessage = error.message ?? "Error al traer el usuario";
+    res.status(error.statusCode ?? 500).json({
+      message: errorMessage,
+    });
+    console.error(errorMessage, error);
+  }
+});
+
 router.put("/:id", authenticateToken, async (req, res) => {
   try {
     await userController.updateUser(req, res);
