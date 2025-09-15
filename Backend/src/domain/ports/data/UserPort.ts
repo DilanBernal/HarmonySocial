@@ -13,9 +13,9 @@ export default interface UserPort {
   getUserByEmail(email: string): Promise<ApplicationResponse<User>>;
   getUserByLoginRequest(userOrEmail: string): Promise<ApplicationResponse<User>>;
   getUserByEmailOrUsername(email: string, username: string): Promise<ApplicationResponse<User>>;
-  getUserStampsAndIdByUserOrEmail(
+  getUserStampsAndUserInfoByUserOrEmail(
     userOrEmail: string,
-  ): Promise<ApplicationResponse<[string, string, number]>>;
+  ): Promise<ApplicationResponse<[string, string, number, string]>>;
   //Seccion de validación
   existsUserById(id: number): Promise<ApplicationResponse<boolean>>;
   existsUserByLoginRequest(userOrEmail: string): Promise<ApplicationResponse<boolean>>;

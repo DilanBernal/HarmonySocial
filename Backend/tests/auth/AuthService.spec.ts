@@ -21,7 +21,7 @@ const mockUserPort: jest.Mocked<UserPort> = {
   getUserByEmail: jest.fn(),
   getUserByLoginRequest: jest.fn(),
   getUserByEmailOrUsername: jest.fn(),
-  getUserStampsAndIdByUserOrEmail: jest.fn(),
+  getUserStampsAndUserInfoByUserOrEmail: jest.fn(),
   existsUserById: jest.fn(),
   existsUserByLoginRequest: jest.fn(),
   existsUserByEmailOrUsername: jest.fn(),
@@ -84,7 +84,7 @@ describe("AuthService", () => {
     it("debe autenticar un usuario exitosamente con username", async () => {
       // Configurar mocks para escenario exitoso
       mockUserPort.existsUserByLoginRequest.mockResolvedValue(ApplicationResponse.success(true));
-      mockUserPort.getUserStampsAndIdByUserOrEmail.mockResolvedValue(
+      mockUserPort.getUserStampsAndUserInfoByUserOrEmail.mockResolvedValue(
         ApplicationResponse.success(["security123", "concurrency123", 1]),
       );
       mockAuthPort.loginUser.mockResolvedValue(mockAuthResponse);
@@ -123,7 +123,7 @@ describe("AuthService", () => {
 
       // Configurar mocks
       mockUserPort.existsUserByLoginRequest.mockResolvedValue(ApplicationResponse.success(true));
-      mockUserPort.getUserStampsAndIdByUserOrEmail.mockResolvedValue(
+      mockUserPort.getUserStampsAndUserInfoByUserOrEmail.mockResolvedValue(
         ApplicationResponse.success(["security123", "concurrency123", 1]),
       );
       mockAuthPort.loginUser.mockResolvedValue(mockAuthResponse);
@@ -166,7 +166,7 @@ describe("AuthService", () => {
     it("debe fallar si ocurre un error al obtener información del usuario", async () => {
       // Configurar mocks para simular error
       mockUserPort.existsUserByLoginRequest.mockResolvedValue(ApplicationResponse.success(true));
-      mockUserPort.getUserStampsAndIdByUserOrEmail.mockResolvedValue(
+      mockUserPort.getUserStampsAndUserInfoByUserOrEmail.mockResolvedValue(
         ApplicationResponse.success(undefined as any),
       );
 
@@ -182,7 +182,7 @@ describe("AuthService", () => {
     it("debe fallar si la autenticación falla", async () => {
       // Configurar mocks para simular fallo en autenticación
       mockUserPort.existsUserByLoginRequest.mockResolvedValue(ApplicationResponse.success(true));
-      mockUserPort.getUserStampsAndIdByUserOrEmail.mockResolvedValue(
+      mockUserPort.getUserStampsAndUserInfoByUserOrEmail.mockResolvedValue(
         ApplicationResponse.success(["security123", "concurrency123", 1]),
       );
 
@@ -300,7 +300,7 @@ describe("AuthService", () => {
     it("debe manejar concurrencia al actualizar el concurrency_stamp", async () => {
       // Configurar mocks para escenario exitoso
       mockUserPort.existsUserByLoginRequest.mockResolvedValue(ApplicationResponse.success(true));
-      mockUserPort.getUserStampsAndIdByUserOrEmail.mockResolvedValue(
+      mockUserPort.getUserStampsAndUserInfoByUserOrEmail.mockResolvedValue(
         ApplicationResponse.success(["security123", "concurrency123", 1]),
       );
       mockAuthPort.loginUser.mockResolvedValue(mockAuthResponse);
@@ -335,7 +335,7 @@ describe("AuthService", () => {
     it("debe verificar que se asigna correctamente el ID al AuthResponse", async () => {
       // Configurar mocks
       mockUserPort.existsUserByLoginRequest.mockResolvedValue(ApplicationResponse.success(true));
-      mockUserPort.getUserStampsAndIdByUserOrEmail.mockResolvedValue(
+      mockUserPort.getUserStampsAndUserInfoByUserOrEmail.mockResolvedValue(
         ApplicationResponse.success(["security123", "concurrency123", 42]),
       );
 

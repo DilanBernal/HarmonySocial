@@ -1,20 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  ImageBackground,
-  FlatList,
-} from 'react-native';
-import { UserInstrument } from '../../../core/models/User';
+import React from 'react';
+import { Control, UseFormSetValue, useWatch } from 'react-hook-form';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { RegisterFormData } from '../../../core/dtos/RegisterFormData';
-import {
-  Control,
-  UseFormGetValues,
-  UseFormSetValue,
-  useWatch,
-} from 'react-hook-form';
+import { UserInstrument } from '../../../core/models/User';
 import InstrumentOption from './InstrumentOption';
 
 export type instrumentOptionType = {

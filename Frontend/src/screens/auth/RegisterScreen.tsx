@@ -1,28 +1,25 @@
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   SafeAreaView,
   ScrollView,
   StatusBar,
+  StyleSheet,
   Text,
   View,
-  Alert,
-  TouchableOpacity,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import type { RootStackParamList } from '../../App';
-import { StyleSheet } from 'react-native';
-
-// Importar nuevos componentes
-import { StepIndicator } from '../../components/general/StepIndicator';
-import { StepTransition } from '../../components/general/StepTransition';
+import { MultiStep, Step } from 'react-native-multistep';
 import { BasicDataStep } from '../../components/auth/register/BasicData';
 import { FavoriteInstrumentStep } from '../../components/auth/register/FavoriteInstrument';
 import { ProfileImageStep } from '../../components/auth/register/ProfileImageStep';
 import { useRegisterViewModel } from '../../viewmodels/useRegisterViewModel';
-import { MultiStep, Step } from 'react-native-multistep';
 // import { MultiStep, MultiStepRef, Step } from '@brijen/react-native-multistep';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Register'>;
@@ -89,122 +86,87 @@ export default function RegisterScreen() {
             {/* Título principal */}
             <Text style={styles.title}>Crea tu cuenta</Text>
             <Text style={styles.subtitle}>Únete a Harmony Social 🎧</Text>
-
-            <MultiStep
-              tintColor="rgba(128, 82, 255, 1)"
-              nextButtonText="Siguiente"
-              buttonContainerStyle={styles.btn}
-              submitButtonText="Registrarse"
-              prevButtonText="Anterior"
-              onFinalStepSubmit={finalSubmitHandler}
-              progressCircleTrackColor="#1f1f71ff"
-              progressCircleSize={57}
-              globalNextStepTitleStyle={{ display: 'none' }}
-              nextButtonStyle={styles.btnNext}
-              progressCircleLabelStyle={styles.btnText}
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             >
-              <Step
-                title="Datos Personales"
-                stepContainerStyle={{
-                  width: '82%',
-                  justifyContent: 'center',
-                  display: 'flex',
-                }}
+              <MultiStep
+                tintColor="rgba(128, 82, 255, 1)"
+                nextButtonText="Siguiente"
+                buttonContainerStyle={styles.btn}
+                submitButtonText="Registrarse"
+                prevButtonText="Anterior"
+                onFinalStepSubmit={finalSubmitHandler}
+                progressCircleTrackColor="#1f1f71ff"
+                progressCircleSize={57}
+                globalNextStepTitleStyle={{ display: 'none' }}
+                nextButtonStyle={styles.btnNext}
+                progressCircleLabelStyle={styles.btnText}
               >
-                <BasicDataStep
-                  control={control}
-                  errors={errors}
-                  getFieldState={getFieldState}
-                  showPassword={showPassword}
-                  setShowPassword={setShowPassword}
-                  showConfirmPassword={showConfirmPassword}
-                  setShowConfirmPassword={setShowConfirmPassword}
-                />
-              </Step>
-              <Step
-                title="Instrumento Favorito"
-                stepContainerStyle={{
-                  width: '82%',
-                  justifyContent: 'center',
-                  display: 'flex',
-                }}
-              >
-                <View>
-                  {/* <Text>Hola</Text> */}
-                  <FavoriteInstrumentStep
-                    errors={errors}
-                    setValue={setValue}
+                <Step
+                  title="Datos Personales"
+                  stepContainerStyle={{
+                    width: '82%',
+                    justifyContent: 'center',
+                    display: 'flex',
+                  }}
+                >
+                  <BasicDataStep
                     control={control}
+                    errors={errors}
+                    getFieldState={getFieldState}
+                    showPassword={showPassword}
+                    setShowPassword={setShowPassword}
+                    showConfirmPassword={showConfirmPassword}
+                    setShowConfirmPassword={setShowConfirmPassword}
                   />
-                </View>
-              </Step>
-              <Step
-                title="Imagen de perfil"
-                stepContainerStyle={{
-                  width: '82%',
-                  justifyContent: 'center',
-                  display: 'flex',
-                }}
-              >
-                {/* <Text>hola</Text> */}
-                <ProfileImageStep
-                  control={control}
-                  getState={getFieldState}
-                  favoriteInstrument={getValues('favoriteInstrument')}
-                  onImageSelect={setValue}
-                  fullName={''}
-                />
-              </Step>
-            </MultiStep>
-            {/* Indicador de progreso */}
-            {/* <StepIndicator
-              currentStep={currentStep}
-              totalSteps={totalSteps}
-              onStepPress={goToStep}
-              canNavigateToStep={canNavigateToStep}
-              getStepInfo={getStepInfo}
-              stepValidations={stepValidations}
-            /> */}
+                </Step>
+                <Step
+                  title="Instrumento Favorito"
+                  stepContainerStyle={{
+                    width: '82%',
+                    justifyContent: 'center',
+                    display: 'flex',
+                  }}
+                >
+                  <View>
+                    {/* <Text>Hola</Text> */}
+                    <FavoriteInstrumentStep
+                      errors={errors}
+                      setValue={setValue}
+                      control={control}
+                    />
+                  </View>
+                </Step>
+                <Step
+                  title="Imagen de perfil"
+                  stepContainerStyle={{
+                    width: '82%',
+                    justifyContent: 'center',
+                    display: 'flex',
+                  }}
+                >
+                  {/* <Text>hola</Text> */}
+                  <ProfileImageStep
+                    control={control}
+                    getState={getFieldState}
+                    favoriteInstrument={getValues('favoriteInstrument')}
+                    onImageSelect={setValue}
+                    fullName={''}
+                  />
+                </Step>
+              </MultiStep>
 
-            {/* Contenido del paso con animación */}
-            {/* <StepTransition currentStep={currentStep}>
-              <View style={styles.stepContent}>{renderStepContent()}</View>
-            </StepTransition> */}
-
-            {/* Botón principal */}
-            {/* <LinearGradient
-              colors={['#7C4DFF', '#4C63F2']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.btnGrad}
-            >
               <Pressable
-                onPress={handleSubmit}
-                disabled={!isCurrentStepValid || isLoading}
-                style={({ pressed }) => [
-                  styles.btn,
-                  (!isCurrentStepValid || isLoading) && styles.btnDisabled,
-                  pressed && styles.btnPressed,
-                ]}
+                onPress={() => navigation.goBack()}
+                style={styles.linkContainer}
                 accessibilityRole="button"
-                accessibilityLabel={getButtonText()}
-                accessibilityState={{
-                  disabled: !isCurrentStepValid || isLoading,
-                }}
+                accessibilityLabel="Volver al inicio de sesión"
               >
-                <Text style={styles.btnText}>{getButtonText()}</Text>
+                <Text style={styles.link}>
+                  ¿Ya tienes cuenta? Inicia sesión
+                </Text>
               </Pressable>
-            </LinearGradient> */}
-
-            {/* Link para volver al login */}
-            <Pressable
-              onPress={() => navigation.goBack()}
-              style={styles.linkContainer}
-              accessibilityRole="button"
-              accessibilityLabel="Volver al inicio de sesión"
-            >
-              <Text style={styles.link}>¿Ya tienes cuenta? Inicia sesión</Text>
-            </Pressable>
+            </KeyboardAvoidingView>
           </View>
         </ScrollView>
       </LinearGradient>
