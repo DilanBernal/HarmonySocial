@@ -13,11 +13,14 @@ import {
   Pressable,
   Animated,
   Easing,
+  Alert,
 } from 'react-native';
+import { login } from '../../services/auth';
 import LinearGradient from 'react-native-linear-gradient';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { useNavigation } from '@react-navigation/native';
+import { getToken } from "../../services/api";
 
 /* eslint-disable react-native/no-inline-styles */
 const LOGO = require('../../assets/img/HarmonyImgNueva.png');
@@ -145,12 +148,21 @@ const LoginScreen = () => {
                 validationSchema={validationSchema}
                 onSubmit={async (values, { setSubmitting }) => {
                   try {
-                    await new Promise(r => setTimeout(r, 600));
+                    // Llama a tu backend: /api/users/login y guarda el token en AsyncStorage
+                    await login(values.userOrEmail, values.password);
+                    const t = await getToken();
+                    console.log("[login] token actual:", t);
+                    navigation.reset({ index: 0, routes: [{ name: "Main" }] });
+
+                    // Si todo bien, navega a la app principal
                     navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
+                  } catch (e: any) {
+                    Alert.alert("Login", e?.message ?? "No se pudo iniciar sesión");
                   } finally {
                     setSubmitting(false);
                   }
                 }}
+
               >
                 {({
                   handleChange,

@@ -26,6 +26,7 @@ export default class FileAdapter implements FilePort {
 
   async createImage(file: FilePayload): Promise<ApplicationResponse<FileUploadResponse>> {
     try {
+      await this.imgContainerClient.createIfNotExists();   // ← aquí
       const extension = path.extname(file.filename);
       const blobName = `${uuidv4()}-${Date.now()}${extension}`;
       const blockBlobClient = this.imgContainerClient.getBlockBlobClient(blobName);
@@ -121,6 +122,7 @@ export default class FileAdapter implements FilePort {
   }
   async createSong(file: FilePayload): Promise<ApplicationResponse<FileUploadResponse>> {
     try {
+      await this.songContainerClient.createIfNotExists();  // ← aquí
       const extension = path.extname(file.filename);
       const blobName = `${uuidv4()}-${Date.now()}${extension}`;
       const blockBlobClient = this.songContainerClient.getBlockBlobClient(blobName);

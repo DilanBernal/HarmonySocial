@@ -409,80 +409,60 @@ export default class UserAdapter implements UserPort {
    */
   async getUserByLoginRequest(userOrEmail: string): Promise<ApplicationResponse<User>> {
     try {
-      const whereCondition: FindOptionsWhere<UserEntity>[] = [
-        { email: userOrEmail, status: Not(In(this.negativeStatus)) },
-        { username: userOrEmail, status: Not(In(this.negativeStatus)) },
-      ];
+      const q = userOrEmail.trim().toLowerCase();
 
-      const user = await this.userRepository.findOneOrFail({ where: whereCondition });
+      const user = await this.userRepository
+        .createQueryBuilder("u")
+        .where("(LOWER(u.email) = :q OR LOWER(u.username) = :q)", { q })
+        .andWhere("u.status <> :deleted", { deleted: UserStatus.DELETED })
+        .getOneOrFail();
+
       return ApplicationResponse.success(this.toDomain(user));
     } catch (error: unknown) {
       if (error instanceof EntityNotFoundError) {
         return ApplicationResponse.failure(
-          new ApplicationError(
-            "No se encontró el usuario",
-            ErrorCodes.VALUE_NOT_FOUND,
-            { errorName: error.name, errorMessage: error.message },
-            error,
-          ),
+          new ApplicationError("No se encontró el usuario", ErrorCodes.VALUE_NOT_FOUND, error.message, error),
         );
       }
       if (error instanceof QueryFailedError) {
         return ApplicationResponse.failure(
-          new ApplicationError(
-            "Ocurrió un error en la query",
-            ErrorCodes.DATABASE_ERROR,
-            { errorName: error.name, errorMessage: error.message },
-            error,
-          ),
-        );
-      }
-      if (error instanceof Error) {
-        return ApplicationResponse.failure(
-          new ApplicationError(
-            "Error en getUserByLoginRequest",
-            ErrorCodes.DATABASE_ERROR,
-            undefined,
-            error,
-          ),
+          new ApplicationError("Ocurrió un error en la query", ErrorCodes.DATABASE_ERROR, error.message, error),
         );
       }
       return ApplicationResponse.failure(
-        new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR, undefined, undefined),
+        new ApplicationError("Error en getUserByLoginRequest", ErrorCodes.DATABASE_ERROR, undefined, error as any),
       );
     }
   }
+
+
 
   async getUserStampsAndIdByUserOrEmail(
     userOrEmail: string,
   ): Promise<ApplicationResponse<[string, string, number]>> {
     try {
-      const whereCondition: FindOptionsWhere<UserEntity>[] = [
-        { email: userOrEmail, status: Not(In(this.negativeStatus)) },
-        { username: userOrEmail, status: Not(In(this.negativeStatus)) },
-      ];
+      const q = userOrEmail.trim().toLowerCase();
 
-      const response = await this.userRepository.findOne({
-        where: whereCondition,
-        select: ["concurrency_stamp", "security_stamp", "id"],
-      });
+      const r = await this.userRepository
+        .createQueryBuilder("u")
+        .select(["u.concurrency_stamp", "u.security_stamp", "u.id"])
+        .where("(LOWER(u.email) = :q OR LOWER(u.username) = :q)", { q })
+        .andWhere("u.status <> :deleted", { deleted: UserStatus.DELETED })
+        .getOne();
 
-      if (!response) {
+      if (!r) {
         return ApplicationResponse.failure(
           new ApplicationError("No se encontraron usuarios", ErrorCodes.VALUE_NOT_FOUND),
         );
       }
-      return ApplicationResponse.success([
-        response.concurrency_stamp,
-        response.security_stamp,
-        response.id,
-      ]);
-    } catch (error) {
+      return ApplicationResponse.success([r.concurrency_stamp, r.security_stamp, r.id]);
+    } catch {
       return ApplicationResponse.failure(
         new ApplicationError("Error en getUserStampsByEmail", ErrorCodes.SERVER_ERROR),
       );
     }
   }
+
 
   /**
    * @param userOrEmail Username o email unico del usuario en la DB
@@ -491,47 +471,27 @@ export default class UserAdapter implements UserPort {
    */
   async existsUserByLoginRequest(userOrEmail: string): Promise<ApplicationResponse<boolean>> {
     try {
-      const whereCondition: FindOptionsWhere<UserEntity>[] = [
-        { email: userOrEmail, status: Not(In(this.negativeStatus)) },
-        { username: userOrEmail, status: Not(In(this.negativeStatus)) },
-      ];
+      const q = userOrEmail.trim().toLowerCase();
 
-      const user: UserEntity | null = await this.userRepository.findOneByOrFail(whereCondition);
+      const count = await this.userRepository
+        .createQueryBuilder("u")
+        .where("(LOWER(u.email) = :q OR LOWER(u.username) = :q)", { q })
+        .andWhere("u.status = :active", { active: UserStatus.ACTIVE })
+        .getCount();
 
-      if (user && user.status == UserStatus.ACTIVE) {
-        return ApplicationResponse.success(true);
-      } else {
-        return ApplicationResponse.success(false);
-      }
+      return ApplicationResponse.success(count > 0);
     } catch (error: unknown) {
-      if (error instanceof EntityNotFoundError) {
-        return ApplicationResponse.success(false);
-      }
       if (error instanceof QueryFailedError) {
         return ApplicationResponse.failure(
-          new ApplicationError(
-            "Ocurrio un erro con la DB",
-            ErrorCodes.DATABASE_ERROR,
-            [error.name, error.message],
-            error,
-          ),
-        );
-      }
-      if (error instanceof Error) {
-        return ApplicationResponse.failure(
-          new ApplicationError(
-            "Ocurrio un erro con la DB",
-            ErrorCodes.DATABASE_ERROR,
-            [error.name, error.message],
-            error,
-          ),
+          new ApplicationError("Ocurrió un erro[r] con la DB", ErrorCodes.DATABASE_ERROR, error.message, error),
         );
       }
       return ApplicationResponse.failure(
-        new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR, undefined, undefined),
+        new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR, undefined, error as any),
       );
     }
   }
+
 
   //Seccion de validaciones
 
