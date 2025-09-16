@@ -8,7 +8,11 @@ import { RegisterFormData } from '../../dtos/RegisterFormData';
 export const transformToRegisterDTO = (
   formData: RegisterFormData,
 ): RegisterDTO => {
-  if (!formData.favoriteInstrument) {
+  console.log(formData);
+  if (
+    formData.favoriteInstrument === undefined ||
+    formData.favoriteInstrument === null
+  ) {
     throw new Error('Favorite instrument is required');
   }
   if (formData.password !== formData.confirmPassword) {
