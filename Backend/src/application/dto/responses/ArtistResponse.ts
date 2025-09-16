@@ -1,11 +1,8 @@
-export enum ArtistStatus {
-  ACTIVE = "ACTIVE",
-  DELETED = "DELETED",
-}
+// DTO de respuesta para artista
+import { ArtistStatus } from "../../../domain/models/Artist";
 
-type Artist = {
+export interface ArtistResponse {
   id: number;
-  artist_user_id?: number;
   artist_name: string;
   biography?: string;
   verified: boolean;
@@ -14,5 +11,4 @@ type Artist = {
   status: ArtistStatus;
   created_at: Date;
   updated_at?: Date;
-};
-export default Artist;
+}

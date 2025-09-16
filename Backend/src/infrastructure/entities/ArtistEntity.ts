@@ -33,6 +33,9 @@ export default class ArtistEntity {
   @Column({ type: "character varying", length: 6, nullable: true })
   country_code?: string;
 
+  @Column({ type: "enum", enum: ["ACTIVE", "DELETED"], default: "ACTIVE" })
+  status!: "ACTIVE" | "DELETED";
+
   @CreateDateColumn({ type: "timestamp", nullable: false })
   created_at!: Date;
 
