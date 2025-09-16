@@ -38,9 +38,9 @@ const LoginScreen = () => {
   const authService: AuthUserService = new AuthUserService();
   const userService = new UserService();
 
-  useEffect(() => {
-    userService.getUserData(22);
-  }, []);
+  // useEffect(() => {
+  //   userService.getUserData(22);
+  // }, []);
   const loginFunction = authService.login;
 
   const userRef = useRef<TextInput>(null);

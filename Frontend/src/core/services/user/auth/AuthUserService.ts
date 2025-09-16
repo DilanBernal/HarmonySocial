@@ -4,6 +4,7 @@ import { RegisterDTO } from '../../../dtos/RegisterDTO';
 import LoginDTO from '../../../dtos/LoginDTO';
 import LoginResponse from '../../../dtos/LoginResponse';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import UserService from '../user/UserService';
 
 export class AuthUserService {
   private readonly baseUrl: string;
@@ -46,17 +47,16 @@ export class AuthUserService {
         'users/login',
         data,
       );
+      console.log(response.data.id);
+
+      const userService = new UserService();
 
       await AsyncStorage.setItem('user', JSON.stringify(response));
 
-      await AsyncStorage.setItem(
-        'userData',
-        JSON.stringify({
-          profileImage: response.data.profile_image,
-          username: response.data.username,
-          id: response.data.id,
-        }),
-      );
+      // console.log(
+      await userService.getUserData(response.data.id);
+
+      await AsyncStorage.setItem('userLoginRes', JSON.stringify(response));
 
       return response;
     } catch (error: any) {

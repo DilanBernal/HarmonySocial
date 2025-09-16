@@ -17,18 +17,23 @@ export default class UserService {
     });
   }
 
-  async getUserData(id: number): Promise<boolean> {
+  public async getUserData(id: number): Promise<UserBasicData | null> {
     try {
       const result = await this.apiService.get<UserBasicData>(
         `users/basic-info?id=${id}`,
       );
       console.log(result);
+      if (result) {
+        console.log(result);
 
-      await AsyncStorage.setItem('userData', JSON.stringify(result));
-      return true;
+        await AsyncStorage.setItem('userData', JSON.stringify(result));
+        console.log(await AsyncStorage.getItem('userData'));
+        return result;
+      }
+      return null;
     } catch (error) {
       console.error(error);
-      return false;
+      throw error;
     }
   }
 }
