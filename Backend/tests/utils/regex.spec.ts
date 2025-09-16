@@ -112,7 +112,14 @@ describe("Regex Utils", () => {
       // Casos válidos
       expect(regex.test("https://example.com/image.jpg")).toBe(true);
       expect(regex.test("http://domain.org/photo.png")).toBe(true);
-      expect(regex.test("ftp://files.com/avatar.gif")).toBe(true);
+      expect(regex.test("avatar1")).toBe(true);
+      expect(regex.test("avatar2")).toBe(true);
+      expect(regex.test("avatar3")).toBe(true);
+      expect(regex.test("avatar4")).toBe(true);
+      expect(regex.test("avatar5")).toBe(true);
+      expect(regex.test("avatar6")).toBe(true);
+      expect(regex.test("avatar7")).toBe(true);
+      expect(regex.test("avatar8")).toBe(true);
 
       // Casos inválidos
       expect(regex.test("")).toBe(false); // Vacío
@@ -221,7 +228,15 @@ describe("Regex Utils", () => {
       // Protocolos válidos
       expect(regex.test("https://example.com/image.jpg")).toBe(true);
       expect(regex.test("http://example.com/image.jpg")).toBe(true);
-      expect(regex.test("ftp://example.com/image.jpg")).toBe(true);
+
+      expect(regex.test("avatar1")).toBe(true);
+      expect(regex.test("avatar2")).toBe(true);
+      expect(regex.test("avatar3")).toBe(true);
+      expect(regex.test("avatar4")).toBe(true);
+      expect(regex.test("avatar5")).toBe(true);
+      expect(regex.test("avatar6")).toBe(true);
+      expect(regex.test("avatar7")).toBe(true);
+      expect(regex.test("avatar8")).toBe(true);
 
       // Con parámetros
       expect(regex.test("https://example.com/image.jpg?size=large")).toBe(true);
