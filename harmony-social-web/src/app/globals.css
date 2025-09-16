@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+
+:root {
+  --background: #0a1124;
+  --foreground: #e0e6f7;
+  --primary: #2563eb;
+  --primary-light: #60a5fa;
+  --accent: #38bdf8;
+  --card: #1e293b;
+  --input-bg: #16213a;
+  --input-border: #2563eb;
+  --input-placeholder: #60a5fa;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+}
+
+input, textarea, select {
+  background: var(--input-bg);
+  color: var(--foreground);
+  border: 2px solid var(--input-border);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--accent);
+}
+input::placeholder, textarea::placeholder {
+  color: var(--input-placeholder);
+  opacity: 1;
+}
+
+a {
+  color: var(--primary-light);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+a:hover {
+  color: var(--accent);
+}
+
+.card {
+  background: var(--card);
+  border-radius: 1.25rem;
+  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.15);
+  padding: 2rem;
+}
