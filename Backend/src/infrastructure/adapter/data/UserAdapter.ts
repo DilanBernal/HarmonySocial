@@ -73,6 +73,8 @@ export default class UserAdapter implements UserPort {
     userEntity.learning_points = user.learning_points;
     userEntity.favorite_instrument = user.favorite_instrument;
     userEntity.is_artist = user.is_artist;
+    userEntity.concurrency_stamp = user.concurrency_stamp;
+    userEntity.security_stamp = user.security_stamp;
     return userEntity;
   }
 
@@ -140,6 +142,8 @@ export default class UserAdapter implements UserPort {
         is_artist: user.is_artist ?? existingUser.is_artist,
         created_at: existingUser.created_at,
         updated_at: user.updated_at ?? new Date(Date.now()),
+        security_stamp: user.concurrency_stamp ?? existingUser.security_stamp,
+        concurrency_stamp: user.concurrency_stamp ?? existingUser.concurrency_stamp,
       });
       await this.userRepository.save(existingUser);
       return ApplicationResponse.emptySuccess();
@@ -314,7 +318,6 @@ export default class UserAdapter implements UserPort {
         { email: email, status: Not(In(this.negativeStatus)) },
       ];
       const user = await this.userRepository.findOneOrFail({ where: whereCondition });
-      console.log(user);
       return ApplicationResponse.success(this.toDomain(user));
     } catch (error: unknown) {
       if (error instanceof EntityNotFoundError) {

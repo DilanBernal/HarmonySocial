@@ -57,8 +57,8 @@ export default class UserService {
         );
       }
       const hashPassword = await this.authPort.encryptPassword(user.password);
-      const securityStamp: string = await this.tokenPort.generateStamp();
-      const concurrencyStamp: string = await this.tokenPort.generateStamp();
+      const securityStamp: string = this.tokenPort.generateStamp();
+      const concurrencyStamp: string = this.tokenPort.generateStamp();
 
       const userDomain: Omit<User, "id"> = {
         status: UserStatus.SUSPENDED,
@@ -454,7 +454,7 @@ export default class UserService {
         updateData.password = hashPassword;
 
         // Regenerar security stamp al cambiar contraseña
-        updateData.security_stamp = await this.tokenPort.generateStamp();
+        updateData.security_stamp = this.tokenPort.generateStamp();
       }
 
       const updateResponse = await this.userPort.updateUser(id, updateData);
@@ -633,10 +633,7 @@ export default class UserService {
           new ApplicationError("Token inválido o expirado", ErrorCodes.VALIDATION_ERROR),
         );
       }
-      console.log(tokenData);
-
       const user = await this.userPort.getUserByEmail(request.email);
-      console.log(user);
       if (!user.success && user.data) {
         return ApplicationResponse.failure(
           new ApplicationError("No se encontro el usuario", ErrorCodes.INVALID_EMAIL),
@@ -646,6 +643,8 @@ export default class UserService {
       const updateData: Partial<User> = {
         status: UserStatus.ACTIVE,
         updated_at: new Date(Date.now()),
+        concurrency_stamp: this.tokenPort.generateStamp(),
+        security_stamp: this.tokenPort.generateStamp(),
       };
 
       // Aquí necesitarías el ID del usuario desde el token

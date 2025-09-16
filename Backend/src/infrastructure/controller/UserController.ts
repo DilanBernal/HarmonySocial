@@ -415,7 +415,6 @@ export default class UserController {
   async verifyEmail(req: Request, res: Response) {
     const verifyRequest: VerifyEmailRequest = req.body;
 
-    console.log(verifyRequest);
     try {
       const response = await this.userService.verifyEmail(verifyRequest);
 
@@ -425,7 +424,6 @@ export default class UserController {
         });
       } else {
         if (response.error) {
-          console.log(response);
           switch (response.error.code) {
             case ErrorCodes.VALIDATION_ERROR:
               return res.status(400).json({
