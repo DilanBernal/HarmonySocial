@@ -86,7 +86,6 @@ export default function UploadSongScreen() {
 
       // 2) crear registro en DB
       await api.post('/songs', {
-      await api.post('/songs', {
         title: title.trim(),
         artist: artist.trim(),           // inclúyelo si tu backend lo soporta
         description: description.trim() || null,
