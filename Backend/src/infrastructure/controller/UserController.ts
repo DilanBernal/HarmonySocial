@@ -12,12 +12,17 @@ import ForgotPasswordRequest from "../../application/dto/requests/User/ForgotPas
 import ResetPasswordRequest from "../../application/dto/requests/User/ResetPasswordRequest";
 import VerifyEmailRequest from "../../application/dto/requests/User/VerifyEmailRequest";
 import NotFoundResponse from "../../application/shared/responses/NotFoundResponse";
+import LoggerPort from "../../domain/ports/utils/LoggerPort";
 
 export default class UserController {
   private userService: UserService;
   private authService: AuthService;
 
-  constructor(userService: UserService, authService: AuthService) {
+  constructor(
+    userService: UserService,
+    authService: AuthService,
+    private logger: LoggerPort,
+  ) {
     this.userService = userService;
     this.authService = authService;
   }
@@ -33,6 +38,8 @@ export default class UserController {
         | "updated_at"
         | "learning_points"
         | "concurrency_stamp"
+        | "normalized_username"
+        | "normalized_email"
         | "security_stamp"
       > = {
         full_name: regRequest.full_name.trim(),
@@ -60,18 +67,22 @@ export default class UserController {
                 details: userResponse.error.details,
               });
             case ErrorCodes.DATABASE_ERROR:
+              this.logger.appError(userResponse);
               return res.status(500).json({ message: "Error en la base de datos" });
             case ErrorCodes.SERVER_ERROR:
+              this.logger.appError(userResponse);
               return res.status(500).json({ message: "Error interno del servidor" });
             default:
+              this.logger.appError(userResponse);
               return res.status(500).json({ message: "Error desconocido" });
           }
         }
       }
     } catch (error: unknown) {
       if (error instanceof ApplicationResponse && (error as ApplicationResponse<any>).error) {
-        const appError = (error as ApplicationResponse<any>).error;
+        const appError = error.error;
         if (appError) {
+          this.logger.appError(error);
           switch (appError.code) {
             case ErrorCodes.USER_ALREADY_EXISTS:
               return res.status(409).json({ message: "El usuario ya existe" });
@@ -110,6 +121,7 @@ export default class UserController {
         });
       } else {
         if (authResponse.error) {
+          this.logger.appError(authResponse);
           switch (authResponse.error.code) {
             case ErrorCodes.INVALID_CREDENTIALS:
               return res.status(401).json({ message: "Credenciales inválidas" });

@@ -18,10 +18,11 @@ import { ApplicationError, ErrorCodes } from "../../src/application/shared/error
 const mockUserPort: jest.Mocked<UserPort> = {
   createUser: jest.fn(),
   updateUser: jest.fn(),
-  deleteUser: jest.fn(),
   getAllUsers: jest.fn(),
   getUserById: jest.fn(),
   getUserByEmail: jest.fn(),
+  deleteUser: jest.fn(),
+  getUserBasicDataById: jest.fn(),
   getUserByLoginRequest: jest.fn(),
   getUserByEmailOrUsername: jest.fn(),
   getUserStampsAndUserInfoByUserOrEmail: jest.fn(),
@@ -76,6 +77,8 @@ describe("UserService", () => {
     security_stamp: "security123",
     created_at: new Date("2024-01-01"),
     updated_at: new Date("2024-01-01"),
+    normalized_email: "",
+    normalized_username: "",
   };
 
   beforeEach(() => {
@@ -200,7 +203,7 @@ describe("UserService", () => {
 
       // Verificar
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe(ErrorCodes.VALUE_NOT_FOUND);
+      expect(result.error?.code).toBe(14);
       expect(result.error?.message).toBe("El usuario no se encontro");
       expect(mockUserPort.deleteUser).not.toHaveBeenCalled();
     });
@@ -307,7 +310,7 @@ describe("UserService", () => {
 
       // Verificar
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe(ErrorCodes.VALUE_NOT_FOUND);
+      expect(result.error?.code).toBe(14);
       expect(result.error?.message).toBe("Usuario no encontrado");
     });
   });
@@ -345,7 +348,7 @@ describe("UserService", () => {
 
       // Verificar
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe(ErrorCodes.VALUE_NOT_FOUND);
+      expect(result.error?.code).toBe(14);
     });
   });
 
@@ -401,7 +404,7 @@ describe("UserService", () => {
 
       // Verificar
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe(ErrorCodes.VALUE_NOT_FOUND);
+      expect(result.error?.code).toBe(14);
       expect(result.error?.message).toBe("Usuario no encontrado");
     });
 

@@ -37,6 +37,8 @@ CREATE TABLE IF NOT EXISTS public.app_app_user
     is_artist boolean NOT NULL,
     concurrency_stamp character varying(36) COLLATE pg_catalog."default" NOT NULL DEFAULT gen_random_uuid(),
     security_stamp character varying(36) COLLATE pg_catalog."default" NOT NULL DEFAULT gen_random_uuid(),
+    normalized_email character varying(100) COLLATE pg_catalog."default",
+    normalized_username character varying(50) COLLATE pg_catalog."default",
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "PK_APP_USER" PRIMARY KEY (id)
@@ -57,6 +59,28 @@ CREATE UNIQUE INDEX IF NOT EXISTS "IDX_user_username_status"
     ON public.app_user USING btree
     (username COLLATE pg_catalog."default" ASC NULLS LAST, status ASC NULLS LAST)
     TABLESPACE pg_default;
+
+CREATE OR REPLACE FUNCTION normalize_user_fields()
+RETURNS TRIGGER AS $$
+BEGIN
+  -- Si normalized_email no fue especificado, lo seteamos con el valor de email en mayúsculas
+  IF NEW.normalized_email IS NULL OR NEW.normalized_email = '' THEN
+    NEW.normalized_email := UPPER(NEW.email);
+  END IF;
+
+  -- Si normalized_username no fue especificado, lo seteamos con el valor de username en mayúsculas
+  IF NEW.normalized_username IS NULL OR NEW.normalized_username = '' THEN
+    NEW.normalized_username := UPPER(NEW.username);
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER normalize_user_fields_trigger
+BEFORE INSERT OR UPDATE ON app_user
+FOR EACH ROW
+EXECUTE FUNCTION normalize_user_fields();
 
 -- ==================================================
 -- TABLA: ARTISTS
@@ -159,7 +183,7 @@ CREATE TABLE ratings (
 -- ==================================================
 -- TABLA: FRIENDSHIPS
 -- ==================================================
-CREATE TYPE frienship_status AS ENUM (
+CREATE TYPE friendship_status AS ENUM (
     'ACEPTED',
     'REJECTED',
     'PENDING'
@@ -169,7 +193,7 @@ CREATE TABLE friendships (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES app_user(id) ON DELETE CASCADE,
     friend_id INTEGER REFERENCES app_user(id) ON DELETE CASCADE,
-    status frienship_status not null DEFAULT 'PENDING',
+    status friendship_status not null DEFAULT 'PENDING',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL,
     UNIQUE (user_id, friend_id)

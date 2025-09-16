@@ -36,7 +36,7 @@ const authService = new AuthService(
   loggerAdapter,
   tokenAdapter,
 );
-const userController = new UserController(userApp, authService);
+const userController = new UserController(userApp, authService, loggerAdapter);
 
 //Login
 router.post("/login", validateRequest(loginSchema), async (req: Request, res: Response) => {

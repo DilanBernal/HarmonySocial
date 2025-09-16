@@ -73,6 +73,8 @@ export default class UserService {
         is_artist: user.is_artist,
         concurrency_stamp: concurrencyStamp,
         security_stamp: securityStamp,
+        normalized_email: user.email.toUpperCase(),
+        normalized_username: user.username.toUpperCase(),
       };
 
       const response = await this.userPort.createUser(userDomain);

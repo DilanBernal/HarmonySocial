@@ -55,6 +55,8 @@ export default class UserAdapter implements UserPort {
       is_artist: user.is_artist,
       created_at: user.created_at,
       updated_at: user.updated_at,
+      normalized_email: user.normalized_email,
+      normalized_username: user.normalized_username,
     };
     return userDomain;
   }
@@ -411,12 +413,14 @@ export default class UserAdapter implements UserPort {
    */
   async getUserByLoginRequest(userOrEmail: string): Promise<ApplicationResponse<User>> {
     try {
-      const whereCondition: FindOptionsWhere<UserEntity>[] = [
-        { email: userOrEmail, status: Not(In(this.negativeStatus)) },
-        { username: userOrEmail, status: Not(In(this.negativeStatus)) },
-      ];
+      const q = userOrEmail.trim().toLowerCase();
 
-      const user = await this.userRepository.findOneOrFail({ where: whereCondition });
+      const user = await this.userRepository
+        .createQueryBuilder("u")
+        .where("(LOWER(u.email) = :q OR LOWER(u.username) = :q)", { q })
+        .andWhere("u.status <> :deleted", { deleted: UserStatus.DELETED })
+        .getOneOrFail();
+
       return ApplicationResponse.success(this.toDomain(user));
     } catch (error: unknown) {
       if (error instanceof EntityNotFoundError) {
@@ -424,7 +428,7 @@ export default class UserAdapter implements UserPort {
           new ApplicationError(
             "No se encontró el usuario",
             ErrorCodes.VALUE_NOT_FOUND,
-            { errorName: error.name, errorMessage: error.message },
+            error.message,
             error,
           ),
         );
@@ -434,23 +438,18 @@ export default class UserAdapter implements UserPort {
           new ApplicationError(
             "Ocurrió un error en la query",
             ErrorCodes.DATABASE_ERROR,
-            { errorName: error.name, errorMessage: error.message },
-            error,
-          ),
-        );
-      }
-      if (error instanceof Error) {
-        return ApplicationResponse.failure(
-          new ApplicationError(
-            "Error en getUserByLoginRequest",
-            ErrorCodes.DATABASE_ERROR,
-            undefined,
+            error.message,
             error,
           ),
         );
       }
       return ApplicationResponse.failure(
-        new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR, undefined, undefined),
+        new ApplicationError(
+          "Error en getUserByLoginRequest",
+          ErrorCodes.DATABASE_ERROR,
+          undefined,
+          error as any,
+        ),
       );
     }
   }
@@ -501,27 +500,25 @@ export default class UserAdapter implements UserPort {
   ): Promise<ApplicationResponse<[string, string, number, string]>> {
     try {
       const whereCondition: FindOptionsWhere<UserEntity>[] = [
-        { email: userOrEmail, status: Not(In(this.negativeStatus)) },
-        { username: userOrEmail, status: Not(In(this.negativeStatus)) },
+        { normalized_email: userOrEmail.toUpperCase(), status: Not(In(this.negativeStatus)) },
+        { normalized_username: userOrEmail.toUpperCase(), status: Not(In(this.negativeStatus)) },
       ];
 
-      const response = await this.userRepository.findOne({
+      const r = await this.userRepository.findOne({
         where: whereCondition,
-        select: ["concurrency_stamp", "security_stamp", "id", "profile_image"],
+        select: ["id", "concurrency_stamp", "security_stamp", "profile_image"],
       });
 
-      if (!response) {
-        return ApplicationResponse.failure(
-          new ApplicationError("No se encontraron usuarios", ErrorCodes.VALUE_NOT_FOUND),
-        );
+      if (!r) {
+        return new NotFoundResponse({ entity: "usuario" });
       }
       return ApplicationResponse.success([
-        response.concurrency_stamp,
-        response.security_stamp,
-        response.id,
-        response.profile_image,
+        r.concurrency_stamp,
+        r.security_stamp,
+        r.id,
+        r.profile_image,
       ]);
-    } catch (error) {
+    } catch {
       return ApplicationResponse.failure(
         new ApplicationError("Error en getUserStampsByEmail", ErrorCodes.SERVER_ERROR),
       );
@@ -535,44 +532,28 @@ export default class UserAdapter implements UserPort {
    */
   async existsUserByLoginRequest(userOrEmail: string): Promise<ApplicationResponse<boolean>> {
     try {
-      const whereCondition: FindOptionsWhere<UserEntity>[] = [
-        { email: userOrEmail, status: Not(In(this.negativeStatus)) },
-        { username: userOrEmail, status: Not(In(this.negativeStatus)) },
-      ];
+      const q = userOrEmail.trim().toLowerCase();
 
-      const user: UserEntity | null = await this.userRepository.findOneByOrFail(whereCondition);
+      const count = await this.userRepository
+        .createQueryBuilder("u")
+        .where("(LOWER(u.email) = :q OR LOWER(u.username) = :q)", { q })
+        .andWhere("u.status = :active", { active: UserStatus.ACTIVE })
+        .getCount();
 
-      if (user && user.status == UserStatus.ACTIVE) {
-        return ApplicationResponse.success(true);
-      } else {
-        return ApplicationResponse.success(false);
-      }
+      return ApplicationResponse.success(count > 0);
     } catch (error: unknown) {
-      if (error instanceof EntityNotFoundError) {
-        return ApplicationResponse.success(false);
-      }
       if (error instanceof QueryFailedError) {
         return ApplicationResponse.failure(
           new ApplicationError(
-            "Ocurrio un erro con la DB",
+            "Ocurrió un erro[r] con la DB",
             ErrorCodes.DATABASE_ERROR,
-            [error.name, error.message],
-            error,
-          ),
-        );
-      }
-      if (error instanceof Error) {
-        return ApplicationResponse.failure(
-          new ApplicationError(
-            "Ocurrio un erro con la DB",
-            ErrorCodes.DATABASE_ERROR,
-            [error.name, error.message],
+            error.message,
             error,
           ),
         );
       }
       return ApplicationResponse.failure(
-        new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR, undefined, undefined),
+        new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR, undefined, error as any),
       );
     }
   }

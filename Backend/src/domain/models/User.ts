@@ -2,7 +2,9 @@ interface User {
   id: number;
   full_name: string;
   email: string;
+  normalized_email: string;
   username: string;
+  normalized_username: string;
   password: string;
   profile_image: string;
   learning_points: number;
