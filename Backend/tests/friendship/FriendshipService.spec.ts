@@ -40,6 +40,7 @@ describe("FriendshipService", () => {
       updateUser: jest.fn(),
       deleteUser: jest.fn(),
       getAllUsers: jest.fn(),
+      getUserBasicDataById: jest.fn(),
       getUserById: jest.fn(),
       getUserByEmail: jest.fn(),
       getUserByLoginRequest: jest.fn(),

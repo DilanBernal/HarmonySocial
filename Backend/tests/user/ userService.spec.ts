@@ -21,6 +21,7 @@ const mockUserPort: jest.Mocked<UserPort> = {
   deleteUser: jest.fn(),
   getAllUsers: jest.fn(),
   getUserById: jest.fn(),
+  getUserBasicDataById: jest.fn(),
   getUserByEmail: jest.fn(),
   getUserByLoginRequest: jest.fn(),
   getUserByEmailOrUsername: jest.fn(),
@@ -64,8 +65,10 @@ describe("UserService", () => {
   const mockUser: User = {
     id: 1,
     full_name: "John Doe",
+    normalized_email: "john@example.com".toUpperCase(),
     email: "john@example.com",
     username: "johndoe",
+    normalized_username: "johndoe".toUpperCase(),
     password: "hashedPassword",
     profile_image: "https://example.com/image.jpg",
     learning_points: 0,
@@ -180,6 +183,8 @@ describe("UserService", () => {
       profile_image: "https://example.com/image.jpg",
       learning_points: 100,
       status: UserStatus.ACTIVE,
+      normalized_email: "johndoejohn@example.com".toUpperCase(),
+      normalized_username: "john@example.com".toUpperCase(),
       favorite_instrument: UserInstrument.GUITAR,
       is_artist: false,
       created_at: new Date(),
@@ -228,7 +233,7 @@ describe("UserService", () => {
 
       // Verificar
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe(ErrorCodes.VALUE_NOT_FOUND);
+      expect(result.error?.code).toBe(14);
       expect(result.error?.message).toBe("Usuario no encontrado");
     });
 
@@ -257,6 +262,8 @@ describe("UserService", () => {
       username: "johndoe",
       profile_image: "https://example.com/image.jpg",
       learning_points: 100,
+      normalized_email: "johndoejohn@example.com".toUpperCase(),
+      normalized_username: "john@example.com".toUpperCase(),
       status: UserStatus.ACTIVE,
       favorite_instrument: UserInstrument.GUITAR,
       is_artist: false,
@@ -364,7 +371,7 @@ describe("UserService", () => {
 
       // Verificar
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe(ErrorCodes.VALUE_NOT_FOUND);
+      expect(result.error?.code).toBe(14);
       expect(result.error?.message).toBe("Usuario no encontrado");
     });
 
@@ -443,7 +450,7 @@ describe("UserService", () => {
 
       // Verificar
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe(ErrorCodes.VALUE_NOT_FOUND);
+      expect(result.error?.code).toBe(14);
       expect(result.error?.message).toBe("El usuario no se encontro");
     });
   });
@@ -465,6 +472,8 @@ describe("UserService", () => {
         password: "hash1",
         concurrency_stamp: "stamp1",
         security_stamp: "security1",
+        normalized_email: "johndoejohn@example.com".toUpperCase(),
+        normalized_username: "john@example.com".toUpperCase(),
       },
       {
         id: 2,
@@ -476,6 +485,8 @@ describe("UserService", () => {
         status: UserStatus.ACTIVE,
         favorite_instrument: UserInstrument.PIANO,
         is_artist: true,
+        normalized_email: "johndoejohn@example.com".toUpperCase(),
+        normalized_username: "john@example.com".toUpperCase(),
         created_at: new Date(),
         updated_at: new Date(),
         password: "hash2",
@@ -555,6 +566,8 @@ describe("UserService", () => {
       created_at: new Date(),
       updated_at: new Date(),
       password: "hashedpassword",
+      normalized_email: "johndoejohn@example.com".toUpperCase(),
+      normalized_username: "john@example.com".toUpperCase(),
     };
 
     it("debe procesar la solicitud de recuperación exitosamente", async () => {

@@ -37,6 +37,8 @@ CREATE TABLE IF NOT EXISTS public.app_app_user
     is_artist boolean NOT NULL,
     concurrency_stamp character varying(36) COLLATE pg_catalog."default" NOT NULL DEFAULT gen_random_uuid(),
     security_stamp character varying(36) COLLATE pg_catalog."default" NOT NULL DEFAULT gen_random_uuid(),
+    normalized_email character varying(100) COLLATE pg_catalog."default",
+    normalized_username character varying(50) COLLATE pg_catalog."default",
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "PK_APP_USER" PRIMARY KEY (id)
@@ -181,7 +183,7 @@ CREATE TABLE ratings (
 -- ==================================================
 -- TABLA: FRIENDSHIPS
 -- ==================================================
-CREATE TYPE frienship_status AS ENUM (
+CREATE TYPE friendship_status AS ENUM (
     'ACEPTED',
     'REJECTED',
     'PENDING'
@@ -191,7 +193,7 @@ CREATE TABLE friendships (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES app_user(id) ON DELETE CASCADE,
     friend_id INTEGER REFERENCES app_user(id) ON DELETE CASCADE,
-    status frienship_status not null DEFAULT 'PENDING',
+    status friendship_status not null DEFAULT 'PENDING',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL,
     UNIQUE (user_id, friend_id)

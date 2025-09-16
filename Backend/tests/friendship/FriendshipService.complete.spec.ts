@@ -31,6 +31,7 @@ const mockUserPort: jest.Mocked<UserPort> = {
   getUserByEmail: jest.fn(),
   getUserByLoginRequest: jest.fn(),
   getUserByEmailOrUsername: jest.fn(),
+  getUserBasicDataById: jest.fn(),
   getUserStampsAndUserInfoByUserOrEmail: jest.fn(),
   existsUserById: jest.fn(),
   existsUserByLoginRequest: jest.fn(),
