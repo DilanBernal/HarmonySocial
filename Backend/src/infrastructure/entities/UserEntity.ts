@@ -56,7 +56,11 @@ export default class UserEntity {
   @BeforeInsert()
   @BeforeUpdate()
   normalizeFields() {
-    if (this.username) this.normalized_username = this.username.toUpperCase();
-    if (this.email) this.normalized_email = this.email.toUpperCase();
+    if (this.username && this.normalized_username !== this.username.toUpperCase()) {
+      this.normalized_username = this.username.toUpperCase();
+    }
+    if (this.email && this.normalized_email !== this.email.toUpperCase()) {
+      this.normalized_email = this.email.toUpperCase();
+    }
   }
 }
