@@ -85,16 +85,27 @@ EXECUTE FUNCTION normalize_user_fields();
 -- ==================================================
 -- TABLA: ARTISTS
 -- ==================================================
-CREATE TABLE artists (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    biography TEXT,
-    verified BOOLEAN DEFAULT FALSE,
-    formation_year INTEGER,
-    country VARCHAR(50),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NULL
-);
+
+
+CREATE TABLE IF NOT EXISTS public.artists
+(
+    id integer NOT NULL DEFAULT nextval('artists_id_seq'::regclass),
+    biography text COLLATE pg_catalog."default",
+    verified boolean NOT NULL DEFAULT false,
+    formation_year integer NOT NULL,
+    created_at timestamp without time zone NOT NULL DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now(),
+    artist_name character varying COLLATE pg_catalog."default" NOT NULL,
+    country_code character varying(6) COLLATE pg_catalog."default",
+    artist_user_id integer,
+    CONSTRAINT artists_pkey PRIMARY KEY (id),
+    CONSTRAINT "UQ_Artist_user_id" UNIQUE (artist_user_id),
+    CONSTRAINT "FK_Artist_user" FOREIGN KEY (artist_user_id)
+        REFERENCES public.artist_user (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
 
 -- ==================================================
 -- TABLA: SONGS

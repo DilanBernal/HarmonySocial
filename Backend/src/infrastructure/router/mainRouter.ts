@@ -4,6 +4,7 @@ import userRoutes from "./UserRoutes";
 import friendshipRouter from "./FriendshipRouter";
 import fileRouter from "./FileRouter";
 import songsRouter from "./songs.routes";
+import artistRouter from "./ArtistRouter";
 
 const mainRouter = Router();
 
@@ -12,6 +13,7 @@ mainRouter.use("/users", userRoutes);
 mainRouter.use("/friendships", friendshipRouter);
 mainRouter.use("/file", fileRouter);
 mainRouter.use("/songs", songsRouter);
+mainRouter.use("/artists", artistRouter);
 
 mainRouter.get("/ping", (_req, res) => res.send("Pong!"));
 

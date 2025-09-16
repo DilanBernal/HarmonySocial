@@ -8,5 +8,6 @@ export default interface AuthPort {
     imageAndId: Pick<AuthResponse, "profile_image" | "id">,
   ): Promise<AuthResponse>;
   recoverAccount(email: string): Promise<boolean>;
+  comparePasswords(password: string, hashPassword: string): Promise<boolean>;
   encryptPassword(password: string): Promise<string>;
 }

@@ -1,4 +1,4 @@
-# API Documentation - User Management & Friendships
+# API Documentation
 
 ## Endpoints Implementados
 
@@ -307,3 +307,145 @@
 5. Todos los endpoints manejan errores de manera consistente con códigos HTTP apropiados
 6. Las solicitudes de amistad requieren confirmación del destinatario
 7. Una amistad en estado REJECTED se elimina y se crea una nueva si se vuelve a solicitar
+
+## Artists
+
+CRUD de artistas con control de estados y endpoints de aceptación / rechazo.
+
+### Enum Status
+
+- `PENDING`: creado y pendiente de revisión.
+- `ACTIVE`: perfil aceptado.
+- `REJECTED`: perfil rechazado (no vuelve a PENDING).
+- `DELETED`: eliminado lógicamente.
+
+### Reglas de Estado
+
+- Creación: siempre `PENDING` (ignora status enviado).
+- Update (PUT /:id): NO puede cambiar `status`.
+- Aceptar: solo si actual = `PENDING` pasa a `ACTIVE`.
+- Rechazar: solo si actual = `PENDING` pasa a `REJECTED`.
+- Delete lógico: cambia a `DELETED` (no elimina fila física).
+- Cualquier transición inválida → 409 (BUSINESS_RULE_VIOLATION).
+
+### Campos Artist
+
+| Campo          | Tipo   | Requerido (create) | Notas                |
+| -------------- | ------ | ------------------ | -------------------- |
+| id             | number | No                 | Autogenerado         |
+| artist_name    | string | Sí                 | 2-100 chars          |
+| biography      | string | No                 | Máx 1000 chars       |
+| formation_year | number | No                 | 1900-actual          |
+| country_code   | string | No                 | ISO-2                |
+| status         | enum   | No                 | Forzado internamente |
+| created_at     | date   | No                 | Set por sistema      |
+| updated_at     | date   | No                 | Set por sistema      |
+
+### Endpoints
+
+#### Crear artista
+
+POST `/api/artists`
+Body JSON:
+
+```
+{
+	"artist_name": "Nombre",
+	"biography": "Texto opcional",
+	"formation_year": 2010,
+	"country_code": "US"
+}
+```
+
+Respuestas:
+
+- 201: ArtistResponse (status=PENDING)
+- 400: VALIDATION_ERROR
+- 500: SERVER_ERROR
+
+#### Obtener por id
+
+GET `/api/artists/:id`
+Respuestas:
+
+- 200: ArtistResponse
+- 404: VALUE_NOT_FOUND
+
+#### Buscar artistas
+
+GET `/api/artists?name=foo&country=US&status=PENDING`
+Query Params (opcionales):
+
+- name: substring case-insensitive sobre artist_name
+- country: country_code exacto
+- status: enum
+  Respuestas:
+- 200: { data: ArtistResponse[] }
+
+#### Actualizar artista
+
+PUT `/api/artists/:id`
+Body (todos opcionales, status ignorado si se envía):
+
+```
+{
+	"artist_name": "Nuevo Nombre",
+	"biography": "Otra bio",
+	"formation_year": 2012,
+	"country_code": "AR"
+}
+```
+
+Respuestas:
+
+- 200: ArtistResponse
+- 400: VALIDATION_ERROR
+- 404: VALUE_NOT_FOUND
+
+#### Eliminar (lógico)
+
+DELETE `/api/artists/:id`
+Respuestas:
+
+- 200: ArtistResponse (status=DELETED)
+- 404: VALUE_NOT_FOUND
+
+#### Aceptar artista
+
+PUT `/api/artists/:id/accept`
+Respuestas:
+
+- 200: ArtistResponse (status=ACTIVE)
+- 404: VALUE_NOT_FOUND
+- 409: BUSINESS_RULE_VIOLATION (si no está PENDING)
+
+#### Rechazar artista
+
+PUT `/api/artists/:id/reject`
+Respuestas:
+
+- 200: ArtistResponse (status=REJECTED)
+- 404: VALUE_NOT_FOUND
+- 409: BUSINESS_RULE_VIOLATION (si no está PENDING)
+
+### Códigos de Error (ApplicationError)
+
+- VALUE_NOT_FOUND: recurso inexistente.
+- VALIDATION_ERROR: fallo de Joi.
+- BUSINESS_RULE_VIOLATION: transición de estado inválida.
+- DATABASE_ERROR: fallo capa de datos.
+- SERVER_ERROR: error inesperado.
+
+### Ejemplos en requests
+
+Ver `docs/requests/artists.http` para ejemplos ejecutables.
+
+### Nota de Migración
+
+Si la tabla `artists` aún no tiene la columna `status` enum:
+
+```
+ALTER TABLE artists ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'PENDING';
+```
+
+Actualizar valores existentes según corresponda (p.ej. todos a PENDING inicialmente) antes de exponer aceptación/rechazo.

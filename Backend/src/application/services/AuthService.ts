@@ -62,6 +62,12 @@ export default class AuthService {
         );
       }
 
+      if (!(await this.authPort.comparePasswords(requests.password, userInfo[4]))) {
+        return ApplicationResponse.failure(
+          new ApplicationError("Credenciales inválidas", ErrorCodes.INVALID_CREDENTIALS),
+        );
+      }
+
       const authResponse: AuthResponse = await this.authPort.loginUser(requests, userInfo!, {
         profile_image: userInfo[3],
         id: userInfo[2],

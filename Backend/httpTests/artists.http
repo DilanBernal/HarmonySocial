@@ -1,0 +1,52 @@
+### Artists API Manual Test Collection
+
+# Crear artista
+POST http://localhost:3000/api/artists
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "artist_name": "Queen",
+  "biography": "Legendaria banda británica de rock.",
+  "verified": true,
+  "formation_year": 1970,
+  "country_code": "GB"
+}
+###
+
+# Actualizar artista
+PUT http://localhost:3000/api/artists/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "biography": "Banda británica de rock formada en 1970.",
+  "verified": false
+}
+###
+
+# Buscar artistas por nombre
+GET http://localhost:3000/api/artists?name=Queen
+Authorization: Bearer {{token}}
+###
+
+# Buscar artistas por país
+GET http://localhost:3000/api/artists?country=GB
+Authorization: Bearer {{token}}
+###
+
+# Obtener artista por id
+GET http://localhost:3000/api/artists/1
+Authorization: Bearer {{token}}
+###
+
+# Borrado lógico de artista
+DELETE http://localhost:3000/api/artists/1
+Authorization: Bearer {{token}}
+###
+
+# Respuestas esperadas
+# - 201 Created: { "artistId": 1 }
+# - 204 No Content
+# - 200 OK: ArtistResponse o lista
+# - 404 Not Found / 400 Bad Request: { code, message, details }

@@ -6,6 +6,9 @@ import envs from "../../config/environment-vars";
 import jwt from "jsonwebtoken";
 
 export default class AuthAdapter implements AuthPort {
+  async comparePasswords(password: string, hashPassword: string): Promise<boolean> {
+    return await bcrypt.compare(password, hashPassword);
+  }
   async encryptPassword(password: string): Promise<string> {
     try {
       const encryptedPassword: string = await bcrypt.hash(password, envs.PASSWORD_SALT);
