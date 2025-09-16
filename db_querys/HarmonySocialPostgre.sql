@@ -58,6 +58,28 @@ CREATE UNIQUE INDEX IF NOT EXISTS "IDX_user_username_status"
     (username COLLATE pg_catalog."default" ASC NULLS LAST, status ASC NULLS LAST)
     TABLESPACE pg_default;
 
+CREATE OR REPLACE FUNCTION normalize_user_fields()
+RETURNS TRIGGER AS $$
+BEGIN
+  -- Si normalized_email no fue especificado, lo seteamos con el valor de email en mayúsculas
+  IF NEW.normalized_email IS NULL OR NEW.normalized_email = '' THEN
+    NEW.normalized_email := UPPER(NEW.email);
+  END IF;
+
+  -- Si normalized_username no fue especificado, lo seteamos con el valor de username en mayúsculas
+  IF NEW.normalized_username IS NULL OR NEW.normalized_username = '' THEN
+    NEW.normalized_username := UPPER(NEW.username);
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER normalize_user_fields_trigger
+BEFORE INSERT OR UPDATE ON app_user
+FOR EACH ROW
+EXECUTE FUNCTION normalize_user_fields();
+
 -- ==================================================
 -- TABLA: ARTISTS
 -- ==================================================

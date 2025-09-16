@@ -1,3 +1,4 @@
+import UserBasicDataResponse from "../../../application/dto/responses/UserBasicDataResponse";
 import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
 import User from "../../models/User";
 
@@ -10,12 +11,13 @@ export default interface UserPort {
   //Sección de busqueda
   getAllUsers(): Promise<ApplicationResponse<Array<User>>>;
   getUserById(id: number): Promise<ApplicationResponse<User>>;
+  getUserBasicDataById(id: number): Promise<ApplicationResponse<UserBasicDataResponse>>;
   getUserByEmail(email: string): Promise<ApplicationResponse<User>>;
   getUserByLoginRequest(userOrEmail: string): Promise<ApplicationResponse<User>>;
   getUserByEmailOrUsername(email: string, username: string): Promise<ApplicationResponse<User>>;
-  getUserStampsAndIdByUserOrEmail(
+  getUserStampsAndUserInfoByUserOrEmail(
     userOrEmail: string,
-  ): Promise<ApplicationResponse<[string, string, number]>>;
+  ): Promise<ApplicationResponse<[string, string, number, string]>>;
   //Seccion de validación
   existsUserById(id: number): Promise<ApplicationResponse<boolean>>;
   existsUserByLoginRequest(userOrEmail: string): Promise<ApplicationResponse<boolean>>;

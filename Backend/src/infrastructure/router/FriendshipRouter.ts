@@ -25,7 +25,6 @@ const friendshipController = new FriendshipController(friendshipService);
 
 friendshipRouter.post("", authenticateToken, async (req, res) => {
   try {
-    console.log(req.body);
     await friendshipController.newFriendship(req, res);
   } catch (error) {
     res.status(500).json({ message: "Error al crear la amistad" });

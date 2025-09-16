@@ -1,29 +1,27 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { Formik } from 'formik';
+import React, { useEffect, useRef, useState } from 'react';
 import {
-  SafeAreaView,
-  StatusBar,
+  Image,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
+  SafeAreaView,
   ScrollView,
-  View,
+  StatusBar,
+  StyleSheet,
   Text,
   TextInput,
-  StyleSheet,
-  Image,
-  Pressable,
-  Animated,
-  Easing,
+  View,
   Alert,
 } from 'react-native';
 import { login } from '../../services/auth';
 import LinearGradient from 'react-native-linear-gradient';
-import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { useNavigation } from '@react-navigation/native';
-import { getToken } from "../../services/api";
-
-/* eslint-disable react-native/no-inline-styles */
-const LOGO = require('../../assets/img/HarmonyImgNueva.png');
+import { EqBars } from '../../components/general/EqBars';
+import { AuthUserService } from '../../core/services/user/auth/AuthUserService';
+import { getToken } from '../../services/api';
+import UserService from '../../core/services/user/user/UserService';
 
 const validationSchema = Yup.object().shape({
   userOrEmail: Yup.string().required('El nombre de usuario es obligatorio'),
@@ -32,70 +30,18 @@ const validationSchema = Yup.object().shape({
     .required('La contraseña es obligatoria'),
 });
 
-/** ==== Equalizer decorativo (solo UI) ==== */
-const EqBars = ({
-  bars = 12,
-  color = '#6F9BFF',
-  heightMin = 8,
-  heightMax = 28,
-}: {
-  bars?: number;
-  color?: string;
-  heightMin?: number;
-  heightMax?: number;
-}) => {
-  const anims = useMemo(
-    () => Array.from({ length: bars }, () => new Animated.Value(0)),
-    [bars],
-  );
-
-  useEffect(() => {
-    anims.forEach((v, i) => {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(v, {
-            toValue: 1,
-            duration: 800 + (i % 3) * 150,
-            delay: i * 90,
-            easing: Easing.inOut(Easing.quad),
-            useNativeDriver: false,
-          }),
-          Animated.timing(v, {
-            toValue: 0,
-            duration: 700 + ((i + 1) % 3) * 120,
-            easing: Easing.inOut(Easing.quad),
-            useNativeDriver: false,
-          }),
-        ]),
-      ).start();
-    });
-  }, [anims]);
-
-  return (
-    <View style={styles.eqRow} pointerEvents="none">
-      {anims.map((v, i) => {
-        const h = v.interpolate({
-          inputRange: [0, 1],
-          outputRange: [heightMin, heightMax + (i % 2) * 8],
-        });
-        return (
-          <Animated.View
-            key={i}
-            style={[
-              styles.eqBar,
-              { height: h, opacity: 0.9, backgroundColor: color },
-            ]}
-          />
-        );
-      })}
-    </View>
-  );
-};
-
 const LoginScreen = () => {
   const navigation = useNavigation();
   const [showPassword, setShowPassword] = useState(false);
   const [focus, setFocus] = useState<'user' | 'pass' | null>(null);
+
+  const authService: AuthUserService = new AuthUserService();
+  const userService = new UserService();
+
+  useEffect(() => {
+    userService.getUserData(22);
+  }, []);
+  const loginFunction = authService.login;
 
   const userRef = useRef<TextInput>(null);
   const passRef = useRef<TextInput>(null);
@@ -135,7 +81,11 @@ const LoginScreen = () => {
             <View style={styles.card}>
               {/* Logo */}
               <View style={styles.logoWrap}>
-                <Image source={LOGO} style={styles.logo} resizeMode="contain" />
+                <Image
+                  source={require('../../assets/img/HarmonyImgNueva.png')}
+                  style={styles.logo}
+                  resizeMode="contain"
+                />
               </View>
 
               <Text style={styles.title}>Harmony Social</Text>
@@ -148,21 +98,25 @@ const LoginScreen = () => {
                 validationSchema={validationSchema}
                 onSubmit={async (values, { setSubmitting }) => {
                   try {
-                    // Llama a tu backend: /api/users/login y guarda el token en AsyncStorage
-                    await login(values.userOrEmail, values.password);
-                    const t = await getToken();
-                    console.log("[login] token actual:", t);
-                    navigation.reset({ index: 0, routes: [{ name: "Main" }] });
-
-                    // Si todo bien, navega a la app principal
-                    navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
-                  } catch (e: any) {
-                    Alert.alert("Login", e?.message ?? "No se pudo iniciar sesión");
+                    const response = loginFunction(values)
+                      .then(value => {
+                        console.log(value);
+                        navigation.reset({
+                          index: 0,
+                          routes: [{ name: 'Main' }],
+                        });
+                      })
+                      .catch(error => {
+                        Alert.alert(
+                          'Login',
+                          error?.message ?? 'No se pudo iniciar sesión',
+                        );
+                        console.error(error);
+                      });
                   } finally {
                     setSubmitting(false);
                   }
                 }}
-
               >
                 {({
                   handleChange,
@@ -306,7 +260,7 @@ const LoginScreen = () => {
 
 export default LoginScreen;
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#0b0c16' },
   bg: { flex: 1 },
   kb: { flex: 1 },

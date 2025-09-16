@@ -10,4 +10,8 @@ export default interface RegisterRequest
     | "updated_at"
     | "concurrency_stamp"
     | "security_stamp"
-  > {}
+    | "normalized_username"
+    | "normalized_email"
+  > {
+  usesDefaultImage?: boolean;
+}

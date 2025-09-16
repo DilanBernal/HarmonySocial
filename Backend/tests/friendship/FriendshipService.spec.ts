@@ -44,7 +44,7 @@ describe("FriendshipService", () => {
       getUserByEmail: jest.fn(),
       getUserByLoginRequest: jest.fn(),
       getUserByEmailOrUsername: jest.fn(),
-      getUserStampsAndIdByUserOrEmail: jest.fn(),
+      getUserStampsAndUserInfoByUserOrEmail: jest.fn(),
       existsUserById: jest.fn(),
       existsUserByLoginRequest: jest.fn(),
       existsUserByEmailOrUsername: jest.fn(),

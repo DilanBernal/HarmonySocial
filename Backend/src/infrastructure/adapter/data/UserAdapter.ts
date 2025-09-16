@@ -16,6 +16,8 @@ import {
   ErrorCodes,
   ErrorResponse,
 } from "../../../application/shared/errors/ApplicationError";
+import UserBasicDataResponse from "../../../application/dto/responses/UserBasicDataResponse";
+import NotFoundResponse from "../../../application/shared/responses/NotFoundResponse";
 
 export default class UserAdapter implements UserPort {
   private userRepository: Repository<UserEntity>;
@@ -53,6 +55,8 @@ export default class UserAdapter implements UserPort {
       is_artist: user.is_artist,
       created_at: user.created_at,
       updated_at: user.updated_at,
+      normalized_email: user.normalized_email,
+      normalized_username: user.normalized_username,
     };
     return userDomain;
   }
@@ -421,48 +425,105 @@ export default class UserAdapter implements UserPort {
     } catch (error: unknown) {
       if (error instanceof EntityNotFoundError) {
         return ApplicationResponse.failure(
-          new ApplicationError("No se encontró el usuario", ErrorCodes.VALUE_NOT_FOUND, error.message, error),
+          new ApplicationError(
+            "No se encontró el usuario",
+            ErrorCodes.VALUE_NOT_FOUND,
+            error.message,
+            error,
+          ),
         );
       }
       if (error instanceof QueryFailedError) {
         return ApplicationResponse.failure(
-          new ApplicationError("Ocurrió un error en la query", ErrorCodes.DATABASE_ERROR, error.message, error),
+          new ApplicationError(
+            "Ocurrió un error en la query",
+            ErrorCodes.DATABASE_ERROR,
+            error.message,
+            error,
+          ),
         );
       }
       return ApplicationResponse.failure(
-        new ApplicationError("Error en getUserByLoginRequest", ErrorCodes.DATABASE_ERROR, undefined, error as any),
+        new ApplicationError(
+          "Error en getUserByLoginRequest",
+          ErrorCodes.DATABASE_ERROR,
+          undefined,
+          error as any,
+        ),
       );
     }
   }
 
-
-
-  async getUserStampsAndIdByUserOrEmail(
-    userOrEmail: string,
-  ): Promise<ApplicationResponse<[string, string, number]>> {
+  async getUserBasicDataById(id: number): Promise<ApplicationResponse<UserBasicDataResponse>> {
     try {
-      const q = userOrEmail.trim().toLowerCase();
+      const userData: UserEntity = await this.userRepository.findOneOrFail({
+        where: { id: id },
+        select: [
+          "id",
+          "full_name",
+          "learning_points",
+          "created_at",
+          "email",
+          "profile_image",
+          "favorite_instrument",
+          "username",
+        ],
+      });
 
-      const r = await this.userRepository
-        .createQueryBuilder("u")
-        .select(["u.concurrency_stamp", "u.security_stamp", "u.id"])
-        .where("(LOWER(u.email) = :q OR LOWER(u.username) = :q)", { q })
-        .andWhere("u.status <> :deleted", { deleted: UserStatus.DELETED })
-        .getOne();
+      const userBasicData: UserBasicDataResponse = {
+        id: userData.id,
+        fullName: userData.full_name,
+        email: userData.email,
+        activeFrom: userData.created_at.getFullYear(),
+        profileImage: userData.profile_image,
+        username: userData.username,
+        learningPoints: userData.learning_points,
+        favoriteInstrument: userData.favorite_instrument,
+      };
 
-      if (!r) {
+      return ApplicationResponse.success(userBasicData);
+    } catch (error: unknown) {
+      if (error instanceof EntityNotFoundError) {
+        return new NotFoundResponse<UserBasicDataResponse>({ message: "El usuario no existe" });
+      }
+      if (error instanceof QueryFailedError) {
         return ApplicationResponse.failure(
-          new ApplicationError("No se encontraron usuarios", ErrorCodes.VALUE_NOT_FOUND),
+          new ApplicationError("Ocurrio un error con la base de datos", ErrorCodes.DATABASE_ERROR),
         );
       }
-      return ApplicationResponse.success([r.concurrency_stamp, r.security_stamp, r.id]);
+      throw error;
+    }
+  }
+
+  async getUserStampsAndUserInfoByUserOrEmail(
+    userOrEmail: string,
+  ): Promise<ApplicationResponse<[string, string, number, string]>> {
+    try {
+      const whereCondition: FindOptionsWhere<UserEntity>[] = [
+        { normalized_email: userOrEmail.toUpperCase(), status: Not(In(this.negativeStatus)) },
+        { normalized_username: userOrEmail.toUpperCase(), status: Not(In(this.negativeStatus)) },
+      ];
+
+      const r = await this.userRepository.findOne({
+        where: whereCondition,
+        select: ["id", "concurrency_stamp", "security_stamp", "profile_image"],
+      });
+
+      if (!r) {
+        return new NotFoundResponse({ entity: "usuario" });
+      }
+      return ApplicationResponse.success([
+        r.concurrency_stamp,
+        r.security_stamp,
+        r.id,
+        r.profile_image,
+      ]);
     } catch {
       return ApplicationResponse.failure(
         new ApplicationError("Error en getUserStampsByEmail", ErrorCodes.SERVER_ERROR),
       );
     }
   }
-
 
   /**
    * @param userOrEmail Username o email unico del usuario en la DB
@@ -483,7 +544,12 @@ export default class UserAdapter implements UserPort {
     } catch (error: unknown) {
       if (error instanceof QueryFailedError) {
         return ApplicationResponse.failure(
-          new ApplicationError("Ocurrió un erro[r] con la DB", ErrorCodes.DATABASE_ERROR, error.message, error),
+          new ApplicationError(
+            "Ocurrió un erro[r] con la DB",
+            ErrorCodes.DATABASE_ERROR,
+            error.message,
+            error,
+          ),
         );
       }
       return ApplicationResponse.failure(
@@ -491,7 +557,6 @@ export default class UserAdapter implements UserPort {
       );
     }
   }
-
 
   //Seccion de validaciones
 
@@ -543,14 +608,7 @@ export default class UserAdapter implements UserPort {
       return ApplicationResponse.success(userExists != null);
     } catch (error: unknown) {
       if (error instanceof EntityNotFoundError) {
-        return ApplicationResponse.failure(
-          new ApplicationError(
-            "No se encontro el usuario",
-            ErrorCodes.VALUE_NOT_FOUND,
-            { errorName: error.name, errorMessage: error.message },
-            error,
-          ),
-        );
+        return ApplicationResponse.success(false);
       }
       if (error instanceof Error) {
         return ApplicationResponse.failure(

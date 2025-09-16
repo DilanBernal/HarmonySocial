@@ -50,8 +50,9 @@ export default class AuthService {
         );
       }
 
-      const userInfo = (await this.userPort.getUserStampsAndIdByUserOrEmail(requests.userOrEmail))
-        .data;
+      const userInfo = (
+        await this.userPort.getUserStampsAndUserInfoByUserOrEmail(requests.userOrEmail)
+      ).data;
       if (!userInfo) {
         return ApplicationResponse.failure(
           new ApplicationError(
@@ -61,7 +62,10 @@ export default class AuthService {
         );
       }
 
-      const authResponse: AuthResponse = await this.authPort.loginUser(requests, userInfo!);
+      const authResponse: AuthResponse = await this.authPort.loginUser(requests, userInfo!, {
+        profile_image: userInfo[3],
+        id: userInfo[2],
+      });
       authResponse.id = userInfo[2];
 
       if (!authResponse) {

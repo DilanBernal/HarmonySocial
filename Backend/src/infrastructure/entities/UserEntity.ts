@@ -1,4 +1,4 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
 import { UserInstrument, UserStatus } from "../../domain/models/User";
 
 @Entity({ name: "app_user" })
@@ -11,11 +11,17 @@ export default class UserEntity {
   @Column({ type: "varchar", length: 50 })
   username!: string;
 
+  @Column({ type: "varchar", length: 50, default: "" })
+  normalized_username!: string;
+
   @Column({ type: "varchar" })
   full_name!: string;
 
   @Column({ type: "varchar", length: 100 })
   email!: string;
+
+  @Column({ type: "varchar", length: 100, default: "" })
+  normalized_email!: string;
 
   @Column({ type: "varchar", length: 255 })
   password!: string;
@@ -46,4 +52,11 @@ export default class UserEntity {
 
   @Column({ type: "timestamp", nullable: true })
   updated_at?: Date;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  normalizeFields() {
+    if (this.username) this.normalized_username = this.username.toUpperCase();
+    if (this.email) this.normalized_email = this.email.toUpperCase();
+  }
 }

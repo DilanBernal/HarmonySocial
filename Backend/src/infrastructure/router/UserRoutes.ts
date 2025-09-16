@@ -36,7 +36,7 @@ const authService = new AuthService(
   loggerAdapter,
   tokenAdapter,
 );
-const userController = new UserController(userApp, authService);
+const userController = new UserController(userApp, authService, loggerAdapter);
 
 //Login
 router.post("/login", validateRequest(loginSchema), async (req: Request, res: Response) => {
@@ -84,6 +84,18 @@ router.get("/id/:id", authenticateToken, async (req, res) => {
 router.get("/email/:email", authenticateToken, async (req, res) => {
   try {
     await userController.getUserByEmail(req, res);
+  } catch (error: any) {
+    const errorMessage = error.message ?? "Error al traer el usuario";
+    res.status(error.statusCode ?? 500).json({
+      message: errorMessage,
+    });
+    console.error(errorMessage, error);
+  }
+});
+
+router.get("/basic-info", async (req, res) => {
+  try {
+    await userController.getBasicUserData(req, res);
   } catch (error: any) {
     const errorMessage = error.message ?? "Error al traer el usuario";
     res.status(error.statusCode ?? 500).json({

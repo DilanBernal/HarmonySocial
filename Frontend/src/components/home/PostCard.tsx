@@ -1,8 +1,8 @@
 import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import Post from '../../models/Post';
-import defaultColors, { postColors } from '../../assets/style/colors';
+import Post from '../../core/models/Post';
+import { postColors } from '../../assets/style/colors';
 
 const PostCard = ({ p }: { p: Post }) => {
   return (
