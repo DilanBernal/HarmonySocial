@@ -1,44 +1,33 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  JoinColumn,
-  OneToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from "typeorm";
-import ArtistUserEntity from "./ArtistUserEntity";
+import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
+import { ArtistStatus } from "../../domain/models/Artist";
 
 @Entity({ name: "artists" })
+@Index("IDX_artist_name_status", ["artist_name", "status"])
 export default class ArtistEntity {
   @PrimaryGeneratedColumn()
-  id?: number;
+  id!: number;
 
-  @OneToOne(() => ArtistUserEntity, { nullable: true })
-  @JoinColumn({ name: "artist_user_id" })
-  artist_user_id?: ArtistUserEntity | null;
-
-  @Column({ type: "character varying" })
+  @Column({ type: "varchar", length: 150 })
   artist_name!: string;
 
   @Column({ type: "text", nullable: true })
   biography?: string;
 
-  @Column({ type: "boolean", default: false })
-  verified!: boolean;
-
   @Column({ type: "int" })
   formation_year!: number;
 
-  @Column({ type: "character varying", length: 6, nullable: true })
+  @Column({ type: "varchar", length: 6, nullable: true })
   country_code?: string;
 
-  @Column({ type: "enum", enum: ["ACTIVE", "DELETED"], default: "ACTIVE" })
-  status!: "ACTIVE" | "DELETED";
+  @Column({ type: "boolean", default: false })
+  verified!: boolean;
 
-  @CreateDateColumn({ type: "timestamp", nullable: false })
+  @Column({ type: "enum", enum: ArtistStatus, default: ArtistStatus.PENDING })
+  status!: ArtistStatus;
+
+  @Column({ type: "timestamp" })
   created_at!: Date;
 
-  @UpdateDateColumn({ type: "timestamp", nullable: true })
+  @Column({ type: "timestamp", nullable: true })
   updated_at?: Date;
 }

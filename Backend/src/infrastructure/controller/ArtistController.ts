@@ -1,70 +1,125 @@
 import { Request, Response } from "express";
 import ArtistService from "../../application/services/ArtistService";
 import LoggerPort from "../../domain/ports/utils/LoggerPort";
-
-import { ArtistCreateRequest } from "../../application/dto/requests/ArtistCreateRequest";
-import { ArtistUpdateRequest } from "../../application/dto/requests/ArtistUpdateRequest";
 import { ErrorCodes } from "../../application/shared/errors/ApplicationError";
+import { ApplicationResponse } from "../../application/shared/ApplicationReponse";
+import ArtistCreateRequest from "../../application/dto/requests/Artist/ArtistCreateRequest";
+import ArtistUpdateRequest from "../../application/dto/requests/Artist/ArtistUpdateRequest";
 
 export default class ArtistController {
   constructor(
-    private artistService: ArtistService,
+    private service: ArtistService,
     private logger: LoggerPort,
   ) {}
 
-  async createArtist(req: Request, res: Response) {
-    const data: ArtistCreateRequest = req.body;
-    const result = await this.artistService.createArtist(data);
-    if (result.success) {
-      return res.status(201).json({ artistId: result.data });
+  async create(req: Request, res: Response) {
+    const createRequest: ArtistCreateRequest = req.body;
+    try {
+      const response = await this.service.create(createRequest);
+      if (response.success) {
+        return res.status(201).json({ id: response.data });
+      }
+      return this.handleErrorResponse(res, response);
+    } catch (e) {
+      return this.unexpected(res, e, "crear artista");
     }
-    this.logger.error("Error creating artist", result.error);
-    return res.status(400).json(result.error?.toResponse?.() ?? { message: "Error" });
   }
 
-  async updateArtist(req: Request, res: Response) {
-    const id = Number(req.params.id);
-    const data: ArtistUpdateRequest = req.body;
-    const result = await this.artistService.updateArtist(id, data);
-    if (result.success) {
-      return res.status(204).send();
+  async update(req: Request, res: Response) {
+    const { id } = req.params;
+    const updateRequest: ArtistUpdateRequest = req.body;
+    try {
+      const response = await this.service.update(Number(id), updateRequest);
+      if (response.success) return res.status(200).json({ message: "Artista actualizado" });
+      return this.handleErrorResponse(res, response);
+    } catch (e) {
+      return this.unexpected(res, e, "actualizar artista");
     }
-    this.logger.error("Error updating artist", result.error);
-    const status = result.error?.code === ErrorCodes.VALUE_NOT_FOUND ? 404 : 400;
-    return res.status(status).json(result.error?.toResponse?.() ?? { message: "Error" });
   }
 
-  async deleteArtist(req: Request, res: Response) {
-    const id = Number(req.params.id);
-    const result = await this.artistService.deleteArtist(id);
-    if (result.success) {
-      return res.status(204).send();
+  async getById(req: Request, res: Response) {
+    const { id } = req.params;
+    try {
+      const response = await this.service.getById(Number(id));
+      if (response.success) return res.status(200).json(response.data);
+      return this.handleErrorResponse(res, response);
+    } catch (e) {
+      return this.unexpected(res, e, "obtener artista");
     }
-    this.logger.error("Error deleting artist", result.error);
-    const status = result.error?.code === ErrorCodes.VALUE_NOT_FOUND ? 404 : 400;
-    return res.status(status).json(result.error?.toResponse?.() ?? { message: "Error" });
   }
 
-  async getArtistById(req: Request, res: Response) {
-    const id = Number(req.params.id);
-    const result = await this.artistService.getArtistById(id);
-    if (result.success) {
-      return res.status(200).json(result.data);
+  async search(req: Request, res: Response) {
+    const { name, country, status } = req.query as any;
+    try {
+      const response = await this.service.search({ name, country, status });
+      if (response.success) return res.status(200).json(response.data);
+      return this.handleErrorResponse(res, response);
+    } catch (e) {
+      return this.unexpected(res, e, "buscar artistas");
     }
-    this.logger.error("Artist not found", result.error);
-    return res.status(404).json(result.error?.toResponse?.() ?? { message: "Not found" });
   }
 
-  async searchArtists(req: Request, res: Response) {
-    const { name, country } = req.query;
-    const result = await this.artistService.searchArtists({
-      name: typeof name === "string" ? name : undefined,
-      country: typeof country === "string" ? country : undefined,
-    });
-    if (result.success) {
-      return res.status(200).json(result.data);
+  async logicalDelete(req: Request, res: Response) {
+    const { id } = req.params;
+    try {
+      const response = await this.service.logicalDelete(Number(id));
+      if (response.success) return res.status(204).send();
+      return this.handleErrorResponse(res, response);
+    } catch (e) {
+      return this.unexpected(res, e, "eliminar artista");
     }
-    this.logger.error("Error searching artists", result.error);
-    return res.status(500).json(result.error?.toResponse?.() ?? { message: "Error" });
+  }
+
+  async accept(req: Request, res: Response) {
+    const { id } = req.params;
+    try {
+      const response = await this.service.accept(Number(id));
+      if (response.success) return res.status(200).json({ message: "Artista aceptado" });
+      return this.handleErrorResponse(res, response);
+    } catch (e) {
+      return this.unexpected(res, e, "aceptar artista");
+    }
+  }
+
+  async reject(req: Request, res: Response) {
+    const { id } = req.params;
+    try {
+      const response = await this.service.reject(Number(id));
+      if (response.success) return res.status(200).json({ message: "Artista rechazado" });
+      return this.handleErrorResponse(res, response);
+    } catch (e) {
+      return this.unexpected(res, e, "rechazar artista");
+    }
+  }
+
+  private handleErrorResponse(res: Response, response: ApplicationResponse<any>) {
+    if (!response.error) return res.status(500).json({ message: "Error desconocido" });
+    switch (response.error.code) {
+      case ErrorCodes.VALUE_NOT_FOUND:
+        return res.status(404).json({ message: response.error.message });
+      case ErrorCodes.VALIDATION_ERROR:
+        return res
+          .status(400)
+          .json({ message: response.error.message, details: response.error.details });
+      case ErrorCodes.BUSINESS_RULE_VIOLATION:
+        return res.status(409).json({ message: response.error.message });
+      case ErrorCodes.DATABASE_ERROR:
+        this.logger.appError!(response);
+        return res.status(500).json({ message: "Error en la base de datos" });
+      case ErrorCodes.SERVER_ERROR:
+      default:
+        this.logger.appError!(response);
+        return res.status(500).json({ message: "Error interno del servidor" });
+    }
+  }
+
+  private unexpected(res: Response, e: unknown, ctx: string) {
+    if (e instanceof ApplicationResponse && e.error) {
+      return this.handleErrorResponse(res, e);
+    }
+    if (e instanceof Error) {
+      this.logger.error(`Error inesperado al ${ctx}`, [e.name, e.message]);
+    }
+    return res.status(500).json({ message: `Error al ${ctx}` });
   }
 }

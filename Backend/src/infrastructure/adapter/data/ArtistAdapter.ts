@@ -1,123 +1,186 @@
+// Clean implementation without duplicates
 import { Repository, ILike } from "typeorm";
-import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
-import Artist, { ArtistStatus } from "../../../domain/models/Artist";
-import ArtistPort from "../../../domain/ports/data/ArtistPort";
-import ArtistEntity from "../../entities/ArtistEntity";
 import { AppDataSource } from "../../config/con_database";
+import ArtistEntity from "../../entities/ArtistEntity";
+import Artist, { ArtistStatus } from "../../../domain/models/Artist";
+import ArtistPort, { ArtistSearchFilters } from "../../../domain/ports/data/ArtistPort";
+import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes } from "../../../application/shared/errors/ApplicationError";
 
 export default class ArtistAdapter implements ArtistPort {
-  private artistRepository: Repository<ArtistEntity>;
+  private repo: Repository<ArtistEntity>;
   constructor() {
-    this.artistRepository = AppDataSource.getRepository(ArtistEntity);
+    this.repo = AppDataSource.getRepository(ArtistEntity);
   }
 
-  toDomain(artist: ArtistEntity): Artist {
+  private toDomain(e: ArtistEntity): Artist {
     return {
-      id: artist.id ?? 0,
-      artist_name: artist.artist_name,
-      biography: artist.biography,
-      verified: artist.verified,
-      formation_year: artist.formation_year,
-      country_code: artist.country_code,
-      status: artist.status as ArtistStatus,
-      created_at: artist.created_at,
-      updated_at: artist.updated_at,
-    };
+      id: e.id,
+      artist_name: e.artist_name,
+      biography: e.biography,
+      verified: e.verified,
+      formation_year: e.formation_year,
+      country_code: e.country_code,
+      status: e.status,
+      created_at: e.created_at,
+      updated_at: e.updated_at,
+    } as Artist;
   }
 
-  toEntity(artist: Partial<Artist>): ArtistEntity {
-    const entity = new ArtistEntity();
-    if (artist.id) entity.id = artist.id;
-    entity.artist_name = artist.artist_name!;
-    entity.biography = artist.biography;
-    entity.verified = artist.verified!;
-    entity.formation_year = artist.formation_year!;
-    entity.country_code = artist.country_code;
-    entity.status = artist.status ?? ArtistStatus.ACTIVE;
-    entity.created_at = artist.created_at ?? new Date();
-    entity.updated_at = artist.updated_at;
-    return entity;
-  }
-
-  async createNewArtist(
-    artist: Omit<Artist, "id" | "updated_at">,
+  async create(
+    artist: Omit<Artist, "id" | "created_at" | "updated_at">,
   ): Promise<ApplicationResponse<number>> {
     try {
-      const saved = await this.artistRepository.save(this.toEntity(artist));
-      return ApplicationResponse.success(saved.id!);
-    } catch (err) {
+      const entity = new ArtistEntity();
+      entity.artist_name = artist.artist_name;
+      entity.biography = artist.biography;
+      entity.formation_year = artist.formation_year;
+      entity.country_code = artist.country_code;
+      entity.verified = (artist as any).verified ?? false;
+      entity.status = artist.status;
+      entity.created_at = new Date(Date.now());
+      const saved = await this.repo.save(entity);
+      return ApplicationResponse.success(saved.id);
+    } catch (error: any) {
       return ApplicationResponse.failure(
-        new ApplicationError("Error creating artist", ErrorCodes.DATABASE_ERROR, err),
+        new ApplicationError(
+          "Error al crear artista",
+          ErrorCodes.DATABASE_ERROR,
+          error.message,
+          error,
+        ),
       );
     }
   }
 
-  async updateArtist(id: number, artist: Partial<Artist>): Promise<ApplicationResponse> {
+  async update(id: number, artist: Partial<Artist>): Promise<ApplicationResponse> {
     try {
-      // Evitar error de tipado con artist_user_id
-      const { artist_user_id, ...rest } = artist;
-      const result = await this.artistRepository.update({ id }, rest);
-      if (result.affected === 0) {
+      const existing = await this.repo.findOne({ where: { id } });
+      if (!existing) {
         return ApplicationResponse.failure(
-          new ApplicationError("Artist not found", ErrorCodes.VALUE_NOT_FOUND),
+          new ApplicationError("Artista no encontrado", ErrorCodes.VALUE_NOT_FOUND),
         );
       }
+      if (artist.artist_name !== undefined) existing.artist_name = artist.artist_name;
+      if (artist.biography !== undefined) existing.biography = artist.biography;
+      if (artist.formation_year !== undefined) existing.formation_year = artist.formation_year;
+      if (artist.country_code !== undefined) existing.country_code = artist.country_code;
+      existing.updated_at = new Date(Date.now());
+      await this.repo.save(existing);
       return ApplicationResponse.emptySuccess();
-    } catch (err) {
+    } catch (error: any) {
       return ApplicationResponse.failure(
-        new ApplicationError("Error updating artist", ErrorCodes.DATABASE_ERROR, err),
+        new ApplicationError(
+          "Error al actualizar artista",
+          ErrorCodes.DATABASE_ERROR,
+          error.message,
+          error,
+        ),
       );
     }
   }
 
-  async deleteArtist(id: number): Promise<ApplicationResponse> {
+  async logicalDelete(id: number): Promise<ApplicationResponse> {
     try {
-      const result = await this.artistRepository.update({ id }, { status: ArtistStatus.DELETED });
-      if (result.affected === 0) {
+      const existing = await this.repo.findOne({ where: { id } });
+      if (!existing) {
         return ApplicationResponse.failure(
-          new ApplicationError("Artist not found", ErrorCodes.VALUE_NOT_FOUND),
+          new ApplicationError("Artista no encontrado", ErrorCodes.VALUE_NOT_FOUND),
         );
       }
+      existing.status = ArtistStatus.DELETED;
+      existing.updated_at = new Date(Date.now());
+      await this.repo.save(existing);
       return ApplicationResponse.emptySuccess();
-    } catch (err) {
+    } catch (error: any) {
       return ApplicationResponse.failure(
-        new ApplicationError("Error deleting artist", ErrorCodes.DATABASE_ERROR, err),
+        new ApplicationError(
+          "Error al eliminar artista",
+          ErrorCodes.DATABASE_ERROR,
+          error.message,
+          error,
+        ),
       );
     }
   }
 
-  async getArtistById(id: number): Promise<ApplicationResponse<Artist>> {
+  async findById(id: number): Promise<ApplicationResponse<Artist>> {
     try {
-      const artist = await this.artistRepository.findOne({
-        where: { id, status: ArtistStatus.ACTIVE },
-      });
-      if (!artist) {
+      const existing = await this.repo.findOne({ where: { id } });
+      if (!existing) {
         return ApplicationResponse.failure(
-          new ApplicationError("Artist not found", ErrorCodes.VALUE_NOT_FOUND),
+          new ApplicationError("Artista no encontrado", ErrorCodes.VALUE_NOT_FOUND),
         );
       }
-      return ApplicationResponse.success(this.toDomain(artist));
-    } catch (err) {
+      return ApplicationResponse.success(this.toDomain(existing));
+    } catch (error: any) {
       return ApplicationResponse.failure(
-        new ApplicationError("Error fetching artist", ErrorCodes.DATABASE_ERROR, err),
+        new ApplicationError(
+          "Error al obtener artista",
+          ErrorCodes.DATABASE_ERROR,
+          error.message,
+          error,
+        ),
       );
     }
   }
 
-  async searchArtists(params: {
-    name?: string;
-    country?: string;
-  }): Promise<ApplicationResponse<Artist[]>> {
+  async search(filters: ArtistSearchFilters): Promise<ApplicationResponse<Artist[]>> {
     try {
-      const where: any = { status: ArtistStatus.ACTIVE };
-      if (params.name) where.artist_name = ILike(`%${params.name}%`);
-      if (params.country) where.country_code = params.country;
-      const artists = await this.artistRepository.find({ where });
-      return ApplicationResponse.success(artists.map((a) => this.toDomain(a)));
-    } catch (err) {
+      const where: any = {};
+      if (filters.name) where.artist_name = ILike(`%${filters.name}%`);
+      if (filters.country) where.country_code = filters.country;
+      if (filters.status) where.status = filters.status;
+      const list = await this.repo.find({ where });
+      return ApplicationResponse.success(list.map((e) => this.toDomain(e)));
+    } catch (error: any) {
       return ApplicationResponse.failure(
-        new ApplicationError("Error searching artists", ErrorCodes.DATABASE_ERROR, err),
+        new ApplicationError(
+          "Error al buscar artistas",
+          ErrorCodes.DATABASE_ERROR,
+          error.message,
+          error,
+        ),
+      );
+    }
+  }
+
+  async existsById(id: number): Promise<ApplicationResponse<boolean>> {
+    try {
+      const count = await this.repo.count({ where: { id } });
+      return ApplicationResponse.success(count > 0);
+    } catch (error: any) {
+      return ApplicationResponse.failure(
+        new ApplicationError(
+          "Error al validar artista",
+          ErrorCodes.DATABASE_ERROR,
+          error.message,
+          error,
+        ),
+      );
+    }
+  }
+
+  async updateStatus(id: number, status: ArtistStatus): Promise<ApplicationResponse> {
+    try {
+      const existing = await this.repo.findOne({ where: { id } });
+      if (!existing) {
+        return ApplicationResponse.failure(
+          new ApplicationError("Artista no encontrado", ErrorCodes.VALUE_NOT_FOUND),
+        );
+      }
+      existing.status = status;
+      existing.updated_at = new Date(Date.now());
+      await this.repo.save(existing);
+      return ApplicationResponse.emptySuccess();
+    } catch (error: any) {
+      return ApplicationResponse.failure(
+        new ApplicationError(
+          "Error al actualizar estado",
+          ErrorCodes.DATABASE_ERROR,
+          error.message,
+          error,
+        ),
       );
     }
   }

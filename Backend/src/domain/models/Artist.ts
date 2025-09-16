@@ -1,6 +1,8 @@
 export enum ArtistStatus {
   ACTIVE = "ACTIVE",
   DELETED = "DELETED",
+  PENDING = "PENDING",
+  REJECTED = "REJECTED",
 }
 
 type Artist = {
