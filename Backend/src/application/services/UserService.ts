@@ -633,8 +633,10 @@ export default class UserService {
           new ApplicationError("Token inválido o expirado", ErrorCodes.VALIDATION_ERROR),
         );
       }
+      console.log(tokenData);
 
-      const user = await this.userPort.getUserByEmail(request.token);
+      const user = await this.userPort.getUserByEmail(request.email);
+      console.log(user);
       if (!user.success && user.data) {
         return ApplicationResponse.failure(
           new ApplicationError("No se encontro el usuario", ErrorCodes.INVALID_EMAIL),

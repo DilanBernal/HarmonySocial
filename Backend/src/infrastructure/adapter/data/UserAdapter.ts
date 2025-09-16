@@ -314,6 +314,7 @@ export default class UserAdapter implements UserPort {
         { email: email, status: Not(In(this.negativeStatus)) },
       ];
       const user = await this.userRepository.findOneOrFail({ where: whereCondition });
+      console.log(user);
       return ApplicationResponse.success(this.toDomain(user));
     } catch (error: unknown) {
       if (error instanceof EntityNotFoundError) {
