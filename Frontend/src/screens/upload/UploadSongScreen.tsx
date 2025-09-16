@@ -28,7 +28,9 @@ export default function UploadSongScreen() {
   const [country, setCountry] = useState('');
 
   const [audioName, setAudioName] = useState<string | null>(null);
-  const [audioFile, setAudioFile] = useState<DocumentPickerResponse | null>(null);
+  const [audioFile, setAudioFile] = useState<DocumentPickerResponse | null>(
+    null,
+  );
   const [progress, setProgress] = useState<number>(0);
   const [loading, setLoading] = useState(false);
 
@@ -37,9 +39,14 @@ export default function UploadSongScreen() {
     if (!f) return;
     setAudioFile(f);
     setAudioName(f.name ?? 'audio');
+    setAudioName(f.name ?? 'audio');
   };
 
   const handleUpload = async () => {
+    if (!audioFile)
+      return Alert.alert('Falta el audio', 'Selecciona un archivo.');
+    if (!title.trim() || !artist.trim())
+      return Alert.alert('Campos obligatorios', 'Título y artista.');
     if (!audioFile)
       return Alert.alert('Falta el audio', 'Selecciona un archivo.');
     if (!title.trim() || !artist.trim())
@@ -75,8 +82,10 @@ export default function UploadSongScreen() {
       // API /api/file/song devuelve { success, data: { url, blobName } }
       const audioUrl: string | undefined = up?.data?.url || up?.url;
       if (!audioUrl) throw new Error('No se recibió URL del audio');
+      if (!audioUrl) throw new Error('No se recibió URL del audio');
 
       // 2) crear registro en DB
+      await api.post('/songs', {
       await api.post('/songs', {
         title: title.trim(),
         artist: artist.trim(),           // inclúyelo si tu backend lo soporta

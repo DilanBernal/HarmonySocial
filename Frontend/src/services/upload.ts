@@ -1,5 +1,11 @@
-import { pick, types, isErrorWithCode, errorCodes, DocumentPickerResponse } from "@react-native-documents/picker";
-import { API_BASE, getToken as getStoredToken } from "./api";
+import {
+  pick,
+  types,
+  isErrorWithCode,
+  errorCodes,
+  DocumentPickerResponse,
+} from '@react-native-documents/picker';
+import { API_BASE, getToken as getStoredToken } from './api';
 
 
 export async function pickAudio(): Promise<DocumentPickerResponse | null> {
@@ -7,11 +13,12 @@ export async function pickAudio(): Promise<DocumentPickerResponse | null> {
     const res = await pick({
       type: [types.audio],
       allowMultiSelection: false,
-      mode: "import" as const,
+      mode: 'import' as const,
     });
     return Array.isArray(res) ? res[0] : res;
   } catch (e) {
-    if (isErrorWithCode(e) && e.code === errorCodes.OPERATION_CANCELED) return null;
+    if (isErrorWithCode(e) && e.code === errorCodes.OPERATION_CANCELED)
+      return null;
     throw e;
   }
 }
@@ -26,7 +33,7 @@ export async function uploadSongMultipart(params: {
   decade?: number;
   country?: string;
   audio: DocumentPickerResponse;
-  token?: string;
+  token?: string; // opcional: si no viene, se toma del AsyncStorage
   onProgress?: (p: number) => void;
 }) {
   const {
@@ -37,10 +44,10 @@ export async function uploadSongMultipart(params: {
   const token = params.token ?? (await getStoredToken());
 
   const form = new FormData();
-  form.append("file", {
+  form.append('file', {
     uri: audio.uri,
     name: audio.name ?? `audio-${Date.now()}.mp3`,
-    type: audio.type ?? "audio/mpeg",
+    type: audio.type ?? 'audio/mpeg',
   } as any);
 
  
@@ -85,6 +92,11 @@ export async function uploadSongMultipart(params: {
         } catch {
           resolve({});
         }
+        try {
+          resolve(text ? JSON.parse(text) : {});
+        } catch {
+          resolve({});
+        }
       } else {
         reject(new Error(`HTTP ${xhr.status} - ${text}`));
       }
@@ -100,8 +112,10 @@ export async function uploadSongMultipart(params: {
       return;
     }
 
-    xhr.open("POST", url);
-    xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+    xhr.open('POST', url);
+    if (!token)
+      return reject(new Error('No hay token de autenticación (inicia sesión)'));
+    xhr.setRequestHeader('Authorization', `Bearer ${token}`);
     xhr.send(form);
   });
 }

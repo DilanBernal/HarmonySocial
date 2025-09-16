@@ -42,7 +42,7 @@ describe("FileService", () => {
       });
       filePortMock.createImage.mockResolvedValue(response);
       const result = await service.uploadNewImage(file);
-      expect(result).toBe(response);
+      expect(result).toStrictEqual(response);
       expect(loggerMock.appWarn).not.toHaveBeenCalled();
     });
     it("debe loguear warning si ApplicationResponse es error", async () => {
@@ -51,7 +51,7 @@ describe("FileService", () => {
       );
       filePortMock.createImage.mockResolvedValue(response);
       const result = await service.uploadNewImage(file);
-      expect(result).toBe(response);
+      expect(result).toStrictEqual(response);
       expect(loggerMock.appWarn).toHaveBeenCalledWith(response);
     });
     it("debe retornar ApplicationResponse de error si ocurre excepción", async () => {
@@ -75,7 +75,7 @@ describe("FileService", () => {
       });
       filePortMock.createSong.mockResolvedValue(response);
       const result = await service.uploadNewSong(file);
-      expect(result).toBe(response);
+      expect(result).toStrictEqual(response);
       expect(loggerMock.appWarn).not.toHaveBeenCalled();
     });
     it("debe loguear warning si ApplicationResponse es error", async () => {
@@ -84,7 +84,7 @@ describe("FileService", () => {
       );
       filePortMock.createSong.mockResolvedValue(response);
       const result = await service.uploadNewSong(file);
-      expect(result).toBe(response);
+      expect(result).toStrictEqual(response);
       expect(loggerMock.appWarn).toHaveBeenCalledWith(response);
     });
     it("debe retornar ApplicationResponse de error si ocurre excepción", async () => {
