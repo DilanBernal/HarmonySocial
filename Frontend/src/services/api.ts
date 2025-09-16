@@ -4,7 +4,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // Mantengo tu IP fija (la cambias manualmente cuando sea necesario)
 // const HOST = Platform.OS === 'android' ? 'localhost' : 'localhost';
 // export const API_BASE = `http://${HOST}:4200/api`;
-export const API_BASE = `https://fs571vhd-4666.use2.devtunnels.ms/api`;
+// export const API_BASE = `http://192.168.1.3:4200/api`;
+export const API_BASE = `https://kw389p26-4200.use2.devtunnels.ms/api`;
+// export const API_BASE = `${AppConfig.apiBaseUrl}/api`;
+
 
 /** Intenta recuperar el JWT desde AsyncStorage probando varias claves y formatos. */
 export async function getToken(): Promise<string | null> {

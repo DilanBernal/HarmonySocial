@@ -23,6 +23,12 @@ export default class SongService {
     return this.songs.search(query, page, limit);
   }
 
+  async getMine(userId: number, page = 1, limit = 20) {
+    if (!Number.isFinite(userId)) throw new Error("userId inválido");
+    return this.songs.searchByUser(userId, page, limit);
+  }
+
+
   async update(id: number, dto: UpdateSongDTO) {
     if (!Number.isFinite(id)) throw new Error("id inválido");
     return this.songs.update(id, dto);

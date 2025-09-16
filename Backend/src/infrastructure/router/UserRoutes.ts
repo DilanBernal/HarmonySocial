@@ -12,11 +12,9 @@ import loginSchema from "../validator/LoginValidator";
 import registerSchema from "../validator/RegisterValidator";
 import authenticateToken from "../middleware/authMiddleware";
 
-// import DataNotFoundError from "../shared/errors/DataNotFoundError";
 
-//Express
 const router = Router();
-//Inicializacion de capas
+
 const userAdapter = new UserAdapter();
 const authAdapter = new AuthAdapter();
 const loggerAdapter = new LoggerAdapter();
@@ -145,7 +143,7 @@ router.post("/forgot-password", async (req, res) => {
   }
 });
 
-// Ruta para restablecer contraseña
+
 router.post("/reset-password", async (req, res) => {
   try {
     await userController.resetPassword(req, res);
@@ -158,7 +156,7 @@ router.post("/reset-password", async (req, res) => {
   }
 });
 
-// Ruta para verificar email
+
 router.post("/verify-email", async (req, res) => {
   try {
     await userController.verifyEmail(req, res);

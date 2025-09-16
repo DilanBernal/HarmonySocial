@@ -1,7 +1,7 @@
 import { pick, types, isErrorWithCode, errorCodes, DocumentPickerResponse } from "@react-native-documents/picker";
 import { API_BASE, getToken as getStoredToken } from "./api";
 
-/** Abre el selector de AUDIO (mp3, wav, etc.) y devuelve un único archivo o null si se canceló */
+
 export async function pickAudio(): Promise<DocumentPickerResponse | null> {
   try {
     const res = await pick({
@@ -16,54 +16,91 @@ export async function pickAudio(): Promise<DocumentPickerResponse | null> {
   }
 }
 
-/** Sube el audio + metadatos en multipart a POST /api/file/song (campo "file") */
 export async function uploadSongMultipart(params: {
   title: string;
   artist: string;
   genre?: string;
+  description?: string;
+  duration?: number;
+  bpm?: number;
+  decade?: number;
+  country?: string;
   audio: DocumentPickerResponse;
-  token?: string;                      // opcional: si no viene, se toma del AsyncStorage
+  token?: string;
   onProgress?: (p: number) => void;
 }) {
-  const { title, artist, genre, audio, onProgress } = params;
+  const {
+    title, artist, genre, description, duration, bpm, decade, country,
+    audio, onProgress
+  } = params;
 
-  // Usa el token pasado o, si no, el guardado en AsyncStorage
   const token = params.token ?? (await getStoredToken());
 
-  // Construye el multipart/form-data
   const form = new FormData();
   form.append("file", {
     uri: audio.uri,
     name: audio.name ?? `audio-${Date.now()}.mp3`,
     type: audio.type ?? "audio/mpeg",
   } as any);
+
+ 
   form.append("title", title);
   form.append("artist", artist);
   if (genre) form.append("genre", genre);
+  if (description) form.append("description", description);
+  if (typeof duration === "number") form.append("duration", String(duration));
+  if (typeof bpm === "number") form.append("bpm", String(bpm));
+  if (typeof decade === "number") form.append("decade", String(decade));
+  if (country) form.append("country", country);
 
   const url = `${API_BASE}/file/song`;
-  const xhr = new XMLHttpRequest();
 
   return await new Promise<any>((resolve, reject) => {
-    if (xhr.upload && onProgress) {
-      xhr.upload.onprogress = (evt) => {
-        if (evt.lengthComputable) onProgress(Math.round((evt.loaded * 100) / evt.total));
-      };
-    }
+    const xhr = new XMLHttpRequest();
+
+   
+    let last = -1;
+    const report = (p: number) => {
+      const clamped = Math.max(0, Math.min(100, Math.round(p)));
+      if (clamped !== last && onProgress) {
+        last = clamped;
+        onProgress(clamped);
+      }
+    };
+
+    xhr.upload.onloadstart = () => report(0);
+    xhr.upload.onprogress = (evt) => {
+      if (!evt.lengthComputable) return;
+      const pct = (evt.loaded / evt.total) * 100;
+      report(Math.min(99, pct));
+    };
+    xhr.upload.onload = () => report(Math.max(last, 99));
 
     xhr.onload = () => {
+      report(100);
       const text = xhr.responseText || "";
       if (xhr.status >= 200 && xhr.status < 300) {
-        try { resolve(text ? JSON.parse(text) : {}); } catch { resolve({}); }
+        try {
+          resolve(text ? JSON.parse(text) : {});
+        } catch {
+          resolve({});
+        }
       } else {
         reject(new Error(`HTTP ${xhr.status} - ${text}`));
       }
     };
 
     xhr.onerror = () => reject(new Error("Network error"));
+    xhr.ontimeout = () => reject(new Error("Request timeout"));
+    xhr.onabort = () => reject(new Error("Upload aborted"));
+    xhr.timeout = 120000;
+
+    if (!token) {
+      reject(new Error("No auth token (inicia sesión)"));
+      return;
+    }
 
     xhr.open("POST", url);
-    if (!token) return reject(new Error("No auth token (inicia sesión)"));
     xhr.setRequestHeader("Authorization", `Bearer ${token}`);
     xhr.send(form);
   });

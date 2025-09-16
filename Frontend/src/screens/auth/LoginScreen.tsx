@@ -39,7 +39,7 @@ const LoginScreen = () => {
   const userService = new UserService();
 
   useEffect(() => {
-    userService.getUserData(22);
+    userService.getUserData(5);
   }, []);
   const loginFunction = authService.login;
 
