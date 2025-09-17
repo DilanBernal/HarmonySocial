@@ -123,30 +123,41 @@ export default class UserService {
           concurrencyStamp,
         );
         welcomeEmail.text = `Bienvenido a HarmonyMusical, entra a este link para activar tu cuenta ${envs.FRONTEND_URL}/verify-email?token=${verificationToken}`;
-        await this.emailPort.sendEmail(welcomeEmail);
+        if (!(await this.emailPort.sendEmail(welcomeEmail))) {
+          this.loggerPort.fatal(
+            `No se le pudo enviar el correo de confirmacion al email ${user.email}`,
+            { origen: __dirname },
+          );
+          await this.userPort.deleteUser(userId);
+
+          return ApplicationResponse.failure(
+            new ApplicationError(
+              "Ocurrio un error al enviar el correo de confirmacion",
+              ErrorCodes.SERVER_ERROR,
+            ),
+          );
+        }
       }
       return response;
     } catch (error: unknown) {
       if (error instanceof ApplicationResponse) {
         switch (error.error?.code) {
-          case ErrorCodes.VALUE_NOT_FOUND:
-            return ApplicationResponse.failure(
-              new ApplicationError("No se encontro el usuario", ErrorCodes.VALUE_NOT_FOUND),
-            );
           case ErrorCodes.DATABASE_ERROR:
             return error;
         }
       }
       if (error instanceof Error) {
+        this.loggerPort.error("Ocurrio un error en un registro", error);
         return ApplicationResponse.failure(
           new ApplicationError(
-            "Ocurrio un error inesperado en el registro",
+            "Ocurrio un error inesperado en el registro, vuelva a intentarlo mas tarde",
             ErrorCodes.SERVER_ERROR,
             [error.name, error.message],
             error,
           ),
         );
       }
+      this.loggerPort.fatal("Ocurrio un error completamente desconocido");
       return ApplicationResponse.failure(
         new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR, undefined, undefined),
       );

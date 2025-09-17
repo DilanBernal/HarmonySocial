@@ -70,7 +70,7 @@ export default class UserController {
               return res.status(500).json({ message: "Error en la base de datos" });
             case ErrorCodes.SERVER_ERROR:
               this.logger.appError(userResponse);
-              return res.status(500).json({ message: "Error interno del servidor" });
+              return res.status(500).json({ message: userResponse.error.message });
             default:
               this.logger.appError(userResponse);
               return res.status(500).json({ message: "Error desconocido" });
@@ -246,13 +246,22 @@ export default class UserController {
             case ErrorCodes.VALIDATION_ERROR:
               return res.status(400).json({ message: userResponse.error.message });
             case ErrorCodes.DATABASE_ERROR:
-              return res.status(500).json({ message: "Error en la base de datos" });
+              return res.status(500).json({
+                message:
+                  userResponse.error.message ??
+                  "Ocurrio un error inesperado, intentelo de nuevo mas tarde",
+              });
             case ErrorCodes.SERVER_ERROR:
-              return res.status(500).json({ message: "Error interno del servidor" });
+              return res.status(500).json({
+                message:
+                  userResponse.error.message ??
+                  "Ocurrio un error inesperado, intentelo de nuevo mas tarde",
+              });
             default:
               return res.status(500).json({ message: "Error desconocido" });
           }
         }
+        console.error(userResponse.error!.message);
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -269,28 +278,53 @@ export default class UserController {
     try {
       const response = await this.userService.getUserData(Number(id));
       if (response.success) {
-        res.status(200).json(response.data).cookie("cookie prueba", "prueba", {});
+        res.status(200).json(response.data);
       } else {
         if (response instanceof NotFoundResponse) {
           res.status(404).json({ message: "No se pudo encontrar el usuario" });
         } else if (response instanceof ApplicationResponse) {
           switch (response.error?.code) {
             case ErrorCodes.DATABASE_ERROR:
+              this.logger.debug("Es en la parte de el switch DATABASE_ERROR");
               res.status(500).json({
                 messae: "Ocurrio un error, intente mas tarde",
               });
+              break;
             default:
+              this.logger.debug("Es en la parte de el switch default");
+              this.logger.error(
+                `Ocurrio un error desconocido al traer la data del usuario ${id}`,
+                response,
+              );
               res.status(500).json({
                 messae: "Ocurrio un error, intente mas tarde",
               });
+              break;
           }
         } else {
+          this.logger.debug(
+            "Es en la parte despues de que el error no sea instancia ni de NotFoundResponse ni de ApplicationResponse",
+            [response, typeof response],
+          );
+
+          this.logger.error(
+            `Ocurrio un error desconocido al traer la data del usuario ${id}`,
+            response,
+          );
           res.status(500).json({
             messae: "Ocurrio un error, intente mas tarde",
           });
+          return;
         }
       }
     } catch (error) {
+      console.error(error);
+      this.logger.debug(
+        "Es en la parte despues de que el error no sea instancia ni de NotFoundResponse ni de ApplicationResponse",
+        [error, typeof error],
+      );
+
+      this.logger.error(`Ocurrio un error desconocido al traer la data del usuario ${id}`, error);
       res.status(500).json({
         messae: "Ocurrio un error, intente mas tarde",
       });

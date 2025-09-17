@@ -104,6 +104,13 @@ router.get("/basic-info", async (req, res) => {
   try {
     await userController.getBasicUserData(req, res);
   } catch (error: any) {
+    loggerAdapter.debug(
+      "Es en la parte despues de que el error no sea instancia ni de NotFoundResponse ni de ApplicationResponse",
+      [error, typeof error],
+    );
+    console.log(error);
+
+    loggerAdapter.error("Ocurrio un error al traer la info del usuario", [error, error.title]);
     const errorMessage = error.message ?? "Error al traer el usuario";
     res.status(error.statusCode ?? 500).json({
       message: errorMessage,

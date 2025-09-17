@@ -14,7 +14,11 @@ export default class LoggerAdapter implements LoggerPort {
     // Use an absolute path for the error log and create directories if needed.
     // Use sync: true so the writer is ready immediately and does not throw
     // "sonic boom is not ready yet" during process shutdown.
-    const errorLogPath = path.join(process.cwd(), "logs", "error.log");
+    const errorLogPath = path.join(
+      process.cwd(),
+      "logs",
+      `Errors-${new Date().toDateString()}.log`,
+    );
     const errorStream = pino.destination({
       dest: errorLogPath,
       sync: true,
@@ -32,6 +36,7 @@ export default class LoggerAdapter implements LoggerPort {
   }
 
   error(message: string, ...args: any[]): void {
+    this.errorLogger.error({ msg: message, args });
     this.logger.error({ msg: message, args });
   }
 
@@ -40,6 +45,7 @@ export default class LoggerAdapter implements LoggerPort {
   }
 
   fatal(message: string, ...args: any[]): void {
+    this.errorLogger.error({ msg: message, args });
     this.logger.fatal({ msg: message, args });
   }
 
@@ -64,6 +70,7 @@ export default class LoggerAdapter implements LoggerPort {
     this.logger.debug({ msg: appError.error?.message, appError });
   }
   appFatal(appError: ApplicationResponse<any>): void {
+    this.errorLogger.error({ msg: appError.error?.message, appError });
     this.logger.fatal({ msg: appError.error?.message, appError });
   }
 

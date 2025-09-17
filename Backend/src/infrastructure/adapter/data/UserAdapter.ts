@@ -163,7 +163,7 @@ export default class UserAdapter implements UserPort {
         created_at: existingUser.created_at,
         updated_at: user.updated_at ?? new Date(Date.now()),
         security_stamp: user.concurrency_stamp ?? existingUser.security_stamp,
-        concurrency_stamp: user.concurrency_stamp ?? existingUser.concurrency_stamp,
+        concurrency_stamp: user.security_stamp ?? existingUser.concurrency_stamp,
       });
       await this.userRepository.save(existingUser);
       return ApplicationResponse.emptySuccess();
@@ -212,7 +212,7 @@ export default class UserAdapter implements UserPort {
   async deleteUser(id: number): Promise<ApplicationResponse> {
     try {
       const existingUser = await this.userRepository.findOneOrFail({
-        where: { id: id, status: Not(In(this.positiveStatus)) },
+        where: { id: id, status: Not(In(this.negativeStatus)) },
       });
 
       if (!existingUser) {
@@ -223,8 +223,10 @@ export default class UserAdapter implements UserPort {
 
       Object.assign(existingUser, {
         status: UserStatus.DELETED,
-        password: null,
+        password: "N/A",
         updated_at: new Date(),
+        full_name: "N/A",
+        profile_image: "N/A",
       });
       await this.userRepository.save(existingUser);
       return ApplicationResponse.emptySuccess();

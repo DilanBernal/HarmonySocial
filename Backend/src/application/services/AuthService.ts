@@ -40,7 +40,7 @@ export default class AuthService {
   async login(requests: LoginRequest): Promise<ApplicationResponse<AuthResponse>> {
     try {
       if (!requests) {
-        this.loggerPort.warn("Solicitud de login vacía");
+        this.loggerPort.debug("Solicitud de login vacía");
         return ApplicationResponse.failure(
           new ApplicationError(
             "La solicitud de login no puede estar vacía",
@@ -92,15 +92,22 @@ export default class AuthService {
         this.loggerPort.warn("No se pudieron obtener los roles del usuario");
       }
 
+      const newConcurrencyStamp = this.tokenPort.generateStamp();
+
+      await this.userPort.updateUser(userId, {
+        concurrency_stamp: newConcurrencyStamp,
+      });
+      userInfo[0] = newConcurrencyStamp;
+
       const authResponse: AuthResponse = await this.authPort.loginUser(
         requests,
-        { ...userInfo!, roles: roleNames, permissions },
+        { ...userInfo, roles: roleNames, permissions },
         {
           profile_image: userInfo[3],
-          id: userInfo[2],
+          id: userId,
         },
       );
-      authResponse.id = userInfo[2];
+      authResponse.id = userId;
       authResponse.roles = roleNames;
       (authResponse as any).permissions = permissions;
 
@@ -109,12 +116,6 @@ export default class AuthService {
           new ApplicationError("Error al autenticar al usuario", ErrorCodes.SERVER_ERROR),
         );
       }
-
-      const newConcurrencyStamp = this.tokenPort.generateStamp();
-
-      await this.userPort.updateUser(userInfo[2], {
-        concurrency_stamp: newConcurrencyStamp,
-      });
 
       return ApplicationResponse.success(authResponse);
     } catch (error: unknown) {
