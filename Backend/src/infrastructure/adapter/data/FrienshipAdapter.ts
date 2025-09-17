@@ -10,6 +10,7 @@ import { ApplicationError, ErrorCodes } from "../../../application/shared/errors
 
 export default class FriendshipAdapter implements FriendshipPort {
   private frienshipRepository: Repository<FriendshipEntity>;
+  // private repository: Repository;
 
   constructor() {
     this.frienshipRepository = AppDataSource.getRepository(FriendshipEntity);
@@ -191,101 +192,26 @@ export default class FriendshipAdapter implements FriendshipPort {
   ): Promise<ApplicationResponse<FriendshipsResponse>> {
     console.log(req);
     try {
-      const userFriendships = await this.frienshipRepository.find({
-        where: [
-          {
-            friend: { id: req.user_id },
-            user: { id: Not(req.friend_id) },
-            status: FrienshipStatus.ACCEPTED,
-          },
-          {
-            user: { id: req.user_id },
-            friend: { id: Not(req.friend_id) },
-            status: FrienshipStatus.ACCEPTED,
-          },
-        ],
-        relations: { friend: true, user: true },
-        select: {
-          id: true,
-          user: { id: true },
-          friend: { id: true },
-          updated_at: true,
-        },
-      });
+      // Intentamos delegar la intersección y búsqueda a la BD mediante el stored function
+      // La función devuelve filas de la tabla friendships correspondientes a los mutual friends
+      const sql = `SELECT * from fn_get_mutual_friendships($1, $2)`;
+      const rows = await this.frienshipRepository.query(sql, [req.user_id, req.friend_id]);
 
-      const objFriendships = await this.frienshipRepository.find({
-        where: [
-          {
-            friend: { id: req.friend_id },
-            user: { id: Not(req.user_id) },
-            status: FrienshipStatus.ACCEPTED,
-          },
-          {
-            user: { id: req.friend_id },
-            friend: { id: Not(req.user_id) },
-            status: FrienshipStatus.ACCEPTED,
-          },
-        ],
-        relations: { friend: true, user: true },
-        select: {
-          id: true,
-          user: { id: true },
-          friend: { id: true },
-          updated_at: true,
-        },
-      });
-
-      console.log(objFriendships);
-
-      let externalUserFriendsIds: number[] = [];
-      userFriendships.forEach((x) => {
-        if (x.user.id !== req.user_id) {
-          externalUserFriendsIds.push(x.user.id);
-        } else if (x.friend.id !== req.user_id) {
-          externalUserFriendsIds.push(x.friend.id);
-        }
-      });
-
-      let externalObjFriendsIds: number[] = [];
-      objFriendships.forEach((x) => {
-        if (x.user.id !== req.friend_id) {
-          externalObjFriendsIds.push(x.user.id);
-        } else if (x.friend.id !== req.friend_id) {
-          externalObjFriendsIds.push(x.friend.id);
-        }
-      });
-
-      console.log(userFriendships);
-
-      // calcular intersección de ids (mutual friends)
-      const uniqueUserFriends = Array.from(new Set(externalUserFriendsIds));
-      const uniqueObjFriends = Array.from(new Set(externalObjFriendsIds));
-
-      const mutualIds = uniqueUserFriends.filter((id) => uniqueObjFriends.includes(id));
-
-      // si no hay ids en común, retornar vacío
-      if (!mutualIds || mutualIds.length === 0) {
+      if (!rows || rows.length === 0) {
         return ApplicationResponse.success(this.toFriendshipsResponse([]));
       }
 
-      // buscamos las relaciones que conectan al user con cada mutualId
-      const whereCondition: FindOptionsWhere<FriendshipEntity>[] = [
-        {
-          user: { id: req.user_id },
-          friend: { id: In(mutualIds) },
-          status: FrienshipStatus.ACCEPTED,
-        },
-        {
-          friend: { id: req.user_id },
-          user: { id: In(mutualIds) },
-          status: FrienshipStatus.ACCEPTED,
-        },
-      ];
+      // Mapear filas a modelos de dominio (Friendship)
+      const domainList: Friendship[] = rows.map((r: Friendship) => ({
+        id: Number(r.id),
+        user_id: Number(r.user_id),
+        friend_id: Number(r.friend_id),
+        // conservar el valor tal cual, el enum en TS puede aceptar la string si coincide
+        status: (r.status as FrienshipStatus) ?? FrienshipStatus.ACCEPTED,
+        created_at: new Date(r.created_at),
+        updated_at: r.updated_at ? new Date(r.updated_at) : new Date(r.created_at),
+      }));
 
-      const entities = await this.frienshipRepository.find({ where: whereCondition });
-
-      // convertir entidades a dominio y devolver
-      const domainList = entities.map((e) => this.toDomain(e));
       const response = this.toFriendshipsResponse(domainList);
       return ApplicationResponse.success(response);
     } catch (error) {

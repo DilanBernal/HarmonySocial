@@ -234,6 +234,8 @@ Se incluye un script idempotente `seedPermissions.ts` para poblar:
 1. Todos los permisos definidos en `CorePermission`.
 2. Asignaciones rol → permisos según `DefaultRolePermissionMapping`.
 
+Adicionalmente, se añadió la migration SQL `001_create_fn_get_mutual_friendships.sql` en `db_querys/` para crear la función de BD que calcula amistades en común.
+
 ### Ejecución
 
 ```bash

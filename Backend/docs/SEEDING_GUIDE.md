@@ -10,11 +10,12 @@ Esta guía describe cómo inicializar datos base relacionados a Roles y Permisos
 
 ## Componentes
 
-| Componente                     | Rol                  | Fuente                         |
-| ------------------------------ | -------------------- | ------------------------------ |
-| `CorePermission` (enum)        | Catálogo de acciones | Código TS                      |
-| `DefaultRolePermissionMapping` | Mapeo rol→permisos   | Código TS                      |
-| `seedPermissions.ts`           | Script idempotente   | `src/infrastructure/bootstrap` |
+| Componente                                 | Rol                   | Fuente                         |
+| ------------------------------------------ | --------------------- | ------------------------------ |
+| `CorePermission` (enum)                    | Catálogo de acciones  | Código TS                      |
+| `DefaultRolePermissionMapping`             | Mapeo rol→permisos    | Código TS                      |
+| `seedPermissions.ts`                       | Script idempotente    | `src/infrastructure/bootstrap` |
+| `001_create_fn_get_mutual_friendships.sql` | DB function migration | `db_querys/`                   |
 
 ## Ejecución Rápida
 
