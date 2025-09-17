@@ -4,7 +4,10 @@ import FriendshipEntity from "../entities/FriendshipEntity";
 import SongEntity from "../entities/SongEntity";
 import envs from "./environment-vars";
 import ArtistEntity from "../entities/ArtistEntity";
-import ArtistUserEntity from "../entities/ArtistUserEntity";
+import RoleEntity from "../entities/RoleEntity";
+import UserRoleEntity from "../entities/UserRoleEntity";
+import PermissionEntity from "../entities/PermissionEntity";
+import RolePermissionEntity from "../entities/RolePermissionEntity";
 
 export const AppDataSource = new DataSource({
   type: "postgres",
@@ -16,7 +19,16 @@ export const AppDataSource = new DataSource({
   synchronize: envs.DB_SYNC,
   logging: envs.ENVIRONMENT === "dev" ? true : false,
   schema: envs.DB_SCHEMA,
-  entities: [UserEntity, FriendshipEntity, SongEntity, ArtistEntity, ArtistUserEntity],
+  entities: [
+    UserEntity,
+    FriendshipEntity,
+    SongEntity,
+    ArtistEntity,
+    RoleEntity,
+    UserRoleEntity,
+    PermissionEntity,
+    RolePermissionEntity,
+  ],
 });
 
 export const connectDB = async () => {

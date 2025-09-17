@@ -8,6 +8,8 @@ import AuthResponse from "../dto/responses/AuthResponse";
 import { ApplicationResponse } from "../shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes, ErrorCode } from "../shared/errors/ApplicationError";
 import TokenPort from "../../domain/ports/utils/TokenPort";
+import UserRolePort from "../../domain/ports/data/UserRolePort";
+import RolePermissionAdapter from "../../infrastructure/adapter/data/RolePermissionAdapter";
 
 export default class AuthService {
   private userPort: UserPort;
@@ -15,6 +17,8 @@ export default class AuthService {
   private emailPort: EmailPort;
   private loggerPort: LoggerPort;
   private tokenPort: TokenPort;
+  private userRolePort: UserRolePort;
+  private rolePermissionAdapter: RolePermissionAdapter;
 
   constructor(
     userPort: UserPort,
@@ -22,12 +26,15 @@ export default class AuthService {
     emailPort: EmailPort,
     logger: LoggerPort,
     tokenPort: TokenPort,
+    userRolePort: UserRolePort,
   ) {
     this.userPort = userPort;
     this.authPort = authPort;
     this.emailPort = emailPort;
     this.loggerPort = logger;
     this.tokenPort = tokenPort;
+    this.userRolePort = userRolePort;
+    this.rolePermissionAdapter = new RolePermissionAdapter();
   }
 
   async login(requests: LoginRequest): Promise<ApplicationResponse<AuthResponse>> {
@@ -68,11 +75,34 @@ export default class AuthService {
         );
       }
 
-      const authResponse: AuthResponse = await this.authPort.loginUser(requests, userInfo!, {
-        profile_image: userInfo[3],
-        id: userInfo[2],
-      });
+      // Obtener roles del usuario
+      const userId = userInfo[2];
+      let roleNames: string[] = [];
+      let permissions: string[] = [];
+      try {
+        const roles = await this.userRolePort.listRolesForUser(userId);
+        roleNames = roles.map((r) => r.name);
+        if (roleNames.length) {
+          const permsResp = await this.rolePermissionAdapter.getPermissionsByRoleNames(roleNames);
+          if (permsResp.success && permsResp.data) {
+            permissions = permsResp.data.map((p) => p.name);
+          }
+        }
+      } catch (e) {
+        this.loggerPort.warn("No se pudieron obtener los roles del usuario");
+      }
+
+      const authResponse: AuthResponse = await this.authPort.loginUser(
+        requests,
+        { ...userInfo!, roles: roleNames, permissions },
+        {
+          profile_image: userInfo[3],
+          id: userInfo[2],
+        },
+      );
       authResponse.id = userInfo[2];
+      authResponse.roles = roleNames;
+      (authResponse as any).permissions = permissions;
 
       if (!authResponse) {
         return ApplicationResponse.failure(

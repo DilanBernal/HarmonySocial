@@ -4,6 +4,8 @@ import AuthPort from "../../src/domain/ports/data/AuthPort";
 import EmailPort from "../../src/domain/ports/utils/EmailPort";
 import LoggerPort from "../../src/domain/ports/utils/LoggerPort";
 import TokenPort from "../../src/domain/ports/utils/TokenPort";
+import RolePort from "../../src/domain/ports/data/RolePort";
+import UserRolePort from "../../src/domain/ports/data/UserRolePort";
 import User, { UserInstrument, UserStatus } from "../../src/domain/models/User";
 import RegisterRequest from "../../src/application/dto/requests/User/RegisterRequest";
 import UpdateUserRequest from "../../src/application/dto/requests/User/UpdateUserRequest";
@@ -29,7 +31,8 @@ const mockUserPort: jest.Mocked<UserPort> = {
   existsUserById: jest.fn(),
   existsUserByLoginRequest: jest.fn(),
   existsUserByEmailOrUsername: jest.fn(),
-} as jest.Mocked<UserPort>;
+  getUsersByIds: jest.fn(),
+} as any;
 
 const mockAuthPort: jest.Mocked<AuthPort> = {
   encryptPassword: jest.fn(),
@@ -56,7 +59,23 @@ const mockTokenPort: jest.Mocked<TokenPort> = {
   generateConfirmAccountToken: jest.fn().mockReturnValue("confirmToken"),
   generateRecoverPasswordToken: jest.fn().mockReturnValue("recoveryToken"),
   verifyToken: jest.fn(),
-} as jest.Mocked<TokenPort>;
+} as any;
+
+const mockRolePort: jest.Mocked<RolePort> = {
+  create: jest.fn(),
+  update: jest.fn(),
+  delete: jest.fn(),
+  findById: jest.fn(),
+  findByName: jest.fn().mockResolvedValue({ id: 99, name: "common_user" } as any),
+  list: jest.fn(),
+} as any;
+
+const mockUserRolePort: jest.Mocked<UserRolePort> = {
+  assignRoleToUser: jest.fn().mockResolvedValue(undefined as any),
+  removeRoleFromUser: jest.fn(),
+  listRolesForUser: jest.fn().mockResolvedValue([{ id: 99, name: "common_user" }] as any),
+  userHasRole: jest.fn(),
+} as any;
 
 describe("UserService", () => {
   let userService: UserService;
@@ -72,7 +91,6 @@ describe("UserService", () => {
     learning_points: 0,
     status: UserStatus.ACTIVE,
     favorite_instrument: UserInstrument.GUITAR,
-    is_artist: false,
     concurrency_stamp: "concurrency123",
     security_stamp: "security123",
     created_at: new Date("2024-01-01"),
@@ -89,6 +107,8 @@ describe("UserService", () => {
       mockEmailPort,
       mockLoggerPort,
       mockTokenPort,
+      mockRolePort,
+      mockUserRolePort,
     );
   });
 
@@ -100,7 +120,6 @@ describe("UserService", () => {
       password: "Password123!",
       profile_image: "https://example.com/image.jpg",
       favorite_instrument: UserInstrument.GUITAR,
-      is_artist: false,
     };
 
     it("debe registrar un usuario exitosamente", async () => {
@@ -359,7 +378,6 @@ describe("UserService", () => {
       username: "johnupdated",
       profile_image: "https://example.com/newimage.jpg",
       favorite_instrument: UserInstrument.PIANO,
-      is_artist: true,
     };
 
     it("debe actualizar un usuario exitosamente", async () => {

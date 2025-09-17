@@ -21,7 +21,6 @@ const registerSchema = joi.object({
     .optional()
     .allow(null),
   is_default_image: joi.boolean().default(true),
-  is_artist: joi.boolean().optional(),
 });
 
 export default registerSchema;

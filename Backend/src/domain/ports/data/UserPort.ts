@@ -18,6 +18,8 @@ export default interface UserPort {
   getUserStampsAndUserInfoByUserOrEmail(
     userOrEmail: string,
   ): Promise<ApplicationResponse<[string, string, number, string, string]>>;
+  // Batch fetch
+  getUsersByIds(ids: number[]): Promise<ApplicationResponse<Array<User>>>;
   //Seccion de validación
   existsUserById(id: number): Promise<ApplicationResponse<boolean>>;
   existsUserByLoginRequest(userOrEmail: string): Promise<ApplicationResponse<boolean>>;

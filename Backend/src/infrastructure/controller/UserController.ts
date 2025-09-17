@@ -48,7 +48,6 @@ export default class UserController {
         password: regRequest.password.trim(),
         profile_image: regRequest.profile_image.trim(),
         favorite_instrument: regRequest.favorite_instrument,
-        is_artist: false,
       };
 
       const userResponse = await this.userService.registerUser(user);

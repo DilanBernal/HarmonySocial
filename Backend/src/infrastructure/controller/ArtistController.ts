@@ -14,8 +14,9 @@ export default class ArtistController {
 
   async create(req: Request, res: Response) {
     const createRequest: ArtistCreateRequest = req.body;
+    const userId = (req as any).userId as number | undefined;
     try {
-      const response = await this.service.create(createRequest);
+      const response = await this.service.create(createRequest, userId);
       if (response.success) {
         return res.status(201).json({ id: response.data });
       }

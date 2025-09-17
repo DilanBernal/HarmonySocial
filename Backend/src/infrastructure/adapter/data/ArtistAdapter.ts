@@ -24,6 +24,7 @@ export default class ArtistAdapter implements ArtistPort {
       status: e.status,
       created_at: e.created_at,
       updated_at: e.updated_at,
+      artist_user_id: e.user_id,
     } as Artist;
   }
 
@@ -39,6 +40,7 @@ export default class ArtistAdapter implements ArtistPort {
       entity.verified = (artist as any).verified ?? false;
       entity.status = artist.status;
       entity.created_at = new Date(Date.now());
+      if ((artist as any).artist_user_id) entity.user_id = (artist as any).artist_user_id;
       const saved = await this.repo.save(entity);
       return ApplicationResponse.success(saved.id);
     } catch (error: any) {
