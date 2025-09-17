@@ -44,7 +44,6 @@ export default class FriendshipController {
       // Si no es un string, es un booleano que indica éxito en la creación de la solicitud
       return res.status(201).json({
         message: "Solicitud de amistad creada correctamente",
-        data: servResponse?.data,
       });
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -55,6 +54,27 @@ export default class FriendshipController {
       }
       return res.status(500).json({ message: "Error desconocido" });
     }
+  }
+
+  async getCommonFriendships(req: Request, res: Response) {
+    try {
+      const userId: number = (req as any).userId;
+
+      if (!userId) {
+        res.status(401).json({ message: "Necesita estar logeado" });
+      }
+      const response = await this.friendshipService.getCommonFriendships(
+        userId,
+        Number(req.query.objId),
+      );
+
+      console.log(response);
+      if (!response.success) {
+        res.status(400).send("Ocurrio un error al traer los amigos" + response.error?.message);
+      }
+
+      res.status(200).json(response.data);
+    } catch (error) {}
   }
 
   /**

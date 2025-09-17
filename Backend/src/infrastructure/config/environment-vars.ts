@@ -3,6 +3,7 @@ import "dotenv/config";
 require("dotenv").config();
 
 export type ReturnEnvironmentVars = {
+  LOG_LEVEL: string;
   PORT: number;
   ENVIRONMENT: string;
   DB_HOST: string;
@@ -51,6 +52,7 @@ function validateEnvVars(vars: NodeJS.ProcessEnv): ValidationEnvironmentVars {
       FRONTEND_URL: joi.string().uri().required(),
       ALLOWED_URLS: joi.string().required(),
       AZURE_STORAGE_CONNECTION_STRING: joi.string().required(),
+      LOG_LEVEL: joi.string().required(),
     })
     .unknown(true);
   const { error, value } = envSchem.validate(vars);
@@ -83,6 +85,7 @@ const loadEnvVars = (): ReturnEnvironmentVars => {
     EMAIL_FROM: value.EMAIL_FROM,
     FRONTEND_URL: value.FRONTEND_URL,
     AZURE_STORAGE_CONNECTION_STRING: value.AZURE_STORAGE_CONNECTION_STRING,
+    LOG_LEVEL: value.LOG_LEVEL,
   };
 };
 const envs = loadEnvVars();

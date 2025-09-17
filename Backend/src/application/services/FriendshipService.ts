@@ -270,6 +270,26 @@ export default class FriendshipService {
     }
   }
 
+  async getCommonFriendships(
+    reqId: number,
+    objId: number,
+  ): Promise<ApplicationResponse<FriendshipsResponse>> {
+    try {
+      const response = await this.friendshipPort.getAllCommonFriendships({
+        user_id: reqId,
+        friend_id: objId,
+      });
+
+      console.log(response.error);
+
+      return response;
+    } catch (error) {
+      return ApplicationResponse.failure(
+        new ApplicationError("Ocurrio un error al buscar las amistades", ErrorCodes.SERVER_ERROR),
+      );
+    }
+  }
+
   /**
    * Elimina una amistad existente entre dos usuarios
    * @param friendRequest Objeto con los IDs de usuario y amigo

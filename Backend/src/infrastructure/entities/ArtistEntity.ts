@@ -30,4 +30,7 @@ export default class ArtistEntity {
 
   @Column({ type: "timestamp", nullable: true })
   updated_at?: Date;
+
+  @Column({ type: "int", name: "user_id", nullable: true })
+  user_id?: number; // usuario propietario que solicitó el perfil
 }
