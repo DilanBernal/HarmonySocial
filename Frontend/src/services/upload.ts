@@ -33,7 +33,7 @@ export async function uploadSongMultipart(params: {
   decade?: number;
   country?: string;
   audio: DocumentPickerResponse;
-  token?: string; // opcional: si no viene, se toma del AsyncStorage
+  token?: string;
   onProgress?: (p: number) => void;
 }) {
   const {
@@ -44,13 +44,12 @@ export async function uploadSongMultipart(params: {
   const token = params.token ?? (await getStoredToken());
 
   const form = new FormData();
-  form.append('file', {
+  form.append("file", {
     uri: audio.uri,
     name: audio.name ?? `audio-${Date.now()}.mp3`,
-    type: audio.type ?? 'audio/mpeg',
+    type: audio.type ?? "audio/mpeg",
   } as any);
 
- 
   form.append("title", title);
   form.append("artist", artist);
   if (genre) form.append("genre", genre);
@@ -65,7 +64,7 @@ export async function uploadSongMultipart(params: {
   return await new Promise<any>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
 
-   
+    // progreso
     let last = -1;
     const report = (p: number) => {
       const clamped = Math.max(0, Math.min(100, Math.round(p)));
@@ -74,7 +73,6 @@ export async function uploadSongMultipart(params: {
         onProgress(clamped);
       }
     };
-
     xhr.upload.onloadstart = () => report(0);
     xhr.upload.onprogress = (evt) => {
       if (!evt.lengthComputable) return;
@@ -85,20 +83,51 @@ export async function uploadSongMultipart(params: {
 
     xhr.onload = () => {
       report(100);
+      const status = xhr.status;
       const text = xhr.responseText || "";
-      if (xhr.status >= 200 && xhr.status < 300) {
+
+      if (status >= 200 && status < 300) {
+        // 1) intentar JSON
+        let parsed: any = {};
         try {
-          resolve(text ? JSON.parse(text) : {});
+          parsed = text ? JSON.parse(text) : {};
         } catch {
-          resolve({});
+          // 2) si vino texto plano y es una URL
+          const trimmed = text.trim();
+          if (/^https?:\/\//i.test(trimmed)) {
+            parsed = { url: trimmed };
+          }
         }
-        try {
-          resolve(text ? JSON.parse(text) : {});
-        } catch {
-          resolve({});
-        }
+
+        // 3) buscar URL en varias formas del body
+        const fromBody =
+          parsed?.data?.url ??
+          parsed?.data?.audioUrl ??
+          parsed?.url ??
+          parsed?.audioUrl ??
+          parsed?.Location ??
+          parsed?.location;
+
+        // 4) o en headers (Location, X-File-URL, etc.)
+        const fromHeader =
+          xhr.getResponseHeader("Location") ||
+          xhr.getResponseHeader("location") ||
+          xhr.getResponseHeader("X-File-URL") ||
+          xhr.getResponseHeader("x-file-url") ||
+          xhr.getResponseHeader("X-Resource-Location") ||
+          undefined;
+
+        const finalUrl = fromBody || fromHeader || null;
+
+        resolve({
+          ...parsed,
+          url: finalUrl, // <-- lo que usa tu pantalla
+          headers: { location: fromHeader || null },
+          raw: text,
+          status,
+        });
       } else {
-        reject(new Error(`HTTP ${xhr.status} - ${text}`));
+        reject(new Error(`HTTP ${status} - ${text}`));
       }
     };
 
@@ -112,10 +141,9 @@ export async function uploadSongMultipart(params: {
       return;
     }
 
-    xhr.open('POST', url);
-    if (!token)
-      return reject(new Error('No hay token de autenticación (inicia sesión)'));
-    xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+    xhr.open("POST", url);
+    xhr.setRequestHeader("Authorization", `Bearer ${token}`);
     xhr.send(form);
   });
 }
+

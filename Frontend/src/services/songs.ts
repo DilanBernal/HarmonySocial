@@ -1,24 +1,5 @@
 import { api } from "./api";
 
-export type SongCreateDTO = {
-  title: string;
-  audioUrl: string;
-  description?: string | null;
-  duration?: number | null;
-  bpm?: number | null;
-  keyNote?: string | null;
-  album?: string | null;
-  decade?: string | null;
-  genre?: string | null;
-  country?: string | null;
-  instruments?: unknown | null;
-  difficultyLevel?: "EASY" | "INTERMEDIATE" | "HARD" | null;
-  artistId?: number | null;
-  userId?: number | null;
-  verifiedByArtist?: boolean;
-  verifiedByUsers?: boolean;
-};
-
 export type Song = {
   id: number;
   title: string;
@@ -26,6 +7,15 @@ export type Song = {
   createdAt: string;
 };
 
+export type Paginated<T> = { rows: T[]; total: number; page: number; limit: number };
+export type ApiEnvelope<T> = { success: boolean; data: T };
+
 export const SongsService = {
-  create: (dto: SongCreateDTO) => api.post<Song>("/songs", dto),
+  create: (dto: any) => api.post<Song>("/songs", dto),
+
+  // GET /api/songs/mine/list => { success, data: { rows, total, page, limit } }
+  listMine: (page = 1, limit = 20) =>
+    api.get<ApiEnvelope<Paginated<Song>>>("/songs/mine/list", {
+      params: { page, limit },
+    }),
 };

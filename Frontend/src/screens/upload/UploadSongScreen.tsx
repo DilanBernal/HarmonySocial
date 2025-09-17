@@ -28,9 +28,7 @@ export default function UploadSongScreen() {
   const [country, setCountry] = useState('');
 
   const [audioName, setAudioName] = useState<string | null>(null);
-  const [audioFile, setAudioFile] = useState<DocumentPickerResponse | null>(
-    null,
-  );
+  const [audioFile, setAudioFile] = useState<DocumentPickerResponse | null>(null);
   const [progress, setProgress] = useState<number>(0);
   const [loading, setLoading] = useState(false);
 
@@ -39,14 +37,9 @@ export default function UploadSongScreen() {
     if (!f) return;
     setAudioFile(f);
     setAudioName(f.name ?? 'audio');
-    setAudioName(f.name ?? 'audio');
   };
 
   const handleUpload = async () => {
-    if (!audioFile)
-      return Alert.alert('Falta el audio', 'Selecciona un archivo.');
-    if (!title.trim() || !artist.trim())
-      return Alert.alert('Campos obligatorios', 'Título y artista.');
     if (!audioFile)
       return Alert.alert('Falta el audio', 'Selecciona un archivo.');
     if (!title.trim() || !artist.trim())
@@ -79,15 +72,32 @@ export default function UploadSongScreen() {
         onProgress: setProgress,
       });
 
-      // API /api/file/song devuelve { success, data: { url, blobName } }
-      const audioUrl: string | undefined = up?.data?.url || up?.url;
-      if (!audioUrl) throw new Error('No se recibió URL del audio');
-      if (!audioUrl) throw new Error('No se recibió URL del audio');
+      // Log para ver la forma exacta que devuelve tu backend
+      console.log('[uploadSongMultipart] response:', up);
+
+      // Intentar extraer la URL desde varias claves comunes
+      const audioUrlCandidates = [
+        up?.data?.url,
+        up?.data?.audioUrl,
+        up?.data?.fileUrl,
+        up?.url,
+        up?.blobUrl,
+        up?.Location, // algunos backends estilo S3
+      ];
+      const audioUrl = audioUrlCandidates.find(
+        (v) => typeof v === 'string' && v.length > 0
+      ) as string | undefined;
+
+      if (!audioUrl) {
+        const backendMsg =
+          (up && (up.message || up.error?.message)) || 'No se recibió URL del audio';
+        throw new Error(String(backendMsg));
+      }
 
       // 2) crear registro en DB
       await api.post('/songs', {
         title: title.trim(),
-        artist: artist.trim(),           // inclúyelo si tu backend lo soporta
+        artist: artist.trim(), // si tu backend no lo soporta, elimínalo
         description: description.trim() || null,
         audioUrl,
         duration: typeof duration === 'number' ? duration : null,
@@ -121,7 +131,7 @@ export default function UploadSongScreen() {
   };
 
   return (
-    <View style={{ flex: 1, padding: 16, gap: 12, top:35 }}>
+    <View style={{ flex: 1, padding: 16, gap: 12, top: 35 }}>
       <Text style={{ fontSize: 20, fontWeight: '600' }}>Subir canción</Text>
 
       <TextInput
@@ -149,7 +159,7 @@ export default function UploadSongScreen() {
         placeholderTextColor="#000000ff"
       />
       <TextInput
-        placeholder="Género (opcional)"
+        placeholder="Género"
         value={genre}
         onChangeText={setGenre}
         style={{
@@ -161,7 +171,7 @@ export default function UploadSongScreen() {
         placeholderTextColor="#000000ff"
       />
       <TextInput
-        placeholder="Descripción (opcional)"
+        placeholder="Descripción"
         value={description}
         onChangeText={setDescription}
         multiline
@@ -176,7 +186,7 @@ export default function UploadSongScreen() {
         placeholderTextColor="#000000ff"
       />
       <TextInput
-        placeholder="Duración en segundos (opcional)"
+        placeholder="Duración en segundos "
         value={durationStr}
         onChangeText={setDurationStr}
         keyboardType="numeric"
@@ -189,7 +199,7 @@ export default function UploadSongScreen() {
         placeholderTextColor="#000000ff"
       />
       <TextInput
-        placeholder="BPM (opcional)"
+        placeholder="BPM "
         value={bpmStr}
         onChangeText={setBpmStr}
         keyboardType="numeric"
@@ -202,7 +212,7 @@ export default function UploadSongScreen() {
         placeholderTextColor="#000000ff"
       />
       <TextInput
-        placeholder="Década (ej. 1990) (opcional)"
+        placeholder="Década (ej. 1990) "
         value={decadeStr}
         onChangeText={setDecadeStr}
         keyboardType="numeric"
@@ -215,7 +225,7 @@ export default function UploadSongScreen() {
         placeholderTextColor="#000000ff"
       />
       <TextInput
-        placeholder="País (opcional)"
+        placeholder="País "
         value={country}
         onChangeText={setCountry}
         style={{

@@ -16,11 +16,11 @@ export type CreateSongDTO = {
   genre?: string | null;
   artistId?: number | null;
   userId?: number | null;
-  duration?: number | null | string; // acepto string por si viene del body
+  duration?: number | null | string;
   bpm?: number | null | string;
   keyNote?: string | null;
   album?: string | null;
-  decade?: number | null | string;   // 🔁 ahora numérico (o string convertible)
+  decade?: number | null | string; // numérico (acepta string convertible)
   country?: string | null;
   instruments?: unknown | null;
 };
@@ -35,7 +35,7 @@ export default class SongAdapter {
   }
 
   async create(dto: CreateSongDTO): Promise<SongEntity> {
-    // Normaliza tipos → alinea con SongEntity
+    // Normaliza tipos a los del entity
     const partial: DeepPartial<SongEntity> = {
       title: dto.title,
       audioUrl: dto.audioUrl,
@@ -47,14 +47,14 @@ export default class SongAdapter {
       bpm: toInt(dto.bpm),
       keyNote: dto.keyNote ?? null,
       album: dto.album ?? null,
-      decade: toInt(dto.decade), // ✅ número o null
+      decade: toInt(dto.decade),
       country: dto.country ?? null,
       instruments: dto.instruments ?? null,
       verifiedByArtist: false,
       verifiedByUsers: false,
     };
 
-    const entity = this.repo.create(partial); // ✅ evita overload de array
+    const entity = this.repo.create(partial);
     return await this.repo.save(entity);
   }
 
@@ -100,7 +100,6 @@ export default class SongAdapter {
       ...(dto.country !== undefined && { country: dto.country ?? null }),
       ...(dto.instruments !== undefined && { instruments: dto.instruments ?? null }),
 
-      // Mantén flags si no vienen en dto
       verifiedByArtist:
         (dto as any)?.verifiedByArtist ?? found.verifiedByArtist,
       verifiedByUsers:
@@ -111,7 +110,11 @@ export default class SongAdapter {
     return await this.repo.save(found);
   }
 
-  async searchByUser(userId: number, page = 1, limit = 20) {
+  async searchByUser(
+    userId: number,
+    page = 1,
+    limit = 20
+  ): Promise<{ rows: SongEntity[]; total: number; page: number; limit: number }> {
     const [rows, total] = await this.repo.findAndCount({
       where: { userId },
       order: { createdAt: "DESC" },
@@ -120,7 +123,6 @@ export default class SongAdapter {
     });
     return { rows, total, page, limit };
   }
-
 
   async delete(id: number): Promise<boolean> {
     const r = await this.repo.delete(id);

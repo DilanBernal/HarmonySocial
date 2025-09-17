@@ -20,16 +20,19 @@ router.get("/", async (req, res) => {
 
 router.get("/mine/list", authenticateToken, async (req: any, res) => {
   try {
-    const userId = Number(req.userId ?? req.query.userId ?? 0);
-    if (!userId) return res.status(400).json({ error: "userId requerido" });
+    console.log('[songs] mine/list userId=', req.userId, 'query=', req.query);
+    const userId = Number(req.userId);
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
     const { page = "1", limit = "20" } = req.query as Record<string, string>;
     const data = await service.getMine(userId, Number(page), Number(limit));
-    res.json({ success: true, data });
+    return res.json({ success: true, data });
   } catch (e: any) {
-    res.status(400).json({ error: e?.message ?? "Bad request" });
+    console.error('[songs] mine/list error:', e);
+    return res.status(400).json({ error: e?.message ?? "Bad request" });
   }
 });
+
 
 
 router.get("/:id", async (req, res) => {

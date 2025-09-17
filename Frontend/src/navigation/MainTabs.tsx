@@ -7,6 +7,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import ProfileScreen from '../screens/auth/ProfileScreen';
 import HomeScreen from '../screens/home/HomeScreen';
 import UploadSongScreen from '../screens/upload/UploadSongScreen';
+import LibraryScreen from "../screens/library/LibrearyScreen";
 
 function SearchScreen() {
   return (
@@ -24,7 +25,7 @@ function SearchScreen() {
 //   );
 // }
 
-function LibraryScreen() {
+function MySongsScreen() {
   return (
     <View style={s.page}>
       <Text style={s.text}>Biblioteca</Text>
@@ -42,7 +43,7 @@ export type MainTabsParamList = {
   Feed: undefined;
   Search: undefined;
   Subir: undefined;
-  Library: undefined;
+  Biblioteca: undefined;
   Profile: undefined;
 };
 
@@ -85,11 +86,7 @@ export default function MainTabs() {
         component={UploadSongScreen}   
         options={{ title: '+' }}
       />
-      <Tab.Screen
-        name="Library"
-        component={LibraryScreen}
-        options={{ title: 'Biblioteca' }}
-      />
+      <Tab.Screen name="Biblioteca" component={LibraryScreen} />
       <Tab.Screen
         name="Profile"
         component={ProfileScreen}

@@ -46,6 +46,7 @@ export class AuthUserService {
         'users/login',
         data,
       );
+      console.log(response)
 
       await AsyncStorage.setItem('user', JSON.stringify(response));
 
