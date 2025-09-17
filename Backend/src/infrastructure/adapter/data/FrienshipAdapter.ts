@@ -1,4 +1,4 @@
-import { FindOptionsWhere, In, QueryFailedError, Repository } from "typeorm";
+import { FindOptionsWhere, In, QueryFailedError, Repository, Not, And } from "typeorm";
 import FriendshipUsersIdsRequest from "../../../application/dto/requests/Friendship/FriendshipUsersIdsRequest";
 import FriendshipsResponse from "../../../application/dto/responses/FriendshipsResponse";
 import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
@@ -32,6 +32,8 @@ export default class FriendshipAdapter implements FriendshipPort {
     friendshipEntity.status = friendship.status;
     friendshipEntity.created_at = friendship.created_at;
     friendshipEntity.updated_at = friendship.updated_at;
+    friendshipEntity.friend.id = friendship.friend_id;
+    friendshipEntity.user.id = friendship.user_id;
     return friendshipEntity;
   }
   private toFriendshipsResponse(list: Array<Friendship>): FriendshipsResponse {
@@ -109,8 +111,8 @@ export default class FriendshipAdapter implements FriendshipPort {
   ): Promise<ApplicationResponse<Friendship | null>> {
     try {
       const whereCondition: FindOptionsWhere<FriendshipEntity>[] = [
-        { user_id: req.user_id, friend_id: req.friend_id },
-        { user_id: req.friend_id, friend_id: req.user_id }, // Comprobamos también la relación inversa
+        { user: { id: req.user_id }, friend_id: req.friend_id },
+        { user: { id: req.friend_id }, friend_id: req.user_id }, // Comprobamos también la relación inversa
       ];
 
       const entity = await this.frienshipRepository.findOne({
@@ -187,16 +189,109 @@ export default class FriendshipAdapter implements FriendshipPort {
   async getAllCommonFriendships(
     req: FriendshipUsersIdsRequest,
   ): Promise<ApplicationResponse<FriendshipsResponse>> {
+    console.log(req);
     try {
-      const whereCondition: FindOptionsWhere<FriendshipEntity>[] = [
-        { user_id: req.user_id, friend_id: req.friend_id, status: FrienshipStatus.ACCEPTED },
-      ];
-      const friendships = await this.frienshipRepository.find({ where: whereCondition });
+      const userFriendships = await this.frienshipRepository.find({
+        where: [
+          {
+            friend: { id: req.user_id },
+            user: { id: Not(req.friend_id) },
+            status: FrienshipStatus.ACCEPTED,
+          },
+          {
+            user: { id: req.user_id },
+            friend: { id: Not(req.friend_id) },
+            status: FrienshipStatus.ACCEPTED,
+          },
+        ],
+        relations: { friend: true, user: true },
+        select: {
+          id: true,
+          user: { id: true },
+          friend: { id: true },
+          updated_at: true,
+        },
+      });
 
-      const response = this.toFriendshipsResponse(friendships);
+      const objFriendships = await this.frienshipRepository.find({
+        where: [
+          {
+            friend: { id: req.friend_id },
+            user: { id: Not(req.user_id) },
+            status: FrienshipStatus.ACCEPTED,
+          },
+          {
+            user: { id: req.friend_id },
+            friend: { id: Not(req.user_id) },
+            status: FrienshipStatus.ACCEPTED,
+          },
+        ],
+        relations: { friend: true, user: true },
+        select: {
+          id: true,
+          user: { id: true },
+          friend: { id: true },
+          updated_at: true,
+        },
+      });
+
+      console.log(objFriendships);
+
+      let externalUserFriendsIds: number[] = [];
+      userFriendships.forEach((x) => {
+        if (x.user.id !== req.user_id) {
+          externalUserFriendsIds.push(x.user.id);
+        } else if (x.friend.id !== req.user_id) {
+          externalUserFriendsIds.push(x.friend.id);
+        }
+      });
+
+      let externalObjFriendsIds: number[] = [];
+      objFriendships.forEach((x) => {
+        if (x.user.id !== req.friend_id) {
+          externalObjFriendsIds.push(x.user.id);
+        } else if (x.friend.id !== req.friend_id) {
+          externalObjFriendsIds.push(x.friend.id);
+        }
+      });
+
+      console.log(userFriendships);
+
+      // calcular intersección de ids (mutual friends)
+      const uniqueUserFriends = Array.from(new Set(externalUserFriendsIds));
+      const uniqueObjFriends = Array.from(new Set(externalObjFriendsIds));
+
+      const mutualIds = uniqueUserFriends.filter((id) => uniqueObjFriends.includes(id));
+
+      // si no hay ids en común, retornar vacío
+      if (!mutualIds || mutualIds.length === 0) {
+        return ApplicationResponse.success(this.toFriendshipsResponse([]));
+      }
+
+      // buscamos las relaciones que conectan al user con cada mutualId
+      const whereCondition: FindOptionsWhere<FriendshipEntity>[] = [
+        {
+          user: { id: req.user_id },
+          friend: { id: In(mutualIds) },
+          status: FrienshipStatus.ACCEPTED,
+        },
+        {
+          friend: { id: req.user_id },
+          user: { id: In(mutualIds) },
+          status: FrienshipStatus.ACCEPTED,
+        },
+      ];
+
+      const entities = await this.frienshipRepository.find({ where: whereCondition });
+
+      // convertir entidades a dominio y devolver
+      const domainList = entities.map((e) => this.toDomain(e));
+      const response = this.toFriendshipsResponse(domainList);
       return ApplicationResponse.success(response);
     } catch (error) {
-      return ApplicationResponse.failure(new ApplicationError("", ErrorCodes.SERVER_ERROR));
+      return ApplicationResponse.failure(
+        new ApplicationError("", ErrorCodes.SERVER_ERROR, error, error as Error),
+      );
     }
   }
   async getFrienshipsByUserAndSimilarName(
@@ -243,8 +338,8 @@ export default class FriendshipAdapter implements FriendshipPort {
     try {
       const whereCondition: FindOptionsWhere<FriendshipEntity>[] = [
         {
-          id: req.user_id,
-          friend_id: req.friend_id,
+          user: { id: req.user_id },
+          friend: { id: req.friend_id },
           status: In([FrienshipStatus.ACCEPTED, FrienshipStatus.PENDING]),
         },
       ];

@@ -18,14 +18,14 @@ export default class FriendshipEntity {
 
   @ManyToOne(() => UserEntity, { nullable: false })
   @JoinColumn({ name: "user_id" })
-  user!: UserEntity;
+  user: UserEntity = new UserEntity();
 
   @RelationId((f: FriendshipEntity) => f.user)
   user_id!: number;
 
   @ManyToOne(() => UserEntity, { nullable: false })
   @JoinColumn({ name: "friend_id" })
-  friend!: UserEntity;
+  friend: UserEntity = new UserEntity();
 
   @RelationId((f: FriendshipEntity) => f.friend)
   friend_id!: number;
