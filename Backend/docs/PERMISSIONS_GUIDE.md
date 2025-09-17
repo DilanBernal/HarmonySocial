@@ -261,7 +261,14 @@ flowchart TD
   E --> F
   F --> G{Rol existe?}
   G -- No --> H[Warn y continuar]
-  # Guía de Permisos y Autorización
+  G -- Sí --> I[Asignar Permiso al Rol]
+  H --> J[Próximo Permiso]
+  I --> J
+  J --> K{Todos los permisos procesados?}
+  K -- No --> B
+  K -- Sí --> L[Finalizar Script]
+````
+# Guía de Permisos y Autorización
 
   Esta guía describe el modelo de permisos, endpoints disponibles para gestionar permisos y asignaciones a roles, así como el middleware de autorización incorporado.
 
