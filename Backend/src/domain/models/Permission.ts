@@ -6,7 +6,7 @@ export default interface Permission {
   updated_at?: Date;
 }
 
-export const enum CorePermission {
+export enum CorePermission {
   // Artist management
   ARTIST_CREATE = "artist.create",
   ARTIST_UPDATE = "artist.update",
@@ -55,3 +55,5 @@ export const DefaultRolePermissionMapping: Record<string, CorePermission[]> = {
   artist: [CorePermission.ARTIST_UPDATE, CorePermission.USER_READ],
   common_user: [CorePermission.USER_READ],
 };
+
+export const CorePermissionsList: string[] = Object.values(CorePermission);

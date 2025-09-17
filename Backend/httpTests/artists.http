@@ -1,52 +1,67 @@
 ### Artists API Manual Test Collection
 
-# Crear artista
-POST http://localhost:3000/api/artists
+@base = http://localhost:3000/api/artists
+@auth = Bearer {{token}}
+
+### Crear artista (status interno = PENDING)
+POST {{base}}
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: {{auth}}
 
 {
   "artist_name": "Queen",
   "biography": "Legendaria banda británica de rock.",
-  "verified": true,
   "formation_year": 1970,
   "country_code": "GB"
 }
 ###
 
-# Actualizar artista
-PUT http://localhost:3000/api/artists/1
+### Actualizar artista (no cambia status)
+PUT {{base}}/1
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: {{auth}}
 
 {
-  "biography": "Banda británica de rock formada en 1970.",
-  "verified": false
+  "biography": "Banda británica de rock formada en 1970 (actualizada)."
 }
 ###
 
-# Buscar artistas por nombre
-GET http://localhost:3000/api/artists?name=Queen
-Authorization: Bearer {{token}}
+### Aceptar artista (requiere permiso artist.accept)
+PUT {{base}}/1/accept
+Authorization: {{auth}}
 ###
 
-# Buscar artistas por país
-GET http://localhost:3000/api/artists?country=GB
-Authorization: Bearer {{token}}
+### Rechazar artista (requiere permiso artist.reject)
+PUT {{base}}/2/reject
+Authorization: {{auth}}
 ###
 
-# Obtener artista por id
-GET http://localhost:3000/api/artists/1
-Authorization: Bearer {{token}}
+### Buscar artistas (filtros nombre, país, status)
+GET {{base}}?name=Queen
+Authorization: {{auth}}
 ###
 
-# Borrado lógico de artista
-DELETE http://localhost:3000/api/artists/1
-Authorization: Bearer {{token}}
+### Buscar artistas por país
+GET {{base}}?country=GB
+Authorization: {{auth}}
 ###
 
-# Respuestas esperadas
-# - 201 Created: { "artistId": 1 }
-# - 204 No Content
-# - 200 OK: ArtistResponse o lista
-# - 404 Not Found / 400 Bad Request: { code, message, details }
+### Buscar artistas ACTIVE
+GET {{base}}?status=ACTIVE
+Authorization: {{auth}}
+###
+
+### Obtener artista por id
+GET {{base}}/1
+Authorization: {{auth}}
+###
+
+### Borrado lógico de artista (status=DELETED)
+DELETE {{base}}/1
+Authorization: {{auth}}
+###
+
+### Notas
+# - status permitido: PENDING|ACTIVE|REJECTED|DELETED (controlado por backend)
+# - Transiciones invalidas devuelven 409 BUSINESS_RULE_VIOLATION
+# - Permisos requeridos: artist.create, artist.update, artist.delete, artist.accept, artist.reject

@@ -227,6 +227,63 @@ router.post(
 - Agrupación de permisos por dominio para UI (namespaces).
 - Soporte de condiciones (ABAC light) sobre entidades específicas.
 
+## Seeding Automático de Permisos
+
+Se incluye un script idempotente `seedPermissions.ts` para poblar:
+
+1. Todos los permisos definidos en `CorePermission`.
+2. Asignaciones rol → permisos según `DefaultRolePermissionMapping`.
+
+### Ejecución
+
+```bash
+npm run seed:permissions
+```
+
+### Comportamiento
+
+- Inserta solo permisos inexistentes (usa búsqueda por `name`).
+- Asigna relaciones faltantes (verifica combinación rol+permiso previamente).
+- Emite logs de cada inserción/asignación.
+- Si un rol definido en el mapping no existe, registra `warn` y sigue.
+
+### Diagrama (Mermaid) Flujo Seeding
+
+```mermaid
+flowchart TD
+  A[Iniciar Script] --> B[Enumerar CorePermissions]
+  B --> C{Permiso existe?}
+  C -- No --> D[Insertar Permission]
+  C -- Sí --> E[Omitir]
+  D --> F[Iterar Mapping Roles]
+  E --> F
+  F --> G{Rol existe?}
+  G -- No --> H[Warn y continuar]
+  G -- Sí --> I[Buscar permiso por nombre]
+  I --> J{Relación existe?}
+  J -- No --> K[Crear RolePermission]
+  J -- Sí --> L[Omitir]
+  K --> M[Next]
+  L --> M[Next]
+  M --> N[Fin]
+```
+
+### Casos Re-ejecución
+
+- Seguro re-correrlo cuantas veces sea necesario.
+- Útil en pipelines CI antes de correr tests de autorización.
+
+### Extender
+
+- Añadir nuevos permisos: agregarlos en enum y mapping -> volver a ejecutar.
+- Remover permisos: eliminar de mapping + borrar manualmente filas obsoletas (script puntual).
+
+### Buenas Prácticas
+
+- Versionar cambios al enum junto a la lógica que hace uso del nuevo permiso.
+- Evitar renombrar: preferir deprecación + nuevo permiso.
+- Revisar logs de pipeline para confirmar asignaciones críticas.
+
 ---
 
 Fin de la Guía de Permisos.
