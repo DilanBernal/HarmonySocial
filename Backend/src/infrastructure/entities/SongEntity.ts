@@ -48,7 +48,6 @@ export default class SongEntity {
   @Column({ name: "difficulty_level", type: "varchar", length: 20, nullable: true })
   difficultyLevel?: "EASY" | "INTERMEDIATE" | "HARD" | null;
 
-
   @Column({ type: "varchar", length: 100, nullable: true })
   artist?: string | null;
 

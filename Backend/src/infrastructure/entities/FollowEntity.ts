@@ -4,6 +4,6 @@ export class UserFollow {
     public id: number | null,
     public followerId: number,
     public followedId: number,
-    public createdAt: Date = new Date()
+    public createdAt: Date = new Date(),
   ) {}
 }

@@ -2,7 +2,6 @@
 import { Request, Response } from "express";
 import { UserFollowService } from "../../application/services/FollowService";
 
-
 export class UserFollowController {
   constructor(private service: UserFollowService) {}
 

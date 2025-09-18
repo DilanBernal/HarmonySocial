@@ -65,7 +65,7 @@ export default class SongAdapter {
   async search(
     query: string,
     page = 1,
-    limit = 20
+    limit = 20,
   ): Promise<{ rows: SongEntity[]; total: number; page: number; limit: number }> {
     const where = query
       ? [{ title: ILike(`%${query}%`) }, { genre: ILike(`%${query}%`) }]
@@ -100,10 +100,8 @@ export default class SongAdapter {
       ...(dto.country !== undefined && { country: dto.country ?? null }),
       ...(dto.instruments !== undefined && { instruments: dto.instruments ?? null }),
 
-      verifiedByArtist:
-        (dto as any)?.verifiedByArtist ?? found.verifiedByArtist,
-      verifiedByUsers:
-        (dto as any)?.verifiedByUsers ?? found.verifiedByUsers,
+      verifiedByArtist: (dto as any)?.verifiedByArtist ?? found.verifiedByArtist,
+      verifiedByUsers: (dto as any)?.verifiedByUsers ?? found.verifiedByUsers,
     };
 
     this.repo.merge(found, partial);
@@ -113,7 +111,7 @@ export default class SongAdapter {
   async searchByUser(
     userId: number,
     page = 1,
-    limit = 20
+    limit = 20,
   ): Promise<{ rows: SongEntity[]; total: number; page: number; limit: number }> {
     const [rows, total] = await this.repo.findAndCount({
       where: { userId },

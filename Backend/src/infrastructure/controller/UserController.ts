@@ -114,7 +114,7 @@ export default class UserController {
       console.log(loginRequest);
       const authResponse = await this.authService.login(loginRequest);
 
-      console.log(authResponse)
+      console.log(authResponse);
       if (authResponse.success && authResponse.data) {
         return res.status(200).json({
           message: "Login exitoso",

@@ -1,11 +1,10 @@
 import { Router } from "express";
 import SongAdapter from "../adapter/data/SongAdapter";
 import SongService from "../../application/services/SongService";
-import authenticateToken from "../middleware/authMiddleware"; 
+import authenticateToken from "../middleware/authMiddleware";
 
 const router = Router();
 const service = new SongService(new SongAdapter());
-
 
 router.get("/", async (req, res) => {
   try {
@@ -17,10 +16,9 @@ router.get("/", async (req, res) => {
   }
 });
 
-
 router.get("/mine/list", authenticateToken, async (req: any, res) => {
   try {
-    console.log('[songs] mine/list userId=', req.userId, 'query=', req.query);
+    console.log("[songs] mine/list userId=", req.userId, "query=", req.query);
     const userId = Number(req.userId);
     if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
@@ -28,12 +26,10 @@ router.get("/mine/list", authenticateToken, async (req: any, res) => {
     const data = await service.getMine(userId, Number(page), Number(limit));
     return res.json({ success: true, data });
   } catch (e: any) {
-    console.error('[songs] mine/list error:', e);
+    console.error("[songs] mine/list error:", e);
     return res.status(400).json({ error: e?.message ?? "Bad request" });
   }
 });
-
-
 
 router.get("/:id", async (req, res) => {
   try {
@@ -46,20 +42,18 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-
 router.post("/", authenticateToken, async (req: any, res) => {
   try {
     const body = req.body ?? {};
     const created = await service.create({
       ...body,
-      userId: body.userId ?? req.userId ?? null, 
+      userId: body.userId ?? req.userId ?? null,
     });
     res.status(201).json(created);
   } catch (e: any) {
     res.status(400).json({ error: e?.message ?? "Bad request" });
   }
 });
-
 
 router.patch("/:id", authenticateToken, async (req, res) => {
   try {
@@ -71,7 +65,6 @@ router.patch("/:id", authenticateToken, async (req, res) => {
     res.status(400).json({ error: e?.message ?? "Bad request" });
   }
 });
-
 
 router.delete("/:id", authenticateToken, async (req, res) => {
   try {
