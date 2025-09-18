@@ -7,7 +7,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import ProfileScreen from '../screens/auth/ProfileScreen';
 import HomeScreen from '../screens/home/HomeScreen';
 import UploadSongScreen from '../screens/upload/UploadSongScreen';
-import LibraryScreen from "../screens/library/LibrearyScreen";
+import LibraryScreen from "../screens/library/LibraryScreen";
 
 function SearchScreen() {
   return (

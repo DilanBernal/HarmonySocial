@@ -2,9 +2,10 @@ import { Request, Response } from "express";
 import FileService, { UploadResult } from "../../application/services/FileService";
 import { FilePayload } from "../../application/dto/utils/FilePayload";
 import { ApplicationResponse } from "../../application/shared/ApplicationReponse";
+import { ErrorCodes } from "../../application/shared/errors/ApplicationError";
 
 export default class FilesController {
-  constructor(private readonly fileService: FileService) {}
+  constructor(private readonly fileService: FileService) { }
 
   // Opcional: si definiste BLOB_PUBLIC_BASE, reescribe 127.0.0.1 -> IP LAN
   private fixPublicUrl(result: UploadResult): UploadResult {
@@ -63,6 +64,33 @@ export default class FilesController {
       console.error("[uploadNewSong]", e);
       if (!res.headersSent)
         return res.status(500).json({ success: false, message: e?.message ?? "Upload error" });
+    }
+  }
+
+  async getSongFile(req: Request, res: Response) {
+    try {
+      const { id } = req.query;
+
+      const songFileResponse = await this.fileService.getFileSong(Number(id));
+
+      if (!songFileResponse.success || !songFileResponse.data) {
+        const code = (songFileResponse.error?.code === ErrorCodes.BLOB_NOT_FOUND) ? 404 : 500;
+        return res.status(code).json({ message: songFileResponse.error?.message ?? 'Error al obtener la canción' });
+      }
+
+
+
+      const { data, filename, mimeType } = songFileResponse.data;
+
+      res.setHeader('Content-Type', mimeType || 'application/octet-stream');
+      res.setHeader('Content-Length', Buffer.byteLength(data));
+      // attachment -> fuerza descarga; usa inline si quieres reproducir en el cliente sin descargar
+      res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(filename)}"`);
+
+
+      return res.status(200).end(data); // o res.send(data)
+    } catch (error) {
+
     }
   }
 }
