@@ -6,7 +6,7 @@ export default class FriendshipController {
   constructor(private friendshipService: FriendshipService) {}
 
   /**
-   * Crea una nueva solicitud de amistad entre dos usuarios
+
    * @param req Request con los IDs de usuario y amigo en el body
    * @param res Response con el resultado de la operación
    * @returns Respuesta HTTP con estado 201 si se creó correctamente, 200 si ya existe relación, 400 si hubo error
@@ -34,14 +34,14 @@ export default class FriendshipController {
         return res.status(400).json(servResponse?.error);
       }
 
-      // Si la respuesta es un string, es un mensaje informativo (ya son amigos o hay solicitud pendiente)
+
       if (typeof servResponse.data === "string") {
         return res.status(200).json({
           message: servResponse.data,
         });
       }
 
-      // Si no es un string, es un booleano que indica éxito en la creación de la solicitud
+
       return res.status(201).json({
         message: "Solicitud de amistad creada correctamente",
       });

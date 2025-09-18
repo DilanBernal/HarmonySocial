@@ -11,9 +11,6 @@ export default class LoggerAdapter implements LoggerPort {
   constructor(options?: LoggerOptions) {
     this.logger = pino(options ?? loggerConfig);
 
-    // Use an absolute path for the error log and create directories if needed.
-    // Use sync: true so the writer is ready immediately and does not throw
-    // "sonic boom is not ready yet" during process shutdown.
     const errorLogPath = path.join(
       process.cwd(),
       "logs",

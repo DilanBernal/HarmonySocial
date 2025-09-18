@@ -20,7 +20,6 @@ import LinearGradient from 'react-native-linear-gradient';
 import * as Yup from 'yup';
 import { EqBars } from '../../components/general/EqBars';
 import { AuthUserService } from '../../core/services/user/auth/AuthUserService';
-import { getToken } from '../../services/api';
 import UserService from '../../core/services/user/user/UserService';
 
 const validationSchema = Yup.object().shape({
@@ -39,7 +38,7 @@ const LoginScreen = () => {
   const userService = new UserService();
 
   useEffect(() => {
-    userService.getUserData(22);
+    // userService.getUserData(50);
   }, []);
   const loginFunction = authService.login;
 

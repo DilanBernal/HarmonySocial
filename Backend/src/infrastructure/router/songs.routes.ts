@@ -1,11 +1,12 @@
 import { Router } from "express";
 import SongAdapter from "../adapter/data/SongAdapter";
 import SongService from "../../application/services/SongService";
+import authenticateToken from "../middleware/authMiddleware"; 
 
 const router = Router();
 const service = new SongService(new SongAdapter());
 
-/** GET /api/songs?query=rock&page=1&limit=20 */
+
 router.get("/", async (req, res) => {
   try {
     const { query = "", page = "1", limit = "20" } = req.query as Record<string, string>;
@@ -16,7 +17,24 @@ router.get("/", async (req, res) => {
   }
 });
 
-/** GET /api/songs/:id */
+
+router.get("/mine/list", authenticateToken, async (req: any, res) => {
+  try {
+    console.log('[songs] mine/list userId=', req.userId, 'query=', req.query);
+    const userId = Number(req.userId);
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const { page = "1", limit = "20" } = req.query as Record<string, string>;
+    const data = await service.getMine(userId, Number(page), Number(limit));
+    return res.json({ success: true, data });
+  } catch (e: any) {
+    console.error('[songs] mine/list error:', e);
+    return res.status(400).json({ error: e?.message ?? "Bad request" });
+  }
+});
+
+
+
 router.get("/:id", async (req, res) => {
   try {
     const id = Number(req.params.id);
@@ -28,20 +46,22 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-/** POST /api/songs  (JSON)
- *  { title, audioUrl, description?, genre?, userId?, ... }
- */
-router.post("/", async (req, res) => {
+
+router.post("/", authenticateToken, async (req: any, res) => {
   try {
-    const created = await service.create(req.body ?? {});
+    const body = req.body ?? {};
+    const created = await service.create({
+      ...body,
+      userId: body.userId ?? req.userId ?? null, 
+    });
     res.status(201).json(created);
   } catch (e: any) {
     res.status(400).json({ error: e?.message ?? "Bad request" });
   }
 });
 
-/** PATCH /api/songs/:id  (JSON parcial) */
-router.patch("/:id", async (req, res) => {
+
+router.patch("/:id", authenticateToken, async (req, res) => {
   try {
     const id = Number(req.params.id);
     const updated = await service.update(id, req.body ?? {});
@@ -52,8 +72,8 @@ router.patch("/:id", async (req, res) => {
   }
 });
 
-/** DELETE /api/songs/:id */
-router.delete("/:id", async (req, res) => {
+
+router.delete("/:id", authenticateToken, async (req, res) => {
   try {
     const id = Number(req.params.id);
     const ok = await service.delete(id);
