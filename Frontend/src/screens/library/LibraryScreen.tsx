@@ -1,18 +1,16 @@
+import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-  View,
-  Text,
-  FlatList,
   ActivityIndicator,
+  FlatList,
   Pressable,
+  Text,
+  View,
 } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
-import { SongsService, Song } from '../../core/services/song/GetSongsService';
+import { Song, SongsService } from '../../core/services/song/GetSongsService';
 import {
-  playSong,
-  setupPlayer,
-  playTest,
   playSongByBlob,
+  setupPlayer,
   songRequest,
 } from '../../player/controller';
 
@@ -104,7 +102,7 @@ export default function LibraryScreen() {
       style={{ flex: 1, backgroundColor: '#0b0c16', paddingTop: 8, top: 35 }}
     >
       {/* Botón de prueba con MP3 público para verificar el pipeline del player */}
-      <Pressable
+      {/* <Pressable
         onPress={playTest}
         style={{
           margin: 12,
@@ -116,7 +114,7 @@ export default function LibraryScreen() {
         <Text style={{ color: '#fff', fontWeight: '700' }}>
           ▶️ Probar reproducción (HTTPS)
         </Text>
-      </Pressable>
+      </Pressable> */}
 
       <FlatList
         data={items}
