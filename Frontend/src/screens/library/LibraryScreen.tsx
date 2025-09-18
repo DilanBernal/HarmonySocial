@@ -13,8 +13,10 @@ import {
   setupPlayer,
   songRequest,
 } from '../../player/controller';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function LibraryScreen() {
+  const insets = useSafeAreaInsets();
   const [items, setItems] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
@@ -50,6 +52,7 @@ export default function LibraryScreen() {
           backgroundColor: '#0b0c16',
           alignItems: 'center',
           justifyContent: 'center',
+          paddingTop: insets.top,
         }}
       >
         <ActivityIndicator />
@@ -68,6 +71,7 @@ export default function LibraryScreen() {
           backgroundColor: '#0b0c16',
           alignItems: 'center',
           justifyContent: 'center',
+          paddingTop: insets.top,
           padding: 16,
         }}
       >
@@ -90,6 +94,7 @@ export default function LibraryScreen() {
           backgroundColor: '#0b0c16',
           alignItems: 'center',
           justifyContent: 'center',
+          paddingTop: insets.top,
         }}
       >
         <Text style={{ color: '#fff' }}>Aún no tienes canciones subidas</Text>
@@ -99,7 +104,11 @@ export default function LibraryScreen() {
 
   return (
     <View
-      style={{ flex: 1, backgroundColor: '#0b0c16', paddingTop: 8, top: 35 }}
+      style={{
+        flex: 1,
+        backgroundColor: '#0b0c16',
+        paddingTop: insets.top,
+      }}
     >
       {/* Botón de prueba con MP3 público para verificar el pipeline del player */}
       {/* <Pressable
