@@ -1,54 +1,39 @@
-// src/infrastructure/adapters/PostgresUserFollowRepository.ts
-import { Pool } from "pg";
-import { UserFollow } from "../../../infrastructure/entities/FollowEntity";
-import { UserFollowRepository } from "../../../domain/ports/data/FollowPort";
+import { Repository } from "typeorm";
+import { AppDataSource } from "../../config/con_database"
+import { FollowEntity } from "../../entities/FollowEntity";
+import FollowPort from "../../../domain/ports/data/FollowPort";
+import Follow from "../../../domain/models/Follow";
 
+export default class FollowAdapter implements FollowPort {
+  private repository: Repository<FollowEntity>;
 
-export class PostgresUserFollowRepository implements UserFollowRepository {
-  constructor(private pool: Pool) {}
-
-  async follow(followerId: number, followedId: number): Promise<UserFollow> {
-    const result = await this.pool.query(
-      `INSERT INTO user_follows_user (follower_id, followed_id)
-       VALUES ($1, $2) ON CONFLICT (follower_id, followed_id) DO NOTHING
-       RETURNING id, follower_id, followed_id, created_at`,
-      [followerId, followedId]
-    );
-
-    if (!result.rows[0]) throw new Error("Already following");
-
-    const row = result.rows[0];
-    return new UserFollow(row.id, row.follower_id, row.followed_id, row.created_at);
+  constructor() {
+    this.repository = AppDataSource.getRepository(FollowEntity);
   }
 
-  async unfollow(followerId: number, followedId: number): Promise<void> {
-    await this.pool.query(
-      `DELETE FROM user_follows_user WHERE follower_id = $1 AND followed_id = $2`,
-      [followerId, followedId]
-    );
+  async create(followerId: number, followedId: number): Promise<Follow> {
+    const follow = this.repository.create({ followerId, followedId });
+    return await this.repository.save(follow);
   }
 
-  async getFollowers(userId: number): Promise<UserFollow[]> {
-    const result = await this.pool.query(
-      `SELECT * FROM user_follows_user WHERE followed_id = $1`,
-      [userId]
-    );
-    return result.rows.map(row => new UserFollow(row.id, row.follower_id, row.followed_id, row.created_at));
+  async findAll(): Promise<Follow[]> {
+    return await this.repository.find();
   }
 
-  async getFollowing(userId: number): Promise<UserFollow[]> {
-    const result = await this.pool.query(
-      `SELECT * FROM user_follows_user WHERE follower_id = $1`,
-      [userId]
-    );
-    return result.rows.map(row => new UserFollow(row.id, row.follower_id, row.followed_id, row.created_at));
+  async findById(id: number): Promise<Follow | null> {
+    return await this.repository.findOneBy({ id });
   }
 
-  async exists(followerId: number, followedId: number): Promise<boolean> {
-    const result = await this.pool.query(
-      `SELECT 1 FROM user_follows_user WHERE follower_id = $1 AND followed_id = $2`,
-      [followerId, followedId]
-    );
-    return (result.rowCount ?? 0) > 0;
+  async update(id: number, followerId: number, followedId: number): Promise<Follow | null> {
+    const follow = await this.repository.findOneBy({ id });
+    if (!follow) return null;
+    follow.followerId = followerId;
+    follow.followedId = followedId;
+    return await this.repository.save(follow);
+  }
+
+  async delete(id: number): Promise<boolean> {
+    const result = await this.repository.delete(id);
+    return result.affected !== 0;
   }
 }

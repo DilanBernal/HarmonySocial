@@ -1,40 +1,62 @@
-// src/infrastructure/controllers/UserFollowController.ts
 import { Request, Response } from "express";
-import { UserFollowService } from "../../application/services/FollowService";
+import FollowService from "../../application/services/FollowService";
 
+const service = new FollowService();
 
-export class UserFollowController {
-  constructor(private service: UserFollowService) {}
-
-  follow = async (req: Request, res: Response) => {
+export default class FollowController {
+  static async create(req: Request, res: Response) {
     try {
-      const { followerId, followedId } = req.body;
-      const follow = await this.service.follow(followerId, followedId);
+      const follow = await service.create(req.body);
       res.status(201).json(follow);
-    } catch (err: any) {
-      res.status(400).json({ message: err.message });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
     }
-  };
+  }
 
-  unfollow = async (req: Request, res: Response) => {
+  static async findAll(req: Request, res: Response) {
+    const follows = await service.findAll();
+    res.json(follows);
+  }
+
+  static async findById(req: Request, res: Response) {
+    const follow = await service.findById(Number(req.params.id));
+    follow
+      ? res.json(follow)
+      : res.status(404).json({ message: "Follow not found" });
+  }
+
+  static async update(req: Request, res: Response) {
+    const follow = await service.update(Number(req.params.id), req.body);
+    follow
+      ? res.json(follow)
+      : res.status(404).json({ message: "Follow not found" });
+  }
+
+  static async delete(req: Request, res: Response) {
+    const success = await service.delete(Number(req.params.id));
+    success
+      ? res.json({ message: "Follow deleted" })
+      : res.status(404).json({ message: "Follow not found" });
+  }
+
+  // 🔹 Nuevo método UNFOLLOW
+  static async unfollow(req: Request, res: Response) {
     try {
       const { followerId, followedId } = req.body;
-      await this.service.unfollow(followerId, followedId);
-      res.status(204).send();
-    } catch (err: any) {
-      res.status(400).json({ message: err.message });
+
+      if (!followerId || !followedId) {
+        return res
+          .status(400)
+          .json({ message: "followerId y followedId son requeridos" });
+      }
+
+      const success = await service.unfollow(followerId, followedId);
+
+      success
+        ? res.json({ message: "Unfollow realizado con éxito" })
+        : res.status(404).json({ message: "No existe esa relación de follow" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
     }
-  };
-
-  getFollowers = async (req: Request, res: Response) => {
-    const userId = parseInt(req.params.userId);
-    const followers = await this.service.getFollowers(userId);
-    res.json(followers);
-  };
-
-  getFollowing = async (req: Request, res: Response) => {
-    const userId = parseInt(req.params.userId);
-    const following = await this.service.getFollowing(userId);
-    res.json(following);
-  };
+  }
 }

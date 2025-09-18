@@ -1,41 +1,46 @@
-### Seguir a un usuario
-POST http://localhost:4200/api/user-follows/follow
+### 🔹 Crear un follow
+POST http://localhost:4200/api/user-follows
 Content-Type: application/json
 
 {
-  "followerId": 1,
-  "followedId": 2
-}
-
-### Intentar seguir al mismo usuario de nuevo (debe dar error)
-POST http://localhost:4200/api/user-follows/follow
-Content-Type: application/json
-
-{
-  "followerId": 1,
-  "followedId": 2
-}
-
-### Intentar seguirse a sí mismo (debe dar error)
-POST http://localhost:4200/api/user-follows/follow
-Content-Type: application/json
-
-{
-  "followerId": 1,
+  "followerId": 2,
   "followedId": 1
 }
 
-### Dejar de seguir a un usuario
+###
+
+### 🔹 Obtener todos los follows
+GET http://localhost:4200/api/user-follows
+Accept: application/json
+
+###
+
+### 🔹 Obtener un follow por ID
+GET http://localhost:4200/api/user-follows/1
+Accept: application/json
+
+###
+
+### 🔹 Actualizar un follow
+PUT http://localhost:4200/api/user-follows/1
+Content-Type: application/json
+
+{
+  "followerId": 1,
+  "followedId": 3
+}
+
+###
+
+### 🔹 Eliminar un follow
+DELETE http://localhost:4200/api/user-follows/6
+Accept: application/json
+
+### Unfollow (Eliminar relación por followerId y followedId)
 DELETE http://localhost:4200/api/user-follows/unfollow
 Content-Type: application/json
 
 {
   "followerId": 1,
-  "followedId": 2
+  "followedId": 3
 }
-
-### Obtener todos los seguidores de un usuario
-GET http://localhost:4200/api/user-follows/2/followers
-
-### Obtener todos los usuarios que sigue un usuario
-GET http://localhost:4200/api/user-follows/1/following
