@@ -1,4 +1,4 @@
-import { FindOptionsWhere, In, QueryFailedError, Repository } from "typeorm";
+import { FindOptionsWhere, In, QueryFailedError, Repository, Not, And } from "typeorm";
 import FriendshipUsersIdsRequest from "../../../application/dto/requests/Friendship/FriendshipUsersIdsRequest";
 import FriendshipsResponse from "../../../application/dto/responses/FriendshipsResponse";
 import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
@@ -10,6 +10,7 @@ import { ApplicationError, ErrorCodes } from "../../../application/shared/errors
 
 export default class FriendshipAdapter implements FriendshipPort {
   private frienshipRepository: Repository<FriendshipEntity>;
+  // private repository: Repository;
 
   constructor() {
     this.frienshipRepository = AppDataSource.getRepository(FriendshipEntity);
@@ -32,6 +33,8 @@ export default class FriendshipAdapter implements FriendshipPort {
     friendshipEntity.status = friendship.status;
     friendshipEntity.created_at = friendship.created_at;
     friendshipEntity.updated_at = friendship.updated_at;
+    friendshipEntity.friend.id = friendship.friend_id;
+    friendshipEntity.user.id = friendship.user_id;
     return friendshipEntity;
   }
   private toFriendshipsResponse(list: Array<Friendship>): FriendshipsResponse {
@@ -109,8 +112,8 @@ export default class FriendshipAdapter implements FriendshipPort {
   ): Promise<ApplicationResponse<Friendship | null>> {
     try {
       const whereCondition: FindOptionsWhere<FriendshipEntity>[] = [
-        { user_id: req.user_id, friend_id: req.friend_id },
-        { user_id: req.friend_id, friend_id: req.user_id }, // Comprobamos también la relación inversa
+        { user: { id: req.user_id }, friend_id: req.friend_id },
+        { user: { id: req.friend_id }, friend_id: req.user_id }, // Comprobamos también la relación inversa
       ];
 
       const entity = await this.frienshipRepository.findOne({
@@ -187,16 +190,34 @@ export default class FriendshipAdapter implements FriendshipPort {
   async getAllCommonFriendships(
     req: FriendshipUsersIdsRequest,
   ): Promise<ApplicationResponse<FriendshipsResponse>> {
+    console.log(req);
     try {
-      const whereCondition: FindOptionsWhere<FriendshipEntity>[] = [
-        { user_id: req.user_id, friend_id: req.friend_id, status: FrienshipStatus.ACCEPTED },
-      ];
-      const friendships = await this.frienshipRepository.find({ where: whereCondition });
+      // Intentamos delegar la intersección y búsqueda a la BD mediante el stored function
+      // La función devuelve filas de la tabla friendships correspondientes a los mutual friends
+      const sql = `SELECT * from fn_get_mutual_friendships($1, $2)`;
+      const rows = await this.frienshipRepository.query(sql, [req.user_id, req.friend_id]);
 
-      const response = this.toFriendshipsResponse(friendships);
+      if (!rows || rows.length === 0) {
+        return ApplicationResponse.success(this.toFriendshipsResponse([]));
+      }
+
+      // Mapear filas a modelos de dominio (Friendship)
+      const domainList: Friendship[] = rows.map((r: Friendship) => ({
+        id: Number(r.id),
+        user_id: Number(r.user_id),
+        friend_id: Number(r.friend_id),
+        // conservar el valor tal cual, el enum en TS puede aceptar la string si coincide
+        status: (r.status as FrienshipStatus) ?? FrienshipStatus.ACCEPTED,
+        created_at: new Date(r.created_at),
+        updated_at: r.updated_at ? new Date(r.updated_at) : new Date(r.created_at),
+      }));
+
+      const response = this.toFriendshipsResponse(domainList);
       return ApplicationResponse.success(response);
     } catch (error) {
-      return ApplicationResponse.failure(new ApplicationError("", ErrorCodes.SERVER_ERROR));
+      return ApplicationResponse.failure(
+        new ApplicationError("", ErrorCodes.SERVER_ERROR, error, error as Error),
+      );
     }
   }
   async getFrienshipsByUserAndSimilarName(
@@ -243,8 +264,8 @@ export default class FriendshipAdapter implements FriendshipPort {
     try {
       const whereCondition: FindOptionsWhere<FriendshipEntity>[] = [
         {
-          id: req.user_id,
-          friend_id: req.friend_id,
+          user: { id: req.user_id },
+          friend: { id: req.friend_id },
           status: In([FrienshipStatus.ACCEPTED, FrienshipStatus.PENDING]),
         },
       ];

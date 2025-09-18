@@ -46,6 +46,7 @@ export const useRegisterViewModel = (): UseRegisterViewModelReturn => {
       console.log(serviceResponse);
     } catch (error) {
       console.error(error);
+      throw error;
     }
   };
 

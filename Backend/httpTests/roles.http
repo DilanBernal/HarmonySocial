@@ -1,0 +1,44 @@
+### Roles API Manual Test Collection
+
+@base = http://localhost:3000/api
+@auth = Bearer {{token}}
+
+### Crear rol
+POST {{base}}/roles
+Content-Type: application/json
+Authorization: {{auth}}
+
+{
+  "name": "editor",
+  "description": "Rol para edición de contenido"
+}
+###
+
+### Listar roles
+GET {{base}}/roles
+Authorization: {{auth}}
+###
+
+### Obtener rol por id
+GET {{base}}/roles/1
+Authorization: {{auth}}
+###
+
+### Actualizar rol
+PUT {{base}}/roles/1
+Content-Type: application/json
+Authorization: {{auth}}
+
+{
+  "description": "Rol editor (actualizado)"
+}
+###
+
+### Eliminar rol
+DELETE {{base}}/roles/1
+Authorization: {{auth}}
+###
+
+### Notas
+# - Verificar códigos: 201 (create), 200 (list/get/update/delete), 400/409 en errores.
+# - Requiere token con permisos de role.create/role.read/role.update/role.delete según endpoint.

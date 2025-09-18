@@ -48,7 +48,11 @@ export default class EmailNodemailerAdapter implements EmailPort {
       });
       return true;
     } catch (error) {
-      this.logger.error(`No se pudo enviar el email a el correo ${email.to}`, [email, error]);
+      this.logger.error(`No se pudo enviar el email a el correo ${email.to}`, [
+        email,
+        error,
+        __dirname,
+      ]);
       return false;
     }
   }

@@ -3,6 +3,8 @@ import UserAdapter from "../adapter/data/UserAdapter";
 import UserService from "../../application/services/UserService";
 import AuthService from "../../application/services/AuthService";
 import UserController from "../controller/UserController";
+import RoleAdapter from "../adapter/data/RoleAdapter";
+import UserRoleAdapter from "../adapter/data/UserRoleAdapter";
 import AuthAdapter from "../adapter/data/AuthAdapter";
 import EmailNodemailerAdapter from "../adapter/utils/EmailAdapter";
 import LoggerAdapter from "../adapter/utils/LoggerAdapter";
@@ -20,12 +22,16 @@ const authAdapter = new AuthAdapter();
 const loggerAdapter = new LoggerAdapter();
 const tokenAdapter = new TokenAdapter();
 const emailAdapter = new EmailNodemailerAdapter(loggerAdapter);
+const roleAdapter = new RoleAdapter();
+const userRoleAdapter = new UserRoleAdapter();
 const userApp = new UserService(
   userAdapter,
   authAdapter,
   emailAdapter,
   loggerAdapter,
   tokenAdapter,
+  roleAdapter,
+  userRoleAdapter,
 );
 const authService = new AuthService(
   userAdapter,
@@ -33,6 +39,7 @@ const authService = new AuthService(
   emailAdapter,
   loggerAdapter,
   tokenAdapter,
+  userRoleAdapter,
 );
 const userController = new UserController(userApp, authService, loggerAdapter);
 
@@ -95,6 +102,13 @@ router.get("/basic-info", async (req, res) => {
   try {
     await userController.getBasicUserData(req, res);
   } catch (error: any) {
+    loggerAdapter.debug(
+      "Es en la parte despues de que el error no sea instancia ni de NotFoundResponse ni de ApplicationResponse",
+      [error, typeof error],
+    );
+    console.log(error);
+
+    loggerAdapter.error("Ocurrio un error al traer la info del usuario", [error, error.title]);
     const errorMessage = error.message ?? "Error al traer el usuario";
     res.status(error.statusCode ?? 500).json({
       message: errorMessage,

@@ -11,8 +11,11 @@ export default class LoggerAdapter implements LoggerPort {
   constructor(options?: LoggerOptions) {
     this.logger = pino(options ?? loggerConfig);
 
-
-    const errorLogPath = path.join(process.cwd(), "logs", "error.log");
+    const errorLogPath = path.join(
+      process.cwd(),
+      "logs",
+      `Errors-${new Date().toDateString()}.log`,
+    );
     const errorStream = pino.destination({
       dest: errorLogPath,
       sync: true,
@@ -30,6 +33,7 @@ export default class LoggerAdapter implements LoggerPort {
   }
 
   error(message: string, ...args: any[]): void {
+    this.errorLogger.error({ msg: message, args });
     this.logger.error({ msg: message, args });
   }
 
@@ -38,6 +42,7 @@ export default class LoggerAdapter implements LoggerPort {
   }
 
   fatal(message: string, ...args: any[]): void {
+    this.errorLogger.error({ msg: message, args });
     this.logger.fatal({ msg: message, args });
   }
 
@@ -62,6 +67,7 @@ export default class LoggerAdapter implements LoggerPort {
     this.logger.debug({ msg: appError.error?.message, appError });
   }
   appFatal(appError: ApplicationResponse<any>): void {
+    this.errorLogger.error({ msg: appError.error?.message, appError });
     this.logger.fatal({ msg: appError.error?.message, appError });
   }
 

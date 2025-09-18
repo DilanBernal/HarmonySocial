@@ -15,9 +15,11 @@ import LoggerPort from "../../domain/ports/utils/LoggerPort";
 import Email from "../dto/utils/Email";
 import envs from "../../infrastructure/config/environment-vars";
 import TokenPort from "../../domain/ports/utils/TokenPort";
+import RolePort from "../../domain/ports/data/RolePort";
 import { findRegex } from "../shared/utils/regex";
 import NotFoundResponse from "../shared/responses/NotFoundResponse";
 import UserBasicDataResponse from "../dto/responses/UserBasicDataResponse";
+import UserRolePort from "../../domain/ports/data/UserRolePort";
 
 export default class UserService {
   private userPort: UserPort;
@@ -31,6 +33,8 @@ export default class UserService {
     emailPort: EmailPort,
     logger: LoggerPort,
     private tokenPort: TokenPort,
+    private rolePort: RolePort,
+    private userRolePort: UserRolePort,
   ) {
     this.userPort = userPort;
     this.authPort = authPort;
@@ -56,9 +60,21 @@ export default class UserService {
           new ApplicationError("Ya existe el usuario", ErrorCodes.USER_ALREADY_EXISTS),
         );
       }
+      // Verificar que el rol por defecto exista antes de crear el usuario
+      const defaultRoleName = "common_user";
+      const defaultRole = await this.rolePort.findByName(defaultRoleName);
+      if (!defaultRole) {
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            `Rol por defecto '${defaultRoleName}' no configurado`,
+            ErrorCodes.VALUE_NOT_FOUND,
+          ),
+        );
+      }
+
       const hashPassword = await this.authPort.encryptPassword(user.password);
-      const securityStamp: string = await this.tokenPort.generateStamp();
-      const concurrencyStamp: string = await this.tokenPort.generateStamp();
+      const securityStamp: string = this.tokenPort.generateStamp();
+      const concurrencyStamp: string = this.tokenPort.generateStamp();
 
       const userDomain: Omit<User, "id"> = {
         status: UserStatus.SUSPENDED,
@@ -70,7 +86,6 @@ export default class UserService {
         profile_image: user.profile_image,
         learning_points: 0,
         favorite_instrument: user.favorite_instrument,
-        is_artist: user.is_artist,
         concurrency_stamp: concurrencyStamp,
         security_stamp: securityStamp,
         normalized_email: user.email.toUpperCase(),
@@ -80,6 +95,23 @@ export default class UserService {
       const response = await this.userPort.createUser(userDomain);
 
       if (response.success) {
+        // Asignar rol por defecto
+        const userId = response.data!;
+        try {
+          await this.userRolePort.assignRoleToUser(userId, defaultRole.id);
+        } catch (e) {
+          this.loggerPort.error("Fallo asignando rol por defecto al usuario", [
+            (e as any)?.message,
+          ]);
+          return ApplicationResponse.failure(
+            new ApplicationError(
+              "Error al asignar rol por defecto",
+              ErrorCodes.SERVER_ERROR,
+              undefined,
+              e instanceof Error ? e : undefined,
+            ),
+          );
+        }
         let welcomeEmail: Email = {
           to: [user.email],
           from: envs.EMAIL_FROM,
@@ -91,30 +123,41 @@ export default class UserService {
           concurrencyStamp,
         );
         welcomeEmail.text = `Bienvenido a HarmonyMusical, entra a este link para activar tu cuenta ${envs.FRONTEND_URL}/verify-email?token=${verificationToken}`;
-        await this.emailPort.sendEmail(welcomeEmail);
+        if (!(await this.emailPort.sendEmail(welcomeEmail))) {
+          this.loggerPort.fatal(
+            `No se le pudo enviar el correo de confirmacion al email ${user.email}`,
+            { origen: __dirname },
+          );
+          await this.userPort.deleteUser(userId);
+
+          return ApplicationResponse.failure(
+            new ApplicationError(
+              "Ocurrio un error al enviar el correo de confirmacion",
+              ErrorCodes.SERVER_ERROR,
+            ),
+          );
+        }
       }
       return response;
     } catch (error: unknown) {
       if (error instanceof ApplicationResponse) {
         switch (error.error?.code) {
-          case ErrorCodes.VALUE_NOT_FOUND:
-            return ApplicationResponse.failure(
-              new ApplicationError("No se encontro el usuario", ErrorCodes.VALUE_NOT_FOUND),
-            );
           case ErrorCodes.DATABASE_ERROR:
             return error;
         }
       }
       if (error instanceof Error) {
+        this.loggerPort.error("Ocurrio un error en un registro", error);
         return ApplicationResponse.failure(
           new ApplicationError(
-            "Ocurrio un error inesperado en el registro",
+            "Ocurrio un error inesperado en el registro, vuelva a intentarlo mas tarde",
             ErrorCodes.SERVER_ERROR,
             [error.name, error.message],
             error,
           ),
         );
       }
+      this.loggerPort.fatal("Ocurrio un error completamente desconocido");
       return ApplicationResponse.failure(
         new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR, undefined, undefined),
       );
@@ -186,28 +229,25 @@ export default class UserService {
 
   async getAllUsers(): Promise<ApplicationResponse<UserResponse[]>> {
     try {
-      const usersResponse = await this.userPort.getAllUsers();
-
-      if (!usersResponse.success) {
-        return usersResponse;
-      }
-
+      // Obtener ids de usuarios con rol common_user
+      const userIds = await this.userRolePort.listUsersForRole("common_user");
+      if (!userIds.length) return ApplicationResponse.success([]);
+      const usersResponse = await this.userPort.getUsersByIds(userIds);
+      if (!usersResponse.success) return usersResponse as any;
       const users = usersResponse.data || [];
-      const userResponses: UserResponse[] = users.map((user) => ({
-        id: user.id,
-        full_name: user.full_name,
-        email: user.email,
-        username: user.username,
-        profile_image: user.profile_image,
-        learning_points: user.learning_points,
-        status: user.status,
-        favorite_instrument: user.favorite_instrument,
-        is_artist: user.is_artist,
-        created_at: user.created_at,
-        updated_at: user.updated_at,
+      const responses: UserResponse[] = users.map((u) => ({
+        id: u.id,
+        full_name: u.full_name,
+        email: u.email,
+        username: u.username,
+        profile_image: u.profile_image,
+        learning_points: u.learning_points,
+        status: u.status,
+        favorite_instrument: u.favorite_instrument,
+        created_at: u.created_at,
+        updated_at: u.updated_at,
       }));
-
-      return ApplicationResponse.success(userResponses);
+      return ApplicationResponse.success(responses);
     } catch (error: unknown) {
       if (error instanceof ApplicationResponse) {
         return error;
@@ -259,7 +299,6 @@ export default class UserService {
         learning_points: user.learning_points,
         status: user.status,
         favorite_instrument: user.favorite_instrument,
-        is_artist: user.is_artist,
         created_at: user.created_at,
         updated_at: user.updated_at,
       };
@@ -320,7 +359,6 @@ export default class UserService {
         learning_points: user.learning_points,
         status: user.status,
         favorite_instrument: user.favorite_instrument,
-        is_artist: user.is_artist,
         created_at: user.created_at,
         updated_at: user.updated_at,
       };
@@ -445,7 +483,7 @@ export default class UserService {
         updateData.profile_image = updateRequest.profile_image.trim();
       if (updateRequest.favorite_instrument !== undefined)
         updateData.favorite_instrument = updateRequest.favorite_instrument;
-      if (updateRequest.is_artist !== undefined) updateData.is_artist = updateRequest.is_artist;
+      // is_artist removed; role-based system now controls artist status
 
       // Si se está actualizando la contraseña
       if (updateRequest.new_password && updateRequest.current_password) {
@@ -454,7 +492,7 @@ export default class UserService {
         updateData.password = hashPassword;
 
         // Regenerar security stamp al cambiar contraseña
-        updateData.security_stamp = await this.tokenPort.generateStamp();
+        updateData.security_stamp = this.tokenPort.generateStamp();
       }
 
       const updateResponse = await this.userPort.updateUser(id, updateData);
@@ -633,8 +671,7 @@ export default class UserService {
           new ApplicationError("Token inválido o expirado", ErrorCodes.VALIDATION_ERROR),
         );
       }
-
-      const user = await this.userPort.getUserByEmail(request.token);
+      const user = await this.userPort.getUserByEmail(request.email);
       if (!user.success && user.data) {
         return ApplicationResponse.failure(
           new ApplicationError("No se encontro el usuario", ErrorCodes.INVALID_EMAIL),
@@ -644,6 +681,8 @@ export default class UserService {
       const updateData: Partial<User> = {
         status: UserStatus.ACTIVE,
         updated_at: new Date(Date.now()),
+        concurrency_stamp: this.tokenPort.generateStamp(),
+        security_stamp: this.tokenPort.generateStamp(),
       };
 
       // Aquí necesitarías el ID del usuario desde el token

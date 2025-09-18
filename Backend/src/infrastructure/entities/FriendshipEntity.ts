@@ -1,15 +1,33 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  Index,
+  ManyToOne,
+  JoinColumn,
+  RelationId,
+} from "typeorm";
 import { FrienshipStatus } from "../../domain/models/Friendship";
+import UserEntity from "./UserEntity";
 
 @Entity({ name: "friendships" })
+@Index(["user", "friend", "status"], { unique: true })
 export default class FriendshipEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({ type: "int" })
+  @ManyToOne(() => UserEntity, { nullable: false })
+  @JoinColumn({ name: "user_id" })
+  user: UserEntity = new UserEntity();
+
+  @RelationId((f: FriendshipEntity) => f.user)
   user_id!: number;
 
-  @Column({ type: "int" })
+  @ManyToOne(() => UserEntity, { nullable: false })
+  @JoinColumn({ name: "friend_id" })
+  friend: UserEntity = new UserEntity();
+
+  @RelationId((f: FriendshipEntity) => f.friend)
   friend_id!: number;
 
   @Column({ type: "enum", enum: FrienshipStatus, default: "PENDING" })

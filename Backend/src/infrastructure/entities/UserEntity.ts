@@ -38,9 +38,6 @@ export default class UserEntity {
   @Column({ type: "int" })
   learning_points!: number;
 
-  @Column({ type: "boolean" })
-  is_artist!: boolean;
-
   @Column({ type: "varchar", length: 36, nullable: true })
   concurrency_stamp!: string;
 

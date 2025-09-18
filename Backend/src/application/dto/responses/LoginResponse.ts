@@ -7,7 +7,6 @@ export default interface LoginResponse {
     profile_image: string;
     learning_points: number;
     favorite_instrument: string;
-    is_artist: boolean;
   };
   token: string;
 }

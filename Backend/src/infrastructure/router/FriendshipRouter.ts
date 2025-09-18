@@ -70,6 +70,12 @@ friendshipRouter.get("/user/:id", authenticateToken, async (req, res) => {
   }
 });
 
+friendshipRouter.get("/common", authenticateToken, async (req, res) => {
+  try {
+    await friendshipController.getCommonFriendships(req, res);
+  } catch (error) {}
+});
+
 /**
  * Ruta para eliminar una amistad por ID
  * Requiere autenticación mediante token
