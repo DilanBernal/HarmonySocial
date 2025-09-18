@@ -26,6 +26,19 @@ export default class ArtistController {
     }
   }
 
+  async createAsAdmin(req: Request, res: Response) {
+    const createRequest: ArtistCreateRequest = req.body;
+    try {
+      const response = await this.service.createAsAdmin(createRequest);
+      if (response.success) {
+        return res.status(201).json({ id: response.data });
+      }
+      return this.handleErrorResponse(res, response);
+    } catch (e) {
+      return this.unexpected(res, e, "crear artista por admin");
+    }
+  }
+
   async update(req: Request, res: Response) {
     const { id } = req.params;
     const updateRequest: ArtistUpdateRequest = req.body;

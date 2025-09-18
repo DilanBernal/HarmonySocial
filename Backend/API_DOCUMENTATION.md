@@ -80,3 +80,38 @@ Se añadirá `roles: ["common_user","artist"]` en el payload tras login. Más ad
 ### Próximos (Permisos - No Implementado Aún)
 
 Se agregarán tablas `permissions` y `role_permissions` para granularidad y middleware de autorización.
+
+### Artists
+
+Base: `/api/artists`
+
+| Método | Ruta        | Descripción                                                                                                                                                                                                                     | Auth               |
+| ------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| POST   | /           | Crea una solicitud de artista (queda en estado `PENDING`). Público: cualquier usuario puede enviar una solicitud; la entidad creada no se asocia a un usuario hasta que sea aceptada por un admin.                              | No                 |
+| POST   | /admin      | Crea un artista **aceptado** en una sola operación (`status = ACTIVE`, `verified = true`). Requiere permiso `ARTIST_CREATE` (admin). No asocia `artist_user_id` por defecto; si se desea, puede vincularse manualmente después. | Sí (ARTIST_CREATE) |
+| GET    | /           | Buscar artistas (filtros opcionales)                                                                                                                                                                                            | No                 |
+| GET    | /:id        | Obtener artista por id                                                                                                                                                                                                          | No                 |
+| PUT    | /:id        | Actualizar artista (requiere permiso)                                                                                                                                                                                           | Sí                 |
+| PUT    | /:id/accept | Aceptar solicitud (cambiar PENDING -> ACTIVE). Requiere permiso `ARTIST_ACCEPT`.                                                                                                                                                | Sí                 |
+| PUT    | /:id/reject | Rechazar solicitud (PENDING -> REJECTED). Requiere permiso `ARTIST_REJECT`.                                                                                                                                                     | Sí                 |
+
+POST / (public) - Body ejemplo:
+
+```
+{
+	"artist_name": "Mi Nombre Artístico",
+	"biography": "Breve biografía...",
+	"formation_year": 2010,
+	"country_code": "COL" // acepta CCA3 u ISO-2
+}
+```
+
+Respuesta 201:
+
+```
+{ "id": 123 }
+```
+
+POST /admin (admin) - Body igual a POST /; crea artista activo y verificado.
+
+Errores esperados: 400 (validación), 401/403 (sin permisos), 409 (violación de regla de negocio), 500.

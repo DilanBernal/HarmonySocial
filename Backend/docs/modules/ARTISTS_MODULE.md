@@ -16,7 +16,9 @@ Gestionar perfiles de artistas con flujo de revisión (aceptar/rechazar) y trans
 
 ## Reglas de Estado
 
-- Creación: siempre PENDING.
+Creación pública: POST `/api/artists` — crea siempre un artista en estado `PENDING`.
+Creación por administrador: POST `/api/artists/admin` — crea el artista en estado `ACTIVE` y `verified=true`.
+
 - Update: no modifica status.
 - Accept: PENDING -> ACTIVE (asigna rol artist a user asociado).
 - Reject: PENDING -> REJECTED.
@@ -24,7 +26,10 @@ Gestionar perfiles de artistas con flujo de revisión (aceptar/rechazar) y trans
 
 ## Endpoints (prefijo /api/artists)
 
-- POST /
+## Endpoints (prefijo /api/artists)
+
+POST / (public): crea solicitud PENDING
+
 - GET / (filtros name, country, status)
 - GET /:id
 - PUT /:id
@@ -44,3 +49,5 @@ Gestionar perfiles de artistas con flujo de revisión (aceptar/rechazar) y trans
 
 - 409 transiciones inválidas.
 - 404 no encontrado.
+
+Nota: La ruta `POST /admin` está pensada para uso por personal con permiso `ARTIST_CREATE` y crea perfiles activos sin asociar usuario automáticamente.
