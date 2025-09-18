@@ -45,6 +45,31 @@ export default class ArtistService {
     }
   }
 
+  async createAsAdmin(request: ArtistCreateRequest): Promise<ApplicationResponse<number>> {
+    if (!request || !request.artist_name || !request.formation_year) {
+      return ApplicationResponse.failure(
+        new ApplicationError("Datos de artista inválidos", ErrorCodes.VALIDATION_ERROR),
+      );
+    }
+    try {
+      const now = new Date(Date.now());
+      const artist: Omit<Artist, "id"> = {
+        artist_name: request.artist_name.trim(),
+        biography: request.biography?.trim(),
+        formation_year: request.formation_year,
+        country_code: request.country_code?.trim(),
+        verified: true,
+        status: ArtistStatus.ACTIVE,
+        created_at: now,
+        updated_at: undefined,
+        artist_user_id: undefined,
+      } as any;
+      return await this.port.create(artist as any);
+    } catch (error) {
+      return this.handleUnexpected(error, "crear artista por admin");
+    }
+  }
+
   async update(id: number, request: ArtistUpdateRequest): Promise<ApplicationResponse> {
     if (!id || id <= 0) {
       return ApplicationResponse.failure(
