@@ -46,7 +46,7 @@ export class AuthUserService {
         'users/login',
         data,
       );
-      console.log(response)
+      console.log(response);
 
       await AsyncStorage.setItem('user', JSON.stringify(response));
 
@@ -58,6 +58,8 @@ export class AuthUserService {
           id: response.data.id,
         }),
       );
+
+      await AsyncStorage.setItem('token', response.data.token);
 
       return response;
     } catch (error: any) {
@@ -73,5 +75,31 @@ export class AuthUserService {
 
       throw error;
     }
+  }
+
+  /** Intenta recuperar el JWT desde AsyncStorage probando varias claves y formatos. */
+  async getToken(): Promise<string | null> {
+    const keys = [
+      'token',
+      'userData',
+      'userInfo',
+      'authToken',
+      'accessToken',
+      'jwt',
+      'userToken',
+    ];
+    for (const k of keys) {
+      const raw = await AsyncStorage.getItem(k);
+      if (!raw) continue;
+      try {
+        const parsed = JSON.parse(raw);
+        if (typeof parsed === 'string') return parsed;
+        if (parsed?.token) return String(parsed.token);
+        if (parsed?.accessToken) return String(parsed.accessToken);
+      } catch {
+        return raw; // ya era string plano
+      }
+    }
+    return null;
   }
 }

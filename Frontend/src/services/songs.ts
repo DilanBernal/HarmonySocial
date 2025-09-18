@@ -1,4 +1,5 @@
-import { api } from "./api";
+import { Paginated } from '../core/types/Paginated';
+import { api } from './api';
 
 export type Song = {
   id: number;
@@ -7,15 +8,14 @@ export type Song = {
   createdAt: string;
 };
 
-export type Paginated<T> = { rows: T[]; total: number; page: number; limit: number };
 export type ApiEnvelope<T> = { success: boolean; data: T };
 
 export const SongsService = {
-  create: (dto: any) => api.post<Song>("/songs", dto),
+  create: (dto: any) => api.post<Song>('/songs', dto),
 
   // GET /api/songs/mine/list => { success, data: { rows, total, page, limit } }
   listMine: (page = 1, limit = 20) =>
-    api.get<ApiEnvelope<Paginated<Song>>>("/songs/mine/list", {
+    api.get<ApiEnvelope<Paginated<Song>>>('/songs/mine/list', {
       params: { page, limit },
     }),
 };

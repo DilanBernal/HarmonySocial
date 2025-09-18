@@ -5,8 +5,10 @@ import {
   errorCodes,
   DocumentPickerResponse,
 } from '@react-native-documents/picker';
-import { API_BASE, getToken as getStoredToken } from './api';
+import { API_BASE } from './api';
+import { AuthUserService } from '../core/services/user/auth/AuthUserService';
 
+const authService = new AuthUserService();
 
 export async function pickAudio(): Promise<DocumentPickerResponse | null> {
   try {
@@ -37,27 +39,35 @@ export async function uploadSongMultipart(params: {
   onProgress?: (p: number) => void;
 }) {
   const {
-    title, artist, genre, description, duration, bpm, decade, country,
-    audio, onProgress
+    title,
+    artist,
+    genre,
+    description,
+    duration,
+    bpm,
+    decade,
+    country,
+    audio,
+    onProgress,
   } = params;
 
-  const token = params.token ?? (await getStoredToken());
+  const token = params.token ?? (await authService.getToken());
 
   const form = new FormData();
-  form.append("file", {
+  form.append('file', {
     uri: audio.uri,
     name: audio.name ?? `audio-${Date.now()}.mp3`,
-    type: audio.type ?? "audio/mpeg",
+    type: audio.type ?? 'audio/mpeg',
   } as any);
 
-  form.append("title", title);
-  form.append("artist", artist);
-  if (genre) form.append("genre", genre);
-  if (description) form.append("description", description);
-  if (typeof duration === "number") form.append("duration", String(duration));
-  if (typeof bpm === "number") form.append("bpm", String(bpm));
-  if (typeof decade === "number") form.append("decade", String(decade));
-  if (country) form.append("country", country);
+  form.append('title', title);
+  form.append('artist', artist);
+  if (genre) form.append('genre', genre);
+  if (description) form.append('description', description);
+  if (typeof duration === 'number') form.append('duration', String(duration));
+  if (typeof bpm === 'number') form.append('bpm', String(bpm));
+  if (typeof decade === 'number') form.append('decade', String(decade));
+  if (country) form.append('country', country);
 
   const url = `${API_BASE}/file/song`;
 
@@ -74,7 +84,7 @@ export async function uploadSongMultipart(params: {
       }
     };
     xhr.upload.onloadstart = () => report(0);
-    xhr.upload.onprogress = (evt) => {
+    xhr.upload.onprogress = evt => {
       if (!evt.lengthComputable) return;
       const pct = (evt.loaded / evt.total) * 100;
       report(Math.min(99, pct));
@@ -84,7 +94,7 @@ export async function uploadSongMultipart(params: {
     xhr.onload = () => {
       report(100);
       const status = xhr.status;
-      const text = xhr.responseText || "";
+      const text = xhr.responseText || '';
 
       if (status >= 200 && status < 300) {
         // 1) intentar JSON
@@ -110,11 +120,11 @@ export async function uploadSongMultipart(params: {
 
         // 4) o en headers (Location, X-File-URL, etc.)
         const fromHeader =
-          xhr.getResponseHeader("Location") ||
-          xhr.getResponseHeader("location") ||
-          xhr.getResponseHeader("X-File-URL") ||
-          xhr.getResponseHeader("x-file-url") ||
-          xhr.getResponseHeader("X-Resource-Location") ||
+          xhr.getResponseHeader('Location') ||
+          xhr.getResponseHeader('location') ||
+          xhr.getResponseHeader('X-File-URL') ||
+          xhr.getResponseHeader('x-file-url') ||
+          xhr.getResponseHeader('X-Resource-Location') ||
           undefined;
 
         const finalUrl = fromBody || fromHeader || null;
@@ -131,19 +141,18 @@ export async function uploadSongMultipart(params: {
       }
     };
 
-    xhr.onerror = () => reject(new Error("Network error"));
-    xhr.ontimeout = () => reject(new Error("Request timeout"));
-    xhr.onabort = () => reject(new Error("Upload aborted"));
+    xhr.onerror = () => reject(new Error('Network error'));
+    xhr.ontimeout = () => reject(new Error('Request timeout'));
+    xhr.onabort = () => reject(new Error('Upload aborted'));
     xhr.timeout = 120000;
 
     if (!token) {
-      reject(new Error("No auth token (inicia sesión)"));
+      reject(new Error('No auth token (inicia sesión)'));
       return;
     }
 
-    xhr.open("POST", url);
-    xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+    xhr.open('POST', url);
+    xhr.setRequestHeader('Authorization', `Bearer ${token}`);
     xhr.send(form);
   });
 }
-

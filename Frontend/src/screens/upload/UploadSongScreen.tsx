@@ -8,8 +8,9 @@ import {
   Alert,
 } from 'react-native';
 import { pickAudio, uploadSongMultipart } from '../../services/upload';
-import { api, getToken } from '../../services/api';
+import { api } from '../../services/api';
 import type { DocumentPickerResponse } from '@react-native-documents/picker';
+import { AuthUserService } from '../../core/services/user/auth/AuthUserService';
 
 const toNumber = (s: string): number | undefined => {
   if (!s?.trim()) return undefined;
@@ -28,7 +29,9 @@ export default function UploadSongScreen() {
   const [country, setCountry] = useState('');
 
   const [audioName, setAudioName] = useState<string | null>(null);
-  const [audioFile, setAudioFile] = useState<DocumentPickerResponse | null>(null);
+  const [audioFile, setAudioFile] = useState<DocumentPickerResponse | null>(
+    null,
+  );
   const [progress, setProgress] = useState<number>(0);
   const [loading, setLoading] = useState(false);
 
@@ -39,6 +42,7 @@ export default function UploadSongScreen() {
     setAudioName(f.name ?? 'audio');
   };
 
+  const authService = new AuthUserService();
   const handleUpload = async () => {
     if (!audioFile)
       return Alert.alert('Falta el audio', 'Selecciona un archivo.');
@@ -46,7 +50,7 @@ export default function UploadSongScreen() {
       return Alert.alert('Campos obligatorios', 'Título y artista.');
 
     try {
-      const tok = await getToken();
+      const tok = await authService.getToken();
       if (!tok) return Alert.alert('Error', 'No auth token (inicia sesión)');
 
       setLoading(true);
@@ -85,12 +89,13 @@ export default function UploadSongScreen() {
         up?.Location, // algunos backends estilo S3
       ];
       const audioUrl = audioUrlCandidates.find(
-        (v) => typeof v === 'string' && v.length > 0
+        v => typeof v === 'string' && v.length > 0,
       ) as string | undefined;
 
       if (!audioUrl) {
         const backendMsg =
-          (up && (up.message || up.error?.message)) || 'No se recibió URL del audio';
+          (up && (up.message || up.error?.message)) ||
+          'No se recibió URL del audio';
         throw new Error(String(backendMsg));
       }
 
