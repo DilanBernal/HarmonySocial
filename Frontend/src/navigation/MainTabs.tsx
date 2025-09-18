@@ -8,6 +8,8 @@ import HomeScreen from '../screens/home/HomeScreen';
 import UploadSongScreen from '../screens/upload/UploadSongScreen';
 import LibraryScreen from "../screens/library/LibraryScreen";
 import SearchScreen from '../screens/search/SearchScreen';
+import SearchStack from '../navigation/SearchStack';
+
 
 
 // function SubirCancion(){
@@ -38,6 +40,7 @@ export type MainTabsParamList = {
   Subir: undefined;
   Biblioteca: undefined;
   Profile: undefined;
+  caracteristicas: undefined
 };
 
 
@@ -69,12 +72,18 @@ export default function MainTabs() {
         component={HomeScreen}
         options={{ title: 'Inicio' }}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="Buscar"
         component={SearchScreen}
         options={{ title: 'Buscar' }}
-      />
+      /> */}
       {/* Search */}
+      <Tab.Screen
+        name="Buscar"
+        component={SearchStack}           
+        options={{ title: 'Buscar' }}
+      />
+
       
       <Tab.Screen
         name="Subir"

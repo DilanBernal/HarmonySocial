@@ -1,3 +1,4 @@
+// screens/search/SearchScreen.tsx
 import React, { useMemo, useRef, useState } from 'react';
 import { View, Text, SectionList, Pressable, Image, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -7,7 +8,6 @@ import StoriesRow from '../../components/general/StoriesRow';
 import { playSong } from '../../player/controller';
 import { SearchService, SearchResponse, SearchSong, SearchUser, SearchArtist } from '../../services/search';
 
-
 function debounce<F extends (...args: any[]) => void>(fn: F, wait: number) {
   let t: any;
   return (...args: Parameters<F>) => {
@@ -15,7 +15,6 @@ function debounce<F extends (...args: any[]) => void>(fn: F, wait: number) {
     t = setTimeout(() => fn(...args), wait);
   };
 }
-
 
 type Section =
   | { title: 'Usuarios'; type: 'users';   data: SearchUser[] }
@@ -100,7 +99,7 @@ export default function SearchScreen() {
     if (section.type === 'artists') {
       const a = item as SearchArtist;
       return (
-        <Pressable onPress={() => { /* nav.navigate('ArtistDetails', { artistId: a.id }) */ }}>
+        <Pressable onPress={() => nav.navigate('ArtistProfile', { artistId: a.id })}>
           <View style={{ flexDirection: 'row', padding: 12, alignItems: 'center' }}>
             <Image source={{ uri: a.avatarUrl || artistIcon }} style={{ width: 44, height: 44, borderRadius: 22 }} />
             <Text style={{ color: '#fff', marginLeft: 10, fontWeight: '600' }}>{a.name}</Text>
@@ -111,7 +110,7 @@ export default function SearchScreen() {
 
     const u = item as SearchUser;
     return (
-      <Pressable onPress={() => { /* nav.navigate('UserDetails', { userId: u.id }) */ }}>
+      <Pressable onPress={() => nav.navigate('UserProfile', { userId: u.id })}>
         <View style={{ flexDirection: 'row', padding: 12, alignItems: 'center' }}>
           <Image source={{ uri: u.avatarUrl || userIcon }} style={{ width: 44, height: 44, borderRadius: 22 }} />
           <Text style={{ color: '#fff', marginLeft: 10, fontWeight: '600' }}>{u.name}</Text>

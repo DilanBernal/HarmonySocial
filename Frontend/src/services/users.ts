@@ -38,6 +38,7 @@ function pickRows(resp: any): any[] {
   return [];
 }
 
+
 export const SearchService = {
   async searchAll(q: string): Promise<SearchResponse> {
     const query = q.trim();
@@ -152,5 +153,13 @@ export const SearchService = {
     console.log('[Search] fallback filtered =>', { users: users.length, artists: artists.length, songs: songs.length });
 
     return { users, artists, songs };
+  },
+
+};
+
+export const UsersService = {
+  getBasicInfo: async (id: number | string) => {
+    const r = await api.get('/users/basic-info', { params: { id } });
+    return (r as any).data ?? r;
   },
 };
