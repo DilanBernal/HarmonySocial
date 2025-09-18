@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 import path from "path";
 import { ApplicationError, ErrorCodes } from "../../../application/shared/errors/ApplicationError";
 import { FileUploadResponse } from "../../../application/dto/utils/FileUploadResponse";
+import FileStream from "../../../application/dto/utils/FileStream";
 
 // Permite inyección de dependencias para testabilidad
 export default class FileAdapter implements FilePort {
@@ -26,7 +27,7 @@ export default class FileAdapter implements FilePort {
 
   async createImage(file: FilePayload): Promise<ApplicationResponse<FileUploadResponse>> {
     try {
-      await this.imgContainerClient.createIfNotExists();   // ← aquí
+      await this.imgContainerClient.createIfNotExists(); // ← aquí
       const extension = path.extname(file.filename);
       const blobName = `${uuidv4()}-${Date.now()}${extension}`;
       const blockBlobClient = this.imgContainerClient.getBlockBlobClient(blobName);
@@ -122,7 +123,7 @@ export default class FileAdapter implements FilePort {
   }
   async createSong(file: FilePayload): Promise<ApplicationResponse<FileUploadResponse>> {
     try {
-      await this.songContainerClient.createIfNotExists();  // ← aquí
+      await this.songContainerClient.createIfNotExists(); // ← aquí
       const extension = path.extname(file.filename);
       const blobName = `${uuidv4()}-${Date.now()}${extension}`;
       const blockBlobClient = this.songContainerClient.getBlockBlobClient(blobName);
@@ -211,6 +212,22 @@ export default class FileAdapter implements FilePort {
       return ApplicationResponse.emptySuccess();
     } catch (error: any) {
       return this.handleAzureError(error, "eliminar la canción");
+    }
+  }
+
+  async getSongFileStream(id: string): Promise<ApplicationResponse<FileStream>> {
+    try {
+      const blockBlobClient = this.songContainerClient.getBlockBlobClient(id);
+      const resp = await blockBlobClient.download();
+
+      return ApplicationResponse.success({
+        stream: resp.readableStreamBody!,
+        filename: id,
+        mimeType: resp.contentType || "application/octet-stream",
+        contentLength: resp.contentLength,
+      });
+    } catch (error) {
+      return this.handleAzureError(error, "obtener la URL de la canción");
     }
   }
 

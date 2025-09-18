@@ -1,5 +1,6 @@
-import { Paginated } from '../core/types/Paginated';
-import { api } from './api';
+import { Paginated } from '../../types/Paginated';
+import { api } from '../../../services/api';
+import { AppConfig } from '../../../config/AppConfig';
 
 export type Song = {
   id: number;
@@ -19,3 +20,14 @@ export const SongsService = {
       params: { page, limit },
     }),
 };
+
+export class getSongsService {
+  constructor() {}
+
+  getSongStreamUrl(blobname: string): string {
+    return `${AppConfig.apiBaseUrl.replace(
+      /\/$/,
+      '',
+    )}/file/song?id=${encodeURIComponent(blobname)}`;
+  }
+}
