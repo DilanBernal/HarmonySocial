@@ -3,19 +3,12 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { View, Text, StyleSheet } from 'react-native';
 
-// import HomeHeader from '../components/home/HomeHeaderComponent';
 import ProfileScreen from '../screens/auth/ProfileScreen';
 import HomeScreen from '../screens/home/HomeScreen';
 import UploadSongScreen from '../screens/upload/UploadSongScreen';
 import LibraryScreen from "../screens/library/LibraryScreen";
+import SearchScreen from '../screens/search/SearchScreen';
 
-function SearchScreen() {
-  return (
-    <View style={s.page}>
-      <Text style={s.text}>Buscar</Text>
-    </View>
-  );
-}
 
 // function SubirCancion(){
 //   return(
@@ -41,7 +34,7 @@ export type MainTabsParamList = {
   Login: undefined;
   ResetPassword: undefined;
   Feed: undefined;
-  Search: undefined;
+  Buscar: undefined;
   Subir: undefined;
   Biblioteca: undefined;
   Profile: undefined;
@@ -61,7 +54,7 @@ export default function MainTabs() {
         tabBarIcon: ({ color, size, focused }) => {
           const map: Record<string, string> = {
             Feed: focused ? 'home' : 'home-outline',
-            Search: focused ? 'search' : 'search-outline',
+            Buscar: focused ? 'Buscar' : 'Buscar-outline',
             Subir: focused ? 'add-circle' : 'add-circle-outline', // ⬅️
             Library: focused ? 'musical-notes' : 'musical-notes-outline',
             Profile: focused ? 'person' : 'person-outline',
@@ -77,10 +70,12 @@ export default function MainTabs() {
         options={{ title: 'Inicio' }}
       />
       <Tab.Screen
-        name="Search"
+        name="Buscar"
         component={SearchScreen}
         options={{ title: 'Buscar' }}
       />
+      {/* Search */}
+      
       <Tab.Screen
         name="Subir"
         component={UploadSongScreen}   
