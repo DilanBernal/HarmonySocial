@@ -34,13 +34,11 @@ export default class FriendshipController {
         return res.status(400).json(servResponse?.error);
       }
 
-
       if (typeof servResponse.data === "string") {
         return res.status(200).json({
           message: servResponse.data,
         });
       }
-
 
       return res.status(201).json({
         message: "Solicitud de amistad creada correctamente",

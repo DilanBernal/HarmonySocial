@@ -251,7 +251,7 @@ npm run seed:permissions
 
 ### Diagrama (Mermaid) Flujo Seeding
 
-````mermaid
+```mermaid
 flowchart TD
   A[Iniciar Script] --> B[Enumerar CorePermissions]
   B --> C{Permiso existe?}
@@ -267,66 +267,67 @@ flowchart TD
   J --> K{Todos los permisos procesados?}
   K -- No --> B
   K -- Sí --> L[Finalizar Script]
-````
+```
+
 # Guía de Permisos y Autorización
 
-  Esta guía describe el modelo de permisos, endpoints disponibles para gestionar permisos y asignaciones a roles, así como el middleware de autorización incorporado.
+Esta guía describe el modelo de permisos, endpoints disponibles para gestionar permisos y asignaciones a roles, así como el middleware de autorización incorporado.
 
-  ## Objetivos
+## Objetivos
 
-  - Centralizar acciones sensibles en un catálogo de permisos.
-  - Asignar permisos a roles (many-to-many).
-  - Inyectar `roles` y `permissions` al JWT en login para validaciones rápidas.
-  - Proteger endpoints usando middleware `requirePermissions`.
+- Centralizar acciones sensibles en un catálogo de permisos.
+- Asignar permisos a roles (many-to-many).
+- Inyectar `roles` y `permissions` al JWT en login para validaciones rápidas.
+- Proteger endpoints usando middleware `requirePermissions`.
 
-  ## Modelo
+## Modelo
 
-  ### Entidades
+### Entidades
 
-  | Entidad        | Tabla              | Campos Principales                                |
-  | -------------- | ------------------ | ------------------------------------------------- |
-  | Permission     | `permissions`      | `id`, `name` (único), `description`, `created_at` |
-  | RolePermission | `role_permissions` | `id`, `role_id`, `permission_id`, `created_at`    |
+| Entidad        | Tabla              | Campos Principales                                |
+| -------------- | ------------------ | ------------------------------------------------- |
+| Permission     | `permissions`      | `id`, `name` (único), `description`, `created_at` |
+| RolePermission | `role_permissions` | `id`, `role_id`, `permission_id`, `created_at`    |
 
-  `name` es un identificador estable en formato `recurso.acción` (ej: `artist.accept`).
+`name` es un identificador estable en formato `recurso.acción` (ej: `artist.accept`).
 
-  ### Organización por dominio (secciones)
+### Organización por dominio (secciones)
 
-  Para facilitar lectura y asignación en UI, agrupamos permisos por dominio. Cada sección agrupa permisos relacionados con una entidad o feature.
+Para facilitar lectura y asignación en UI, agrupamos permisos por dominio. Cada sección agrupa permisos relacionados con una entidad o feature.
 
-  - **Artist management**: acciones sobre artistas (crear, actualizar, eliminar, aceptar/rechazar solicitud de artista)
-  - **User management**: lectura y gestión de usuarios
-  - **Role management**: gestión de roles (crear/actualizar/eliminar/leer/assign)
-  - **Permission management**: CRUD de permisos y asignaciones
+- **Artist management**: acciones sobre artistas (crear, actualizar, eliminar, aceptar/rechazar solicitud de artista)
+- **User management**: lectura y gestión de usuarios
+- **Role management**: gestión de roles (crear/actualizar/eliminar/leer/assign)
+- **Permission management**: CRUD de permisos y asignaciones
 
-  Esta organización se refleja en el enum `CorePermission` y en la UI de administración.
+Esta organización se refleja en el enum `CorePermission` y en la UI de administración.
 
-  ### Enum Base (`CorePermission`) — ejemplo
+### Enum Base (`CorePermission`) — ejemplo
 
-  ```ts
-  // Artist management
-  artist.create
-  artist.update
-  artist.delete
-  artist.accept
-  artist.reject
-  // User management
-  user.read
-  user.update
-  user.delete
-  // Role management
-  role.read
-  role.create
-  role.update
-  role.delete
-  role.assign
-  // Permission management
-  permission.read
-  permission.create
-  permission.update
-  permission.delete
-  role.permission.assign
-````
+```ts
+// Artist management
+artist.create;
+artist.update;
+artist.delete;
+artist.accept;
+artist.reject;
+// User management
+user.read;
+user.update;
+user.delete;
+// Role management
+role.read;
+role.create;
+role.update;
+role.delete;
+role.assign;
+// Permission management
+permission.read;
+permission.create;
+permission.update;
+permission.delete;
+role.permission.assign;
+```
 
 Nota: reemplacé `role - permission.assign` por `role.permission.assign` para mantener un `name` sin espacios y consistente con el formato `recurso.acción`.
 

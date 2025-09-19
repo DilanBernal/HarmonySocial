@@ -2,7 +2,6 @@
 import { Router } from "express";
 import { UserFollowController } from "../controller/FollowController";
 
-
 export const userFollowRouter = (controller: UserFollowController) => {
   const router = Router();
 

@@ -1,11 +1,13 @@
 {
   "name": "harmony-social-web",
-  "version": "1.0.50",
+  "version": "1.0.51",
   "main": "./src/index.ts",
   "scripts": {
     "test": "jest",
     "dev": "nodemon src/index.ts",
     "format": "prettier --write .",
+    "start": "node dist/index.js",
+    "build": "tsc",
     "seed:permissions": "ts-node src/infrastructure/bootstrap/seedPermissions.ts"
   },
   "dependencies": {

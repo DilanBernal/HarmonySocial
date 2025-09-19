@@ -14,7 +14,6 @@ import loginSchema from "../validator/LoginValidator";
 import registerSchema from "../validator/RegisterValidator";
 import authenticateToken from "../middleware/authMiddleware";
 
-
 const router = Router();
 
 const userAdapter = new UserAdapter();
@@ -156,7 +155,6 @@ router.post("/forgot-password", async (req, res) => {
   }
 });
 
-
 router.post("/reset-password", async (req, res) => {
   try {
     await userController.resetPassword(req, res);
@@ -168,7 +166,6 @@ router.post("/reset-password", async (req, res) => {
     console.error(errorMessage, error);
   }
 });
-
 
 router.post("/verify-email", async (req, res) => {
   try {
