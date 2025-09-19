@@ -6,7 +6,9 @@ import { View, Text, StyleSheet } from 'react-native';
 import ProfileScreen from '../screens/auth/ProfileScreen';
 import HomeScreen from '../screens/home/HomeScreen';
 import UploadSongScreen from '../screens/upload/UploadSongScreen';
-import LibraryScreen from "../screens/library/LibraryScreen";
+import LibraryScreen from '../screens/library/LibraryScreen';
+import defaultColors from '../assets/style/colors';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import SearchScreen from '../screens/search/SearchScreen';
 import SearchStack from '../navigation/SearchStack';
 
@@ -43,15 +45,23 @@ export type MainTabsParamList = {
   caracteristicas: undefined
 };
 
-
 const Tab = createBottomTabNavigator<MainTabsParamList>();
 
 export default function MainTabs() {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
+        sceneStyle: {
+          backgroundColor: defaultColors.background,
+          paddingTop: insets.top,
+        },
         headerShown: false,
-        tabBarStyle: { backgroundColor: '#111418', borderTopColor: '#1f2430' },
+        tabBarStyle: {
+          backgroundColor: '#111418',
+          borderTopColor: '#1f2430',
+        },
         tabBarActiveTintColor: '#7C4DFF',
         tabBarInactiveTintColor: '#9aa3b2',
         tabBarIcon: ({ color, size, focused }) => {
@@ -87,7 +97,7 @@ export default function MainTabs() {
       
       <Tab.Screen
         name="Subir"
-        component={UploadSongScreen}   
+        component={UploadSongScreen}
         options={{ title: '+' }}
       />
       <Tab.Screen name="Biblioteca" component={LibraryScreen} />
@@ -105,7 +115,6 @@ declare global {
     interface RootParamList extends MainTabsParamList {}
   }
 }
-
 
 const s = StyleSheet.create({
   page: {

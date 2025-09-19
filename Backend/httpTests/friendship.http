@@ -1,4 +1,4 @@
-@baseUrl = http://localhost:4666/api
+@baseUrl = http://localhost:4200/api
 @authToken = {{login.response.body.data.token}}
 
 ### Login para obtener token
@@ -12,16 +12,16 @@ Content-Type: application/json
 }
 
 ### Crear usuario 1 (si no existe)
-POST {{baseUrl}}/user
+POST {{baseUrl}}/users/register
 Content-Type: application/json
 
 {
-    "full_name": "Usuario 1",
+    "full_name": "Usuario Uno",
     "email": "usuario1@example.com",
     "username": "usuario1",
     "password": "Password123!",
     "profile_image": "https://example.com/photo1.jpg",
-    "favorite_instrument": 0,
+    "favorite_instrument": 2,
     "is_artist": false
 }
 
@@ -40,7 +40,7 @@ Content-Type: application/json
 }
 
 ### Crear solicitud de amistad
-POST {{baseUrl}}/friendship
+POST {{baseUrl}}/friendships
 Content-Type: application/json
 Authorization: Bearer {{authToken}}
 

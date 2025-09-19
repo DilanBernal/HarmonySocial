@@ -44,6 +44,9 @@ export default function ProfileScreen() {
 
   const onLogout = async () => {
     await AsyncStorage.removeItem('user');
+    await AsyncStorage.removeItem('userData');
+    await AsyncStorage.removeItem('userInfo');
+    await AsyncStorage.removeItem('token');
     rootNav.reset({ index: 0, routes: [{ name: 'Login' }] });
   };
 
