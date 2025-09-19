@@ -18,11 +18,5 @@
     }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "tests", // ← Excluye la carpeta de pruebas
-    "**/*.spec.ts", // ← Excluye todos los archivos de test
-    "**/*.test.ts" // ← Excluye todos los archivos de test
-  ]
+  "exclude": ["node_modules", "dist", "tests", "**/*.spec.ts", "**/*.test.ts"]
 }
