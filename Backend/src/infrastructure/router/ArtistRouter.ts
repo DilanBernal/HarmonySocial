@@ -23,13 +23,17 @@ const userRoleAdapter = new UserRoleAdapter();
 const service = new ArtistService(adapter, logger, roleAdapter, userRoleAdapter);
 const controller = new ArtistController(service, logger);
 
+// Public endpoint: allows anyone to submit an artist request (stays PENDING)
+router.post("/", validateRequest(artistCreateSchema), (req, res) => controller.create(req, res));
+
+// Admin endpoint: creates artist directly (accepted). Requires ARTIST_CREATE permission
 router.post(
-  "/",
+  "/admin",
   authenticateToken,
   enrichPermissionsFromToken,
   requirePermissions(CorePermission.ARTIST_CREATE),
   validateRequest(artistCreateSchema),
-  (req, res) => controller.create(req, res),
+  (req, res) => controller.createAsAdmin(req, res),
 );
 router.get("/", (req, res) => controller.search(req, res));
 router.get("/:id", (req, res) => controller.getById(req, res));
