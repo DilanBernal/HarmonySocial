@@ -88,6 +88,7 @@ export default function UploadSongScreen() {
         up?.blobUrl,
         up?.Location, // algunos backends estilo S3
       ];
+      console.log(audioUrlCandidates);
       const audioUrl = audioUrlCandidates.find(
         v => typeof v === 'string' && v.length > 0,
       ) as string | undefined;
@@ -99,12 +100,14 @@ export default function UploadSongScreen() {
         throw new Error(String(backendMsg));
       }
 
+      console.log(audioUrl);
+
       // 2) crear registro en DB
       await api.post('/songs', {
         title: title.trim(),
         artist: artist.trim(), // si tu backend no lo soporta, elimínalo
         description: description.trim() || null,
-        audioUrl,
+        audioUrl: audioUrl.split('canciones/')[1],
         duration: typeof duration === 'number' ? duration : null,
         bpm: typeof bpm === 'number' ? bpm : null,
         decade: typeof decade === 'number' ? decade : null,
@@ -136,8 +139,23 @@ export default function UploadSongScreen() {
   };
 
   return (
-    <View style={{ flex: 1, padding: 16, gap: 12, top: 35, backgroundColor: "#0b0c16" }}>
-      <Text style={{ fontSize: 22, fontWeight: "700", color: "#ffffff", marginBottom: 12 }}>
+    <View
+      style={{
+        flex: 1,
+        padding: 16,
+        gap: 12,
+        top: 35,
+        backgroundColor: '#0b0c16',
+      }}
+    >
+      <Text
+        style={{
+          fontSize: 22,
+          fontWeight: '700',
+          color: '#ffffff',
+          marginBottom: 12,
+        }}
+      >
         Subir canción
       </Text>
 
@@ -147,11 +165,11 @@ export default function UploadSongScreen() {
         onChangeText={setTitle}
         style={{
           borderWidth: 1,
-          borderColor: "#4f46e5",
+          borderColor: '#4f46e5',
           borderRadius: 8,
           padding: 12,
-          color: "#ffffff",
-          backgroundColor: "#1c1e29",
+          color: '#ffffff',
+          backgroundColor: '#1c1e29',
         }}
         placeholderTextColor="#9ca3af"
       />
@@ -162,11 +180,11 @@ export default function UploadSongScreen() {
         onChangeText={setArtist}
         style={{
           borderWidth: 1,
-          borderColor: "#4f46e5",
+          borderColor: '#4f46e5',
           borderRadius: 8,
           padding: 12,
-          color: "#ffffff",
-          backgroundColor: "#1c1e29",
+          color: '#ffffff',
+          backgroundColor: '#1c1e29',
         }}
         placeholderTextColor="#9ca3af"
       />
@@ -177,11 +195,11 @@ export default function UploadSongScreen() {
         onChangeText={setGenre}
         style={{
           borderWidth: 1,
-          borderColor: "#374151",
+          borderColor: '#374151',
           borderRadius: 8,
           padding: 12,
-          color: "#ffffff",
-          backgroundColor: "#1c1e29",
+          color: '#ffffff',
+          backgroundColor: '#1c1e29',
         }}
         placeholderTextColor="#9ca3af"
       />
@@ -193,13 +211,13 @@ export default function UploadSongScreen() {
         multiline
         style={{
           borderWidth: 1,
-          borderColor: "#4f46e5",
+          borderColor: '#4f46e5',
           borderRadius: 8,
           padding: 12,
           minHeight: 80,
-          textAlignVertical: "top",
-          color: "#ffffff",
-          backgroundColor: "#1c1e29",
+          textAlignVertical: 'top',
+          color: '#ffffff',
+          backgroundColor: '#1c1e29',
         }}
         placeholderTextColor="#9ca3af"
       />
@@ -211,11 +229,11 @@ export default function UploadSongScreen() {
         keyboardType="numeric"
         style={{
           borderWidth: 1,
-          borderColor: "#4f46e5",
+          borderColor: '#4f46e5',
           borderRadius: 8,
           padding: 12,
-          color: "#ffffff",
-          backgroundColor: "#1c1e29",
+          color: '#ffffff',
+          backgroundColor: '#1c1e29',
         }}
         placeholderTextColor="#9ca3af"
       />
@@ -227,11 +245,11 @@ export default function UploadSongScreen() {
         keyboardType="numeric"
         style={{
           borderWidth: 1,
-          borderColor: "#4f46e5",
+          borderColor: '#4f46e5',
           borderRadius: 8,
           padding: 12,
-          color: "#ffffff",
-          backgroundColor: "#1c1e29",
+          color: '#ffffff',
+          backgroundColor: '#1c1e29',
         }}
         placeholderTextColor="#9ca3af"
       />
@@ -243,11 +261,11 @@ export default function UploadSongScreen() {
         keyboardType="numeric"
         style={{
           borderWidth: 1,
-          borderColor: "#4f46e5",
+          borderColor: '#4f46e5',
           borderRadius: 8,
           padding: 12,
-          color: "#ffffff",
-          backgroundColor: "#1c1e29",
+          color: '#ffffff',
+          backgroundColor: '#1c1e29',
         }}
         placeholderTextColor="#9ca3af"
       />
@@ -258,11 +276,11 @@ export default function UploadSongScreen() {
         onChangeText={setCountry}
         style={{
           borderWidth: 1,
-          borderColor: "#4f46e5",
+          borderColor: '#4f46e5',
           borderRadius: 8,
           padding: 12,
-          color: "#ffffff",
-          backgroundColor: "#1c1e29",
+          color: '#ffffff',
+          backgroundColor: '#1c1e29',
         }}
         placeholderTextColor="#9ca3af"
       />
@@ -270,29 +288,31 @@ export default function UploadSongScreen() {
       <Pressable
         onPress={handlePick}
         style={{
-          backgroundColor: "#27272a",
+          backgroundColor: '#27272a',
           borderRadius: 8,
           padding: 14,
-          alignItems: "center",
+          alignItems: 'center',
           borderWidth: 1,
-          borderColor: "#4f46e5",
+          borderColor: '#4f46e5',
         }}
       >
-        <Text style={{ color: "#e5e7eb", fontWeight: "500" }}>
-          {audioName ? `Archivo: ${audioName}` : "Elegir archivo de audio"}
+        <Text style={{ color: '#e5e7eb', fontWeight: '500' }}>
+          {audioName ? `Archivo: ${audioName}` : 'Elegir archivo de audio'}
         </Text>
       </Pressable>
 
       {loading ? (
         <View style={{ gap: 8 }}>
           <ActivityIndicator color="#4f46e5" />
-          <Text style={{ color: "#ffffff" }}>Subiendo... {progress}%</Text>
-          <View style={{ height: 8, backgroundColor: "#374151", borderRadius: 4 }}>
+          <Text style={{ color: '#ffffff' }}>Subiendo... {progress}%</Text>
+          <View
+            style={{ height: 8, backgroundColor: '#374151', borderRadius: 4 }}
+          >
             <View
               style={{
                 width: `${progress}%`,
-                height: "100%",
-                backgroundColor: "#4f46e5",
+                height: '100%',
+                backgroundColor: '#4f46e5',
                 borderRadius: 4,
               }}
             />
@@ -302,16 +322,15 @@ export default function UploadSongScreen() {
         <Pressable
           onPress={handleUpload}
           style={{
-            backgroundColor: "#4f46e5",
+            backgroundColor: '#4f46e5',
             borderRadius: 8,
             padding: 14,
-            alignItems: "center",
+            alignItems: 'center',
           }}
         >
-          <Text style={{ color: "white", fontWeight: "600" }}>Subir</Text>
+          <Text style={{ color: 'white', fontWeight: '600' }}>Subir</Text>
         </Pressable>
       )}
     </View>
-
   );
 }

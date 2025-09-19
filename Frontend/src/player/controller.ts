@@ -79,10 +79,9 @@ export type songRequest = {
 
 export async function playSongByBlob(song: songRequest) {
   console.log(song);
+  console.log(song);
 
-  const blobId = song.blobName
-    .split('http://127.0.0.1:10000/devstoreaccount1/canciones/')[1]
-    ?.trim();
+  const blobId = song.blobName.split('canciones/')[0]?.trim();
 
   const url = getSongService.getSongStreamUrl(blobId);
 
@@ -102,4 +101,3 @@ export async function playSongByBlob(song: songRequest) {
   await TrackPlayer.play();
   return url;
 }
-
