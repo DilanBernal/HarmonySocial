@@ -30,7 +30,7 @@ jobs:
       - name: Install dependencies and build
         run: |
           cd ./Backend
-          npm ci --only=production
+          npm ci
           npm run build
 
       - name: Upload artifact for deployment job
