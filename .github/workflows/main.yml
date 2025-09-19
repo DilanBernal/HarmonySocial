@@ -114,4 +114,4 @@ jobs:
           AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
 
         run: |
-          npm run seed:permissions
+          npm run seed:permissions:prod
