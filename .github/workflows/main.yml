@@ -39,6 +39,7 @@ jobs:
   reseed:  # ← NUEVO JOB SEPARADO para el reseed
     runs-on: ubuntu-latest
     environment: prod_env
+    needs: build
 
     steps:
       - name: Download artifact from build job
