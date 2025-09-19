@@ -19,6 +19,7 @@ export const AppDataSource = new DataSource({
   synchronize: envs.DB_SYNC,
   logging: envs.ENVIRONMENT === "dev" ? true : false,
   schema: envs.DB_SCHEMA,
+  ssl: true,
   entities: [
     UserEntity,
     FriendshipEntity,
