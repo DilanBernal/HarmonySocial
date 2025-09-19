@@ -57,7 +57,6 @@ export default class UserService {
       const term = (q ?? '').trim();
       if (!term) return ApplicationResponse.success<UserSearchRow[]>([]);
 
-      // delega en el puerto
       const resp = await this.userPort.searchUsers(term, Math.min(limit, 50));
       if (!resp.success) return resp as any;
 
