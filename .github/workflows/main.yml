@@ -1,9 +1,6 @@
 name: Reseed Database
 
 on:
-  push:
-    branches:
-      - dev
   workflow_dispatch:
 
 env:
