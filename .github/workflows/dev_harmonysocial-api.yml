@@ -74,7 +74,7 @@ jobs:
           
           # Variables de entorno adicionales requeridas por el backend
           PORT: ${{ vars.PORT }}
-          ENVIRONMENT: ${{ vars.ENVIRONMENT }}
+          ENVIRONMENT: 'qa'
           LOG_LEVEL: ${{ vars.LOG_LEVEL }}
 
           # Seguridad
@@ -99,4 +99,5 @@ jobs:
           cd ./Backend
           npm install --production
           npm run seed:permissions
+
 
