@@ -23,6 +23,8 @@ export default interface UserPort {
   //Seccion de validación
   existsUserById(id: number): Promise<ApplicationResponse<boolean>>;
   existsUserByLoginRequest(userOrEmail: string): Promise<ApplicationResponse<boolean>>;
+  searchUsers(q: string, limit: number): Promise<ApplicationResponse<User[]>>;
+  listUsers(limit: number): Promise<ApplicationResponse<User[]>>;
   existsUserByEmailOrUsername(
     email: string,
     username: string,

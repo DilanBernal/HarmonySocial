@@ -8,7 +8,7 @@ import { AuthUserService } from '../core/services/user/auth/AuthUserService';
 // const HOST = Platform.OS === 'android' ? 'localhost' : 'localhost';
 // export const API_BASE = `http://${HOST}:4200/api`;
 // export const API_BASE = `http://192.168.1.3:4200/api`;
-export const API_BASE = `https://fs571vhd-4666.use2.devtunnels.ms/api`;
+export const API_BASE = `https://kw389p26-4200.use2.devtunnels.ms/api`;
 // export const API_BASE = `${AppConfig.apiBaseUrl}/api`;
 
 const authService: AuthUserService = new AuthUserService();

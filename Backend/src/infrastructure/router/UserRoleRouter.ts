@@ -2,7 +2,7 @@ import { Router } from "express";
 import UserRoleAdapter from "../adapter/data/UserRoleAdapter";
 import RoleAdapter from "../adapter/data/RoleAdapter";
 import UserRoleService from "../../application/services/UserRoleService";
-import RoleService from "../../application/services/RoleService"; // may not be strictly needed
+import RoleService from "../../application/services/RoleService"; 
 import LoggerAdapter from "../adapter/utils/LoggerAdapter";
 import UserRoleController from "../controller/UserRoleController";
 import { validateRequest } from "../middleware/validateRequest";
@@ -13,8 +13,8 @@ const router = Router();
 const logger = new LoggerAdapter();
 const roleAdapter = new RoleAdapter();
 const userRoleAdapter = new UserRoleAdapter();
-const roleService = new RoleService(roleAdapter, userRoleAdapter, logger); // reused for potential validations
-const userRoleService = new UserRoleService(userRoleAdapter, roleAdapter, logger as any); // adjust types if needed
+const roleService = new RoleService(roleAdapter, userRoleAdapter, logger); 
+const userRoleService = new UserRoleService(userRoleAdapter, roleAdapter, logger as any); 
 const controller = new UserRoleController(userRoleService, logger);
 
 router.post("/", authenticateToken, validateRequest(userRoleAssignSchema), (req, res) =>

@@ -5,6 +5,7 @@ import {
   Not,
   QueryFailedError,
   Repository,
+  ILike,
 } from "typeorm";
 import UserPort from "../../../domain/ports/data/UserPort";
 import UserEntity from "../../entities/UserEntity";
@@ -649,6 +650,81 @@ export default class UserAdapter implements UserPort {
       }
       return ApplicationResponse.failure(
         new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR, undefined, undefined),
+      );
+    }
+  }
+  async searchUsers(q: string, limit: number): Promise<ApplicationResponse<User[]>> {
+    try {
+      const term = `%${q}%`;
+      const rows = await this.userRepository.find({
+        where: [
+          { username: ILike(term), status: Not(In(this.negativeStatus)) },
+          { full_name: ILike(term), status: Not(In(this.negativeStatus)) },
+          { email: ILike(term),    status: Not(In(this.negativeStatus)) },
+        ],
+        take: Math.min(Math.max(limit || 10, 1), 50),
+        order: { id: "ASC" },
+        // selecciona solo lo necesario; añade/quita campos si hace falta
+        select: [
+          "id",
+          "username",
+          "full_name",
+          "email",
+          "profile_image",
+          "learning_points",
+          "favorite_instrument",
+          "status",
+          "created_at",
+          "updated_at",
+        ],
+      });
+
+      // OJO: usa función flecha para mantener el this correcto
+      return ApplicationResponse.success(rows.map((r) => this.toDomain(r)));
+    } catch (e: any) {
+      return ApplicationResponse.failure(
+        new ApplicationError(
+          "DB error en searchUsers",
+          ErrorCodes.DATABASE_ERROR,
+          e?.message,
+          e,
+        ),
+      );
+    }
+  }
+
+  /**
+   * Listado compacto para fallback del frontend
+   */
+  async listUsers(limit: number): Promise<ApplicationResponse<User[]>> {
+    try {
+      const rows = await this.userRepository.find({
+        where: { status: Not(In(this.negativeStatus)) },
+        take: Math.min(Math.max(limit || 100, 1), 1000),
+        order: { id: "ASC" },
+        select: [
+          "id",
+          "username",
+          "full_name",
+          "email",
+          "profile_image",
+          "learning_points",
+          "favorite_instrument",
+          "status",
+          "created_at",
+          "updated_at",
+        ],
+      });
+
+      return ApplicationResponse.success(rows.map((r) => this.toDomain(r)));
+    } catch (e: any) {
+      return ApplicationResponse.failure(
+        new ApplicationError(
+          "DB error en listUsers",
+          ErrorCodes.DATABASE_ERROR,
+          e?.message,
+          e,
+        ),
       );
     }
   }

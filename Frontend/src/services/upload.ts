@@ -74,7 +74,6 @@ export async function uploadSongMultipart(params: {
   return await new Promise<any>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
 
-    // progreso
     let last = -1;
     const report = (p: number) => {
       const clamped = Math.max(0, Math.min(100, Math.round(p)));
@@ -97,19 +96,16 @@ export async function uploadSongMultipart(params: {
       const text = xhr.responseText || '';
 
       if (status >= 200 && status < 300) {
-        // 1) intentar JSON
         let parsed: any = {};
         try {
           parsed = text ? JSON.parse(text) : {};
         } catch {
-          // 2) si vino texto plano y es una URL
           const trimmed = text.trim();
           if (/^https?:\/\//i.test(trimmed)) {
             parsed = { url: trimmed };
           }
         }
 
-        // 3) buscar URL en varias formas del body
         const fromBody =
           parsed?.data?.url ??
           parsed?.data?.audioUrl ??
@@ -118,7 +114,6 @@ export async function uploadSongMultipart(params: {
           parsed?.Location ??
           parsed?.location;
 
-        // 4) o en headers (Location, X-File-URL, etc.)
         const fromHeader =
           xhr.getResponseHeader('Location') ||
           xhr.getResponseHeader('location') ||
@@ -131,7 +126,7 @@ export async function uploadSongMultipart(params: {
 
         resolve({
           ...parsed,
-          url: finalUrl, // <-- lo que usa tu pantalla
+          url: finalUrl, 
           headers: { location: fromHeader || null },
           raw: text,
           status,

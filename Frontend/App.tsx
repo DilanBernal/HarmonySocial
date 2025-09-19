@@ -7,10 +7,15 @@ import TrackPlayer, { Capability, AppKilledPlaybackBehavior } from 'react-native
 import LoginScreen from './src/screens/auth/LoginScreen';
 import MainTabs from './src/navigation/MainTabs';
 
-export type RootStackParamList = { Login: undefined; Main: undefined };
+import ArtistDetailsScreen from './src/screens/artist/ArtistDetailsScreen';
+import UserDetailsScreen   from './src/screens/user/UserDetailsScreen';
+import SongDetailsScreen   from './src/screens/song/SongDetailsScreen';
+
+
+export type RootStackParamList = { Login: undefined; Main: undefined; ArtistDetails: undefined; UserDetails: undefined; SongDetails: undefined };
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-let playerReady = false; // ← guard
+let playerReady = false; 
 
 async function setupPlayerOnce() {
   if (playerReady) return;
@@ -44,6 +49,22 @@ export default function App() {
       <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Login">
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Main" component={MainTabs} />
+        <Stack.Screen
+          name="ArtistDetails"
+          component={ArtistDetailsScreen}
+          options={{ headerShown: true, title: 'Artista' }}
+        />
+        <Stack.Screen
+          name="UserDetails"
+          component={UserDetailsScreen}
+          options={{ headerShown: true, title: 'Usuario' }}
+        />
+        <Stack.Screen
+          name="SongDetails"
+          component={SongDetailsScreen}
+          options={{ headerShown: true, title: 'Canción' }}
+        />
+
       </Stack.Navigator>
     </NavigationContainer>
   );
