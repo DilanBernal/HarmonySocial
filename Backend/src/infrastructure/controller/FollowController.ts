@@ -1,4 +1,3 @@
-// src/infrastructure/controllers/UserFollowController.ts
 import { Request, Response } from "express";
 import { UserFollowService } from "../../application/services/FollowService";
 

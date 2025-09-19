@@ -42,7 +42,6 @@ const authService = new AuthService(
 );
 const userController = new UserController(userApp, authService, loggerAdapter);
 
-//Login
 router.post("/login", validateRequest(loginSchema), async (req: Request, res: Response) => {
   try {
     await userController.loginUser(req, res);
@@ -177,6 +176,51 @@ router.post("/verify-email", async (req, res) => {
       message: errorMessage,
     });
     console.error(errorMessage, error);
+  }
+});
+
+
+router.get("/search", async (req, res) => {
+  try {
+    const q = String(req.query.q ?? "").trim();
+    const limit = Math.min(Math.max(parseInt(String(req.query.limit ?? "10")) || 10, 1), 50);
+
+    const r = await userApp.searchUsers(q, limit);
+    if (!r.success) {
+      return res.status(500).json({ message: r.error?.message ?? "Error buscando usuarios" });
+    }
+    // el front espera { rows: [...] }
+    return res.json({ rows: r.data ?? [] });
+  } catch (e: any) {
+    return res.status(500).json({ message: e?.message ?? "Error interno" });
+  }
+});
+
+
+router.get("/list", async (req, res) => {
+  try {
+    const limit = Math.min(Math.max(parseInt(String(req.query.limit ?? "100")) || 100, 1), 1000);
+    const r = await userApp.listUsers(limit);
+    if (!r.success) {
+      return res.status(500).json({ message: r.error?.message ?? "Error listando usuarios" });
+    }
+    return res.json({ rows: r.data ?? [] });
+  } catch (e: any) {
+    return res.status(500).json({ message: e?.message ?? "Error interno" });
+  }
+});
+
+
+router.get("/", async (req, res) => {
+  try {
+    const limit = Math.min(Math.max(parseInt(String(req.query.limit ?? "100")) || 100, 1), 1000);
+    const r = await userApp.listUsers(limit);
+    if (!r.success) {
+      return res.status(500).json({ message: r.error?.message ?? "Error listando usuarios" });
+    }
+    return res.json({ rows: r.data ?? [] });
+  } catch (e: any) {
+    return res.status(500).json({ message: e?.message ?? "Error interno" });
   }
 });
 

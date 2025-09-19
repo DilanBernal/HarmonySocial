@@ -9,8 +9,6 @@ import LoginResponse from '../../core/dtos/LoginResponse';
 import DEFAULT_AVATARS from '../../assets/defaultAvatars';
 import ProfileImage from '../../components/general/ProfileImage';
 
-// const AVATAR: ImageSourcePropType = require('../../assets/img/yoxd.jpg');
-
 export default function ProfileScreen() {
   const rootNav = useNavigation<NavigationProp<RootStackParamList>>();
   const [profileImage, setProfileImage] = useState<string | undefined>(

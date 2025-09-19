@@ -21,6 +21,14 @@ import NotFoundResponse from "../shared/responses/NotFoundResponse";
 import UserBasicDataResponse from "../dto/responses/UserBasicDataResponse";
 import UserRolePort from "../../domain/ports/data/UserRolePort";
 
+export type UserSearchRow = {
+  id: number;
+  username: string;
+  full_name: string;
+  email: string;
+  profile_image: string | null;
+};
+
 export default class UserService {
   private userPort: UserPort;
   private authPort: AuthPort;
@@ -40,6 +48,71 @@ export default class UserService {
     this.authPort = authPort;
     this.emailPort = emailPort;
     this.loggerPort = logger;
+  }
+
+
+  
+  async searchUsers(q: string, limit = 10): Promise<ApplicationResponse<UserSearchRow[]>> {
+    try {
+      const term = (q ?? '').trim();
+      if (!term) return ApplicationResponse.success<UserSearchRow[]>([]);
+
+      const resp = await this.userPort.searchUsers(term, Math.min(limit, 50));
+      if (!resp.success) return resp as any;
+
+      const users = (resp.data ?? []).map<UserSearchRow>((u: any) => ({
+        id: u.id,
+        username: u.username,
+        full_name: u.full_name,
+        email: u.email,
+        profile_image: u.profile_image ?? null,
+      }));
+
+      return ApplicationResponse.success(users);
+    } catch (error: unknown) {
+      if (error instanceof ApplicationResponse) return error;
+      if (error instanceof Error) {
+        this.loggerPort.error('Error en searchUsers', [error.name, error.message, error]);
+        return ApplicationResponse.failure(
+          new ApplicationError('Error interno en búsqueda de usuarios', ErrorCodes.SERVER_ERROR, [error.name, error.message], error),
+        );
+      }
+      return ApplicationResponse.failure(
+        new ApplicationError('Error desconocido', ErrorCodes.SERVER_ERROR),
+      );
+    }
+  }
+
+  /**
+   * Lista compacta de usuarios (para fallback del frontend).
+   * Devuelve un ApplicationResponse<UserSearchRow[]>
+   */
+  async listUsers(limit = 100): Promise<ApplicationResponse<UserSearchRow[]>> {
+    try {
+      const resp = await this.userPort.listUsers(Math.min(limit, 1000));
+      if (!resp.success) return resp as any;
+
+      const rows = (resp.data ?? []).map<UserSearchRow>((u: any) => ({
+        id: u.id,
+        username: u.username,
+        full_name: u.full_name,
+        email: u.email,
+        profile_image: u.profile_image ?? null,
+      }));
+
+      return ApplicationResponse.success(rows);
+    } catch (error: unknown) {
+      if (error instanceof ApplicationResponse) return error;
+      if (error instanceof Error) {
+        this.loggerPort.error('Error en listUsers', [error.name, error.message, error]);
+        return ApplicationResponse.failure(
+          new ApplicationError('Error interno listando usuarios', ErrorCodes.SERVER_ERROR, [error.name, error.message], error),
+        );
+      }
+      return ApplicationResponse.failure(
+        new ApplicationError('Error desconocido', ErrorCodes.SERVER_ERROR),
+      );
+    }
   }
 
   async registerUser(user: RegisterRequest): Promise<ApplicationResponse<number>> {

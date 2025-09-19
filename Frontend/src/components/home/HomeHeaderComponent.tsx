@@ -20,6 +20,9 @@ import Playlist from '../../core/models/Playlist';
 import Post from '../../core/models/Post';
 import defaultColors from '../../assets/style/colors';
 import ProfileImage from '../general/ProfileImage';
+import SearchBar from '../../components/general/SearchBar';
+import StoriesRow from '../../components/general/StoriesRow';
+
 
 const AVATAR: ImageSourcePropType = require('../../assets/img/yoxd.jpg');
 // 'https://images.unsplash.com/photo-1544006659-f0b21884ce1d?q=80&w=256&fit=crop';

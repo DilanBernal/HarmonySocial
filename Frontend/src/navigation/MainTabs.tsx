@@ -3,38 +3,14 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { View, Text, StyleSheet } from 'react-native';
 
-// import HomeHeader from '../components/home/HomeHeaderComponent';
 import ProfileScreen from '../screens/auth/ProfileScreen';
 import HomeScreen from '../screens/home/HomeScreen';
 import UploadSongScreen from '../screens/upload/UploadSongScreen';
 import LibraryScreen from '../screens/library/LibraryScreen';
 import defaultColors from '../assets/style/colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import SearchStack from '../navigation/SearchStack';
 
-function SearchScreen() {
-  return (
-    <View style={s.page}>
-      <Text style={s.text}>Buscar</Text>
-    </View>
-  );
-}
-
-// function SubirCancion(){
-//   return(
-//     <View style={s.page}>
-//       <Text style={s.text}>+</Text>
-//     </View>
-//   );
-// }
-
-function MySongsScreen() {
-  return (
-    <View style={s.page}>
-      <Text style={s.text}>Biblioteca</Text>
-    </View>
-  );
-}
-// function ProfileScreen() { return <View style={s.page}><Text style={s.text}>Perfil</Text></View>; }
 
 export type MainTabsParamList = {
   Home: undefined;
@@ -43,10 +19,11 @@ export type MainTabsParamList = {
   Login: undefined;
   ResetPassword: undefined;
   Feed: undefined;
-  Search: undefined;
+  Buscar: undefined;
   Subir: undefined;
   Biblioteca: undefined;
   Profile: undefined;
+  caracteristicas: undefined
 };
 
 const Tab = createBottomTabNavigator<MainTabsParamList>();
@@ -71,7 +48,7 @@ export default function MainTabs() {
         tabBarIcon: ({ color, size, focused }) => {
           const map: Record<string, string> = {
             Feed: focused ? 'home' : 'home-outline',
-            Search: focused ? 'search' : 'search-outline',
+            Buscar: focused ? 'Buscar' : 'Buscar-outline',
             Subir: focused ? 'add-circle' : 'add-circle-outline', // ⬅️
             Library: focused ? 'musical-notes' : 'musical-notes-outline',
             Profile: focused ? 'person' : 'person-outline',
@@ -86,11 +63,13 @@ export default function MainTabs() {
         component={HomeScreen}
         options={{ title: 'Inicio' }}
       />
+
+      {/* Search */}
       <Tab.Screen
-        name="Search"
-        component={SearchScreen}
+        name="Buscar"
+        component={SearchStack}           
         options={{ title: 'Buscar' }}
-      />
+      /> 
       <Tab.Screen
         name="Subir"
         component={UploadSongScreen}
