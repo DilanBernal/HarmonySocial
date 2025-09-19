@@ -2,7 +2,6 @@ import { Repository, ILike, DeepPartial } from "typeorm";
 import { AppDataSource } from "../../config/con_database";
 import SongEntity from "../../entities/SongEntity";
 
-// Helpers
 const toInt = (v: unknown): number | null => {
   if (v === null || v === undefined || v === "") return null;
   const n = Number(v);
@@ -20,7 +19,7 @@ export type CreateSongDTO = {
   bpm?: number | null | string;
   keyNote?: string | null;
   album?: string | null;
-  decade?: number | null | string; // numérico (acepta string convertible)
+  decade?: number | null | string;
   country?: string | null;
   instruments?: unknown | null;
 };
@@ -35,7 +34,6 @@ export default class SongAdapter {
   }
 
   async create(dto: CreateSongDTO): Promise<SongEntity> {
-    // Normaliza tipos a los del entity
     const partial: DeepPartial<SongEntity> = {
       title: dto.title,
       audioUrl: dto.audioUrl,
