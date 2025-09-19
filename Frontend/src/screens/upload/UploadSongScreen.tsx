@@ -136,8 +136,10 @@ export default function UploadSongScreen() {
   };
 
   return (
-    <View style={{ flex: 1, padding: 16, gap: 12, top: 35 }}>
-      <Text style={{ fontSize: 20, fontWeight: '600' }}>Subir canción</Text>
+    <View style={{ flex: 1, padding: 16, gap: 12, top: 35, backgroundColor: "#0b0c16" }}>
+      <Text style={{ fontSize: 22, fontWeight: "700", color: "#ffffff", marginBottom: 12 }}>
+        Subir canción
+      </Text>
 
       <TextInput
         placeholder="Título"
@@ -145,36 +147,45 @@ export default function UploadSongScreen() {
         onChangeText={setTitle}
         style={{
           borderWidth: 1,
-          borderColor: '#000000ff',
+          borderColor: "#4f46e5",
           borderRadius: 8,
-          padding: 10,
+          padding: 12,
+          color: "#ffffff",
+          backgroundColor: "#1c1e29",
         }}
-        placeholderTextColor="#000000ff"
+        placeholderTextColor="#9ca3af"
       />
+
       <TextInput
         placeholder="Artista"
         value={artist}
         onChangeText={setArtist}
         style={{
           borderWidth: 1,
-          borderColor: '#000000ff',
+          borderColor: "#4f46e5",
           borderRadius: 8,
-          padding: 10,
+          padding: 12,
+          color: "#ffffff",
+          backgroundColor: "#1c1e29",
         }}
-        placeholderTextColor="#000000ff"
+        placeholderTextColor="#9ca3af"
       />
+
       <TextInput
         placeholder="Género"
         value={genre}
         onChangeText={setGenre}
         style={{
           borderWidth: 1,
-          borderColor: '#ccc',
+          borderColor: "#374151",
           borderRadius: 8,
-          padding: 10,
+          padding: 12,
+          color: "#ffffff",
+          backgroundColor: "#1c1e29",
         }}
-        placeholderTextColor="#000000ff"
+        placeholderTextColor="#9ca3af"
       />
+
       <TextInput
         placeholder="Descripción"
         value={description}
@@ -182,90 +193,106 @@ export default function UploadSongScreen() {
         multiline
         style={{
           borderWidth: 1,
-          borderColor: '#000000ff',
+          borderColor: "#4f46e5",
           borderRadius: 8,
-          padding: 10,
+          padding: 12,
           minHeight: 80,
-          textAlignVertical: 'top',
+          textAlignVertical: "top",
+          color: "#ffffff",
+          backgroundColor: "#1c1e29",
         }}
-        placeholderTextColor="#000000ff"
+        placeholderTextColor="#9ca3af"
       />
+
       <TextInput
-        placeholder="Duración en segundos "
+        placeholder="Duración en segundos"
         value={durationStr}
         onChangeText={setDurationStr}
         keyboardType="numeric"
         style={{
           borderWidth: 1,
-          borderColor: '#000000ff',
+          borderColor: "#4f46e5",
           borderRadius: 8,
-          padding: 10,
+          padding: 12,
+          color: "#ffffff",
+          backgroundColor: "#1c1e29",
         }}
-        placeholderTextColor="#000000ff"
+        placeholderTextColor="#9ca3af"
       />
+
       <TextInput
-        placeholder="BPM "
+        placeholder="BPM"
         value={bpmStr}
         onChangeText={setBpmStr}
         keyboardType="numeric"
         style={{
           borderWidth: 1,
-          borderColor: '#000000ff',
+          borderColor: "#4f46e5",
           borderRadius: 8,
-          padding: 10,
+          padding: 12,
+          color: "#ffffff",
+          backgroundColor: "#1c1e29",
         }}
-        placeholderTextColor="#000000ff"
+        placeholderTextColor="#9ca3af"
       />
+
       <TextInput
-        placeholder="Década (ej. 1990) "
+        placeholder="Década (ej. 1990)"
         value={decadeStr}
         onChangeText={setDecadeStr}
         keyboardType="numeric"
         style={{
           borderWidth: 1,
-          borderColor: '#000000ff',
+          borderColor: "#4f46e5",
           borderRadius: 8,
-          padding: 10,
+          padding: 12,
+          color: "#ffffff",
+          backgroundColor: "#1c1e29",
         }}
-        placeholderTextColor="#000000ff"
+        placeholderTextColor="#9ca3af"
       />
+
       <TextInput
-        placeholder="País "
+        placeholder="País"
         value={country}
         onChangeText={setCountry}
         style={{
           borderWidth: 1,
-          borderColor: '#000000ff',
+          borderColor: "#4f46e5",
           borderRadius: 8,
-          padding: 10,
+          padding: 12,
+          color: "#ffffff",
+          backgroundColor: "#1c1e29",
         }}
-        placeholderTextColor="#000000ff"
+        placeholderTextColor="#9ca3af"
       />
 
       <Pressable
         onPress={handlePick}
         style={{
-          backgroundColor: '#eee',
+          backgroundColor: "#27272a",
           borderRadius: 8,
-          padding: 12,
-          alignItems: 'center',
+          padding: 14,
+          alignItems: "center",
+          borderWidth: 1,
+          borderColor: "#4f46e5",
         }}
       >
-        <Text>
-          {audioName ? `Archivo: ${audioName}` : 'Elegir archivo de audio'}
+        <Text style={{ color: "#e5e7eb", fontWeight: "500" }}>
+          {audioName ? `Archivo: ${audioName}` : "Elegir archivo de audio"}
         </Text>
       </Pressable>
 
       {loading ? (
         <View style={{ gap: 8 }}>
-          <ActivityIndicator />
-          <Text>Subiendo... {progress}%</Text>
-          <View style={{ height: 8, backgroundColor: '#eee', borderRadius: 4 }}>
+          <ActivityIndicator color="#4f46e5" />
+          <Text style={{ color: "#ffffff" }}>Subiendo... {progress}%</Text>
+          <View style={{ height: 8, backgroundColor: "#374151", borderRadius: 4 }}>
             <View
               style={{
                 width: `${progress}%`,
-                height: '100%',
-                backgroundColor: '#4f46e5',
+                height: "100%",
+                backgroundColor: "#4f46e5",
                 borderRadius: 4,
               }}
             />
@@ -275,15 +302,16 @@ export default function UploadSongScreen() {
         <Pressable
           onPress={handleUpload}
           style={{
-            backgroundColor: '#4f46e5',
+            backgroundColor: "#4f46e5",
             borderRadius: 8,
-            padding: 12,
-            alignItems: 'center',
+            padding: 14,
+            alignItems: "center",
           }}
         >
-          <Text style={{ color: 'white', fontWeight: '600' }}>Subir</Text>
+          <Text style={{ color: "white", fontWeight: "600" }}>Subir</Text>
         </Pressable>
       )}
     </View>
+
   );
 }
