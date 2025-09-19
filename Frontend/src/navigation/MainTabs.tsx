@@ -9,18 +9,8 @@ import UploadSongScreen from '../screens/upload/UploadSongScreen';
 import LibraryScreen from '../screens/library/LibraryScreen';
 import defaultColors from '../assets/style/colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import SearchScreen from '../screens/search/SearchScreen';
 import SearchStack from '../navigation/SearchStack';
 
-
-
-// function SubirCancion(){
-//   return(
-//     <View style={s.page}>
-//       <Text style={s.text}>+</Text>
-//     </View>
-//   );
-// }
 
 function MySongsScreen() {
   return (
@@ -29,7 +19,6 @@ function MySongsScreen() {
     </View>
   );
 }
-// function ProfileScreen() { return <View style={s.page}><Text style={s.text}>Perfil</Text></View>; }
 
 export type MainTabsParamList = {
   Home: undefined;
