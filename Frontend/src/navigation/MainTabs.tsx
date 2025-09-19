@@ -12,14 +12,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import SearchStack from '../navigation/SearchStack';
 
 
-function MySongsScreen() {
-  return (
-    <View style={s.page}>
-      <Text style={s.text}>Biblioteca</Text>
-    </View>
-  );
-}
-
 export type MainTabsParamList = {
   Home: undefined;
   Main: undefined;
@@ -71,19 +63,13 @@ export default function MainTabs() {
         component={HomeScreen}
         options={{ title: 'Inicio' }}
       />
-      {/* <Tab.Screen
-        name="Buscar"
-        component={SearchScreen}
-        options={{ title: 'Buscar' }}
-      /> */}
+
       {/* Search */}
       <Tab.Screen
         name="Buscar"
         component={SearchStack}           
         options={{ title: 'Buscar' }}
-      />
-
-      
+      /> 
       <Tab.Screen
         name="Subir"
         component={UploadSongScreen}
