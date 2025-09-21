@@ -1,0 +1,34 @@
+### User-Roles Assignment API Manual Test Collection
+
+@base = http://localhost:3000/api
+@auth = Bearer {{token}}
+
+### Asignar rol a usuario
+POST {{base}}/user-roles
+Content-Type: application/json
+Authorization: {{auth}}
+
+{
+  "user_id": 1,
+  "role_id": 2
+}
+###
+
+### Listar roles de un usuario
+GET {{base}}/user-roles/roles/1
+Authorization: {{auth}}
+###
+
+### Listar usuarios por nombre de rol
+GET {{base}}/user-roles/users/artist
+Authorization: {{auth}}
+###
+
+### Remover rol de usuario
+DELETE {{base}}/user-roles/1/2
+Authorization: {{auth}}
+###
+
+### Notas
+# Requiere permisos: role.assign y role.read.
+# Ajustar IDs según datos reales.

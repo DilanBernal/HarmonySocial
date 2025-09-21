@@ -1,4 +1,7 @@
-import SongAdapter, { CreateSongDTO, UpdateSongDTO } from "../../infrastructure/adapter/data/SongAdapter";
+import SongAdapter, {
+  CreateSongDTO,
+  UpdateSongDTO,
+} from "../../infrastructure/adapter/data/SongAdapter";
 import SongEntity from "../../infrastructure/entities/SongEntity";
 
 export default class SongService {
@@ -21,6 +24,11 @@ export default class SongService {
 
   async search(query = "", page = 1, limit = 20) {
     return this.songs.search(query, page, limit);
+  }
+
+  async getMine(userId: number, page = 1, limit = 20) {
+    if (!Number.isFinite(userId)) throw new Error("userId inválido");
+    return this.songs.searchByUser(userId, page, limit);
   }
 
   async update(id: number, dto: UpdateSongDTO) {

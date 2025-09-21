@@ -48,6 +48,7 @@ export const FavoriteInstrumentStep: React.FC<FavoriteInstrumentStepProps> = ({
 }: FavoriteInstrumentStepProps) => {
   const handleInstrumentSelect = (instrument: UserInstrument) => {
     setValue('favoriteInstrument', instrument);
+    console.log(control._formValues);
     // console.log(getValues('favoriteInstrument'));
     // onFieldChange('favoriteInstrument', instrument);
   };

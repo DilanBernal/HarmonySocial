@@ -1,7 +1,9 @@
 import UserService from "../../application/services/UserService";
 import AuthService from "../../application/services/AuthService";
 import { Request, Response } from "express";
+import { ILike } from 'typeorm';
 import User from "../../domain/models/User";
+import { ParsedQs } from "qs";
 import { EntityNotFoundError } from "typeorm";
 import { ErrorCodes } from "../../application/shared/errors/ApplicationError";
 import { ApplicationResponse } from "../../application/shared/ApplicationReponse";
@@ -48,7 +50,6 @@ export default class UserController {
         password: regRequest.password.trim(),
         profile_image: regRequest.profile_image.trim(),
         favorite_instrument: regRequest.favorite_instrument,
-        is_artist: false,
       };
 
       const userResponse = await this.userService.registerUser(user);
@@ -71,7 +72,7 @@ export default class UserController {
               return res.status(500).json({ message: "Error en la base de datos" });
             case ErrorCodes.SERVER_ERROR:
               this.logger.appError(userResponse);
-              return res.status(500).json({ message: "Error interno del servidor" });
+              return res.status(500).json({ message: userResponse.error.message });
             default:
               this.logger.appError(userResponse);
               return res.status(500).json({ message: "Error desconocido" });
@@ -109,11 +110,49 @@ export default class UserController {
     }
   }
 
+  async searchUsers(req: Request, res: Response) {
+  try {
+    const q = String((req.query.q as string) ?? "").trim();
+    const limit = Math.min(Math.max(parseInt(String(req.query.limit ?? "10")) || 10, 1), 50);
+
+    const r = await this.userService.searchUsers(q, limit);
+    if (!r.success) {
+      this.logger.appError(r);
+      return res.status(500).json({ message: r.error?.message ?? "Error buscando usuarios" });
+    }
+
+    // Devolvemos {rows: …} para que el frontend lo consuma sin tocar nada
+    return res.status(200).json({ rows: r.data ?? [] });
+  } catch (e: any) {
+    this.logger.error("searchUsers error", [e?.message]);
+    return res.status(500).json({ message: "Error interno" });
+  }
+}
+
+async listUsers(req: Request, res: Response) {
+  try {
+    const limit = Math.min(Math.max(parseInt(String(req.query.limit ?? "100")) || 100, 1), 1000);
+    const r = await this.userService.listUsers(limit);
+    if (!r.success) {
+      this.logger.appError(r);
+      return res.status(500).json({ message: r.error?.message ?? "Error listando usuarios" });
+    }
+    return res.status(200).json({ rows: r.data ?? [] });
+  } catch (e: any) {
+    this.logger.error("listUsers error", [e?.message]);
+    return res.status(500).json({ message: "Error interno" });
+  }
+}
+
+  
+
   async loginUser(req: Request, res: Response) {
     const loginRequest: LoginRequest = req.body;
     try {
+      console.log(loginRequest);
       const authResponse = await this.authService.login(loginRequest);
 
+      console.log(authResponse);
       if (authResponse.success && authResponse.data) {
         return res.status(200).json({
           message: "Login exitoso",
@@ -247,13 +286,22 @@ export default class UserController {
             case ErrorCodes.VALIDATION_ERROR:
               return res.status(400).json({ message: userResponse.error.message });
             case ErrorCodes.DATABASE_ERROR:
-              return res.status(500).json({ message: "Error en la base de datos" });
+              return res.status(500).json({
+                message:
+                  userResponse.error.message ??
+                  "Ocurrio un error inesperado, intentelo de nuevo mas tarde",
+              });
             case ErrorCodes.SERVER_ERROR:
-              return res.status(500).json({ message: "Error interno del servidor" });
+              return res.status(500).json({
+                message:
+                  userResponse.error.message ??
+                  "Ocurrio un error inesperado, intentelo de nuevo mas tarde",
+              });
             default:
               return res.status(500).json({ message: "Error desconocido" });
           }
         }
+        console.error(userResponse.error!.message);
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -270,28 +318,53 @@ export default class UserController {
     try {
       const response = await this.userService.getUserData(Number(id));
       if (response.success) {
-        res.status(200).json(response.data).cookie("cookie prueba", "prueba", {});
+        res.status(200).json(response.data);
       } else {
         if (response instanceof NotFoundResponse) {
           res.status(404).json({ message: "No se pudo encontrar el usuario" });
         } else if (response instanceof ApplicationResponse) {
           switch (response.error?.code) {
             case ErrorCodes.DATABASE_ERROR:
+              this.logger.debug("Es en la parte de el switch DATABASE_ERROR");
               res.status(500).json({
                 messae: "Ocurrio un error, intente mas tarde",
               });
+              break;
             default:
+              this.logger.debug("Es en la parte de el switch default");
+              this.logger.error(
+                `Ocurrio un error desconocido al traer la data del usuario ${id}`,
+                response,
+              );
               res.status(500).json({
                 messae: "Ocurrio un error, intente mas tarde",
               });
+              break;
           }
         } else {
+          this.logger.debug(
+            "Es en la parte despues de que el error no sea instancia ni de NotFoundResponse ni de ApplicationResponse",
+            [response, typeof response],
+          );
+
+          this.logger.error(
+            `Ocurrio un error desconocido al traer la data del usuario ${id}`,
+            response,
+          );
           res.status(500).json({
             messae: "Ocurrio un error, intente mas tarde",
           });
+          return;
         }
       }
     } catch (error) {
+      console.error(error);
+      this.logger.debug(
+        "Es en la parte despues de que el error no sea instancia ni de NotFoundResponse ni de ApplicationResponse",
+        [error, typeof error],
+      );
+
+      this.logger.error(`Ocurrio un error desconocido al traer la data del usuario ${id}`, error);
       res.status(500).json({
         messae: "Ocurrio un error, intente mas tarde",
       });

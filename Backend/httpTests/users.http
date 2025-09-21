@@ -1,0 +1,61 @@
+### Users API Manual Test Collection
+
+@base = http://localhost:3000/api/users
+
+### Registrar usuario
+POST {{base}}/register
+Content-Type: application/json
+
+{
+  "full_name": "Juan Perez",
+  "email": "juan{{timestamp}}@mail.com",
+  "username": "juan{{timestamp}}",
+  "password": "Password!1",
+  "profile_image": "https://example.com/avatar.png",
+  "favorite_instrument": 0
+}
+###
+
+### Login usuario
+POST {{base}}/login
+Content-Type: application/json
+
+{
+  "userOrEmail": "juan{{timestamp}}",
+  "password": "Password!1"
+}
+###
+
+### Obtener todos los usuarios (rol comun_user filtrado internamente)
+GET {{base}}/all
+Authorization: Bearer {{token}}
+###
+
+### Obtener usuario por id
+GET {{base}}/id/1
+Authorization: Bearer {{token}}
+###
+
+### Obtener usuario por email
+GET {{base}}/email/juan{{timestamp}}@mail.com
+Authorization: Bearer {{token}}
+###
+
+### Actualizar usuario
+PUT {{base}}/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "full_name": "Juan P. Actualizado"
+}
+###
+
+### Borrado lógico usuario
+DELETE {{base}}/1
+Authorization: Bearer {{token}}
+###
+
+### Notas
+# Guardar token del login y reemplazar {{token}}
+# Usar variable timestamp manual o reemplazar antes de enviar.

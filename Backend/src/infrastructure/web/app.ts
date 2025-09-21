@@ -2,17 +2,22 @@ import express from "express";
 import cors from "cors";
 import mainRouter from "../router/mainRouter";
 import envs from "../config/environment-vars";
+import LoggerAdapter from "../adapter/utils/LoggerAdapter";
+import LoggerPort from "../../domain/ports/utils/LoggerPort";
 
 class App {
   private app = express();
+  private logger: LoggerPort;
 
   constructor() {
+    this.logger = new LoggerAdapter();
     this.middlewares();
     this.routes();
   }
 
   private middlewares(): void {
     this.app.use((req, _res, next) => {
+      this.logger.warn(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
       console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
       next();
     });

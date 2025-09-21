@@ -9,8 +9,6 @@ import LoginResponse from '../../core/dtos/LoginResponse';
 import DEFAULT_AVATARS from '../../assets/defaultAvatars';
 import ProfileImage from '../../components/general/ProfileImage';
 
-// const AVATAR: ImageSourcePropType = require('../../assets/img/yoxd.jpg');
-
 export default function ProfileScreen() {
   const rootNav = useNavigation<NavigationProp<RootStackParamList>>();
   const [profileImage, setProfileImage] = useState<string | undefined>(
@@ -45,6 +43,9 @@ export default function ProfileScreen() {
 
   const onLogout = async () => {
     await AsyncStorage.removeItem('user');
+    await AsyncStorage.removeItem('userData');
+    await AsyncStorage.removeItem('userInfo');
+    await AsyncStorage.removeItem('token');
     rootNav.reset({ index: 0, routes: [{ name: 'Login' }] });
   };
 

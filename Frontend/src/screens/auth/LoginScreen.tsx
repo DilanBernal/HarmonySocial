@@ -15,13 +15,10 @@ import {
   View,
   Alert,
 } from 'react-native';
-import { login } from '../../services/auth';
 import LinearGradient from 'react-native-linear-gradient';
 import * as Yup from 'yup';
 import { EqBars } from '../../components/general/EqBars';
 import { AuthUserService } from '../../core/services/user/auth/AuthUserService';
-import { getToken } from '../../services/api';
-import UserService from '../../core/services/user/user/UserService';
 
 const validationSchema = Yup.object().shape({
   userOrEmail: Yup.string().required('El nombre de usuario es obligatorio'),
@@ -36,11 +33,22 @@ const LoginScreen = () => {
   const [focus, setFocus] = useState<'user' | 'pass' | null>(null);
 
   const authService: AuthUserService = new AuthUserService();
-  const userService = new UserService();
 
-  // useEffect(() => {
-  //   userService.getUserData(22);
-  // }, []);
+  const verifyExistingLogin = async (): Promise<boolean> => {
+    const token = await authService.getToken();
+
+    if (!token) return false;
+
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Main' }],
+    });
+    return true;
+  };
+
+  useEffect(() => {
+    verifyExistingLogin();
+  }, []);
   const loginFunction = authService.login;
 
   const userRef = useRef<TextInput>(null);
@@ -98,7 +106,7 @@ const LoginScreen = () => {
                 validationSchema={validationSchema}
                 onSubmit={async (values, { setSubmitting }) => {
                   try {
-                    const response = loginFunction(values)
+                    loginFunction(values)
                       .then(value => {
                         console.log(value);
                         navigation.reset({

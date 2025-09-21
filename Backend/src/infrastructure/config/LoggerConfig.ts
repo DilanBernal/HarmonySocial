@@ -1,4 +1,5 @@
 import { LoggerOptions } from "pino";
+import envs from "./environment-vars";
 
 const loggerConfig: LoggerOptions = {
   transport: {
@@ -9,7 +10,7 @@ const loggerConfig: LoggerOptions = {
       ignore: "pid,hostname",
     },
   },
-  level: process.env.LOG_LEVEL || "info",
+  level: envs.LOG_LEVEL || "info",
 };
 
 export default loggerConfig;

@@ -5,6 +5,7 @@ import {
   Not,
   QueryFailedError,
   Repository,
+  ILike,
 } from "typeorm";
 import UserPort from "../../../domain/ports/data/UserPort";
 import UserEntity from "../../entities/UserEntity";
@@ -52,7 +53,6 @@ export default class UserAdapter implements UserPort {
       favorite_instrument: user.favorite_instrument,
       security_stamp: user.security_stamp,
       concurrency_stamp: user.concurrency_stamp,
-      is_artist: user.is_artist,
       created_at: user.created_at,
       updated_at: user.updated_at,
       normalized_email: user.normalized_email,
@@ -72,12 +72,13 @@ export default class UserAdapter implements UserPort {
     userEntity.profile_image = user.profile_image;
     userEntity.learning_points = user.learning_points;
     userEntity.favorite_instrument = user.favorite_instrument;
-    userEntity.is_artist = user.is_artist;
+    userEntity.concurrency_stamp = user.concurrency_stamp;
+    userEntity.security_stamp = user.security_stamp;
     return userEntity;
   }
 
   /**
-   * @param user: Recibe la clase usuario con los campos username, full_name, password, email, profile_image, status, favorite_instrument, is_artist, y valores de observación
+   * @param user: Recibe la clase usuario con los campos username, full_name, password, email, profile_image, status, favorite_instrument y valores de observación
    * @returns User ID
    * @summary La función va a transformar el usuario de dominio omitiendo el id a un usuario de entidad, para poder usar typeorm para guardar al usuario en la base de datos y retornar el id si se creo satisfactoriamente, en dado caso que la peticion haya fallado se van a manejar los errores en el trycatch, para lanzar un @ApplicationResponse de falla que tenga la información del error
    */
@@ -110,6 +111,29 @@ export default class UserAdapter implements UserPort {
       throw error;
     }
   }
+
+  async getUsersByIds(ids: number[]): Promise<ApplicationResponse<User[]>> {
+    try {
+      if (!ids.length) return ApplicationResponse.success([]);
+      const rows = await this.userRepository.find({ where: { id: In(ids) } });
+      const mapped = rows.map((r) => this.toDomain(r));
+      return ApplicationResponse.success(mapped);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return ApplicationResponse.failure(
+          new ApplicationError(
+            "Ocurrio un error al obtener usuarios por ids",
+            ErrorCodes.DATABASE_ERROR,
+            error.message,
+            error,
+          ),
+        );
+      }
+      return ApplicationResponse.failure(
+        new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR),
+      );
+    }
+  }
   /**
    * @param id El id del usuario a editar, para poder buscarlo en la base de datos independientemente de los cambios de usuario
    * @param user El usuario de manera parcial, para poder actualizar los datos que se hayan enviado y
@@ -137,9 +161,10 @@ export default class UserAdapter implements UserPort {
         profile_image: user.profile_image ?? existingUser.profile_image,
         learning_points: user.learning_points ?? existingUser.learning_points,
         favorite_instrument: user.favorite_instrument ?? existingUser.favorite_instrument,
-        is_artist: user.is_artist ?? existingUser.is_artist,
         created_at: existingUser.created_at,
         updated_at: user.updated_at ?? new Date(Date.now()),
+        security_stamp: user.concurrency_stamp ?? existingUser.security_stamp,
+        concurrency_stamp: user.security_stamp ?? existingUser.concurrency_stamp,
       });
       await this.userRepository.save(existingUser);
       return ApplicationResponse.emptySuccess();
@@ -188,7 +213,7 @@ export default class UserAdapter implements UserPort {
   async deleteUser(id: number): Promise<ApplicationResponse> {
     try {
       const existingUser = await this.userRepository.findOneOrFail({
-        where: { id: id, status: Not(In(this.positiveStatus)) },
+        where: { id: id, status: Not(In(this.negativeStatus)) },
       });
 
       if (!existingUser) {
@@ -199,8 +224,10 @@ export default class UserAdapter implements UserPort {
 
       Object.assign(existingUser, {
         status: UserStatus.DELETED,
-        password: null,
+        password: "N/A",
         updated_at: new Date(),
+        full_name: "N/A",
+        profile_image: "N/A",
       });
       await this.userRepository.save(existingUser);
       return ApplicationResponse.emptySuccess();
@@ -497,7 +524,7 @@ export default class UserAdapter implements UserPort {
 
   async getUserStampsAndUserInfoByUserOrEmail(
     userOrEmail: string,
-  ): Promise<ApplicationResponse<[string, string, number, string]>> {
+  ): Promise<ApplicationResponse<[string, string, number, string, string]>> {
     try {
       const whereCondition: FindOptionsWhere<UserEntity>[] = [
         { normalized_email: userOrEmail.toUpperCase(), status: Not(In(this.negativeStatus)) },
@@ -506,7 +533,7 @@ export default class UserAdapter implements UserPort {
 
       const r = await this.userRepository.findOne({
         where: whereCondition,
-        select: ["id", "concurrency_stamp", "security_stamp", "profile_image"],
+        select: ["id", "concurrency_stamp", "security_stamp", "profile_image", "password"],
       });
 
       if (!r) {
@@ -517,6 +544,7 @@ export default class UserAdapter implements UserPort {
         r.security_stamp,
         r.id,
         r.profile_image,
+        r.password,
       ]);
     } catch {
       return ApplicationResponse.failure(
@@ -622,6 +650,81 @@ export default class UserAdapter implements UserPort {
       }
       return ApplicationResponse.failure(
         new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR, undefined, undefined),
+      );
+    }
+  }
+  async searchUsers(q: string, limit: number): Promise<ApplicationResponse<User[]>> {
+    try {
+      const term = `%${q}%`;
+      const rows = await this.userRepository.find({
+        where: [
+          { username: ILike(term), status: Not(In(this.negativeStatus)) },
+          { full_name: ILike(term), status: Not(In(this.negativeStatus)) },
+          { email: ILike(term),    status: Not(In(this.negativeStatus)) },
+        ],
+        take: Math.min(Math.max(limit || 10, 1), 50),
+        order: { id: "ASC" },
+        // selecciona solo lo necesario; añade/quita campos si hace falta
+        select: [
+          "id",
+          "username",
+          "full_name",
+          "email",
+          "profile_image",
+          "learning_points",
+          "favorite_instrument",
+          "status",
+          "created_at",
+          "updated_at",
+        ],
+      });
+
+      // OJO: usa función flecha para mantener el this correcto
+      return ApplicationResponse.success(rows.map((r) => this.toDomain(r)));
+    } catch (e: any) {
+      return ApplicationResponse.failure(
+        new ApplicationError(
+          "DB error en searchUsers",
+          ErrorCodes.DATABASE_ERROR,
+          e?.message,
+          e,
+        ),
+      );
+    }
+  }
+
+  /**
+   * Listado compacto para fallback del frontend
+   */
+  async listUsers(limit: number): Promise<ApplicationResponse<User[]>> {
+    try {
+      const rows = await this.userRepository.find({
+        where: { status: Not(In(this.negativeStatus)) },
+        take: Math.min(Math.max(limit || 100, 1), 1000),
+        order: { id: "ASC" },
+        select: [
+          "id",
+          "username",
+          "full_name",
+          "email",
+          "profile_image",
+          "learning_points",
+          "favorite_instrument",
+          "status",
+          "created_at",
+          "updated_at",
+        ],
+      });
+
+      return ApplicationResponse.success(rows.map((r) => this.toDomain(r)));
+    } catch (e: any) {
+      return ApplicationResponse.failure(
+        new ApplicationError(
+          "DB error en listUsers",
+          ErrorCodes.DATABASE_ERROR,
+          e?.message,
+          e,
+        ),
       );
     }
   }

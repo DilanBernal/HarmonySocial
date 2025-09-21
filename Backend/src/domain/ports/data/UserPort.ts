@@ -17,10 +17,14 @@ export default interface UserPort {
   getUserByEmailOrUsername(email: string, username: string): Promise<ApplicationResponse<User>>;
   getUserStampsAndUserInfoByUserOrEmail(
     userOrEmail: string,
-  ): Promise<ApplicationResponse<[string, string, number, string]>>;
+  ): Promise<ApplicationResponse<[string, string, number, string, string]>>;
+  // Batch fetch
+  getUsersByIds(ids: number[]): Promise<ApplicationResponse<Array<User>>>;
   //Seccion de validación
   existsUserById(id: number): Promise<ApplicationResponse<boolean>>;
   existsUserByLoginRequest(userOrEmail: string): Promise<ApplicationResponse<boolean>>;
+  searchUsers(q: string, limit: number): Promise<ApplicationResponse<User[]>>;
+  listUsers(limit: number): Promise<ApplicationResponse<User[]>>;
   existsUserByEmailOrUsername(
     email: string,
     username: string,

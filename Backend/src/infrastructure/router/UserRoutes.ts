@@ -3,6 +3,8 @@ import UserAdapter from "../adapter/data/UserAdapter";
 import UserService from "../../application/services/UserService";
 import AuthService from "../../application/services/AuthService";
 import UserController from "../controller/UserController";
+import RoleAdapter from "../adapter/data/RoleAdapter";
+import UserRoleAdapter from "../adapter/data/UserRoleAdapter";
 import AuthAdapter from "../adapter/data/AuthAdapter";
 import EmailNodemailerAdapter from "../adapter/utils/EmailAdapter";
 import LoggerAdapter from "../adapter/utils/LoggerAdapter";
@@ -12,22 +14,23 @@ import loginSchema from "../validator/LoginValidator";
 import registerSchema from "../validator/RegisterValidator";
 import authenticateToken from "../middleware/authMiddleware";
 
-// import DataNotFoundError from "../shared/errors/DataNotFoundError";
-
-//Express
 const router = Router();
-//Inicializacion de capas
+
 const userAdapter = new UserAdapter();
 const authAdapter = new AuthAdapter();
 const loggerAdapter = new LoggerAdapter();
 const tokenAdapter = new TokenAdapter();
 const emailAdapter = new EmailNodemailerAdapter(loggerAdapter);
+const roleAdapter = new RoleAdapter();
+const userRoleAdapter = new UserRoleAdapter();
 const userApp = new UserService(
   userAdapter,
   authAdapter,
   emailAdapter,
   loggerAdapter,
   tokenAdapter,
+  roleAdapter,
+  userRoleAdapter,
 );
 const authService = new AuthService(
   userAdapter,
@@ -35,10 +38,10 @@ const authService = new AuthService(
   emailAdapter,
   loggerAdapter,
   tokenAdapter,
+  userRoleAdapter,
 );
 const userController = new UserController(userApp, authService, loggerAdapter);
 
-//Login
 router.post("/login", validateRequest(loginSchema), async (req: Request, res: Response) => {
   try {
     await userController.loginUser(req, res);
@@ -97,6 +100,13 @@ router.get("/basic-info", async (req, res) => {
   try {
     await userController.getBasicUserData(req, res);
   } catch (error: any) {
+    loggerAdapter.debug(
+      "Es en la parte despues de que el error no sea instancia ni de NotFoundResponse ni de ApplicationResponse",
+      [error, typeof error],
+    );
+    console.log(error);
+
+    loggerAdapter.error("Ocurrio un error al traer la info del usuario", [error, error.title]);
     const errorMessage = error.message ?? "Error al traer el usuario";
     res.status(error.statusCode ?? 500).json({
       message: errorMessage,
@@ -145,7 +155,6 @@ router.post("/forgot-password", async (req, res) => {
   }
 });
 
-// Ruta para restablecer contraseña
 router.post("/reset-password", async (req, res) => {
   try {
     await userController.resetPassword(req, res);
@@ -158,7 +167,6 @@ router.post("/reset-password", async (req, res) => {
   }
 });
 
-// Ruta para verificar email
 router.post("/verify-email", async (req, res) => {
   try {
     await userController.verifyEmail(req, res);
@@ -168,6 +176,51 @@ router.post("/verify-email", async (req, res) => {
       message: errorMessage,
     });
     console.error(errorMessage, error);
+  }
+});
+
+
+router.get("/search", async (req, res) => {
+  try {
+    const q = String(req.query.q ?? "").trim();
+    const limit = Math.min(Math.max(parseInt(String(req.query.limit ?? "10")) || 10, 1), 50);
+
+    const r = await userApp.searchUsers(q, limit);
+    if (!r.success) {
+      return res.status(500).json({ message: r.error?.message ?? "Error buscando usuarios" });
+    }
+    // el front espera { rows: [...] }
+    return res.json({ rows: r.data ?? [] });
+  } catch (e: any) {
+    return res.status(500).json({ message: e?.message ?? "Error interno" });
+  }
+});
+
+
+router.get("/list", async (req, res) => {
+  try {
+    const limit = Math.min(Math.max(parseInt(String(req.query.limit ?? "100")) || 100, 1), 1000);
+    const r = await userApp.listUsers(limit);
+    if (!r.success) {
+      return res.status(500).json({ message: r.error?.message ?? "Error listando usuarios" });
+    }
+    return res.json({ rows: r.data ?? [] });
+  } catch (e: any) {
+    return res.status(500).json({ message: e?.message ?? "Error interno" });
+  }
+});
+
+
+router.get("/", async (req, res) => {
+  try {
+    const limit = Math.min(Math.max(parseInt(String(req.query.limit ?? "100")) || 100, 1), 1000);
+    const r = await userApp.listUsers(limit);
+    if (!r.success) {
+      return res.status(500).json({ message: r.error?.message ?? "Error listando usuarios" });
+    }
+    return res.json({ rows: r.data ?? [] });
+  } catch (e: any) {
+    return res.status(500).json({ message: e?.message ?? "Error interno" });
   }
 });
 

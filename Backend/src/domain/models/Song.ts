@@ -1,8 +1,8 @@
 export type Song = {
-  id: number;                   
+  id: number;
   title: string;
   audioUrl: string;
-  
+
   description?: string | null;
   duration?: number | null;
   bpm?: number | null;

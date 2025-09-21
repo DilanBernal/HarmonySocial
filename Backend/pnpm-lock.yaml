@@ -39,7 +39,7 @@ importers:
         specifier: 7.0.6
         version: 7.0.6
       pg:
-        specifier: 8.16.3
+        specifier: ^8.16.3
         version: 8.16.3
       pino:
         specifier: 9.9.0
@@ -55,7 +55,7 @@ importers:
         version: 11.1.0
     devDependencies:
       '@types/cors':
-        specifier: 2.8.19
+        specifier: ^2.8.19
         version: 2.8.19
       '@types/express':
         specifier: 5.0.3
@@ -72,6 +72,9 @@ importers:
       '@types/nodemailer':
         specifier: 7.0.1
         version: 7.0.1
+      '@types/pg':
+        specifier: ^8.15.5
+        version: 8.15.5
       '@types/supertest':
         specifier: 6.0.3
         version: 6.0.3
@@ -955,6 +958,9 @@ packages:
 
   '@types/nodemailer@7.0.1':
     resolution: {integrity: sha512-UfHAghPmGZVzaL8x9y+mKZMWyHC399+iq0MOmya5tIyenWX3lcdSb60vOmp0DocR6gCDTYTozv/ULQnREyyjkg==}
+
+  '@types/pg@8.15.5':
+    resolution: {integrity: sha512-LF7lF6zWEKxuT3/OR8wAZGzkg4ENGXFNyiV/JeOt9z5B+0ZVwbql9McqX5c/WStFq1GaGso7H1AzP/qSzmlCKQ==}
 
   '@types/qs@6.14.0':
     resolution: {integrity: sha512-eOunJqu0K1923aExK6y8p6fsihYEn/BYuQ4g0CxAAgFc4b/ZLN4CrsRZ55srTdqoiLzU2B2evC+apEIxprEzkQ==}
@@ -4547,6 +4553,12 @@ snapshots:
       '@types/node': 24.3.1
     transitivePeerDependencies:
       - aws-crt
+
+  '@types/pg@8.15.5':
+    dependencies:
+      '@types/node': 24.3.1
+      pg-protocol: 1.10.3
+      pg-types: 2.2.0
 
   '@types/qs@6.14.0': {}
 

@@ -8,7 +8,7 @@ import {
 
 @Entity({ name: "songs" })
 export default class SongEntity {
-  @PrimaryGeneratedColumn()             
+  @PrimaryGeneratedColumn()
   id!: number;
 
   @Column({ type: "varchar", length: 100 })
@@ -32,8 +32,9 @@ export default class SongEntity {
   @Column({ type: "varchar", length: 100, nullable: true })
   album?: string | null;
 
-  @Column({ type: "varchar", length: 20, nullable: true })
-  decade?: string | null;
+  // ✅ Cambiar a number
+  @Column({ type: "int", nullable: true })
+  decade?: number | null;
 
   @Column({ type: "varchar", length: 50, nullable: true })
   genre?: string | null;
@@ -44,13 +45,11 @@ export default class SongEntity {
   @Column({ type: "jsonb", nullable: true })
   instruments?: unknown | null;
 
-  @Column({
-    name: "difficulty_level",
-    type: "varchar",
-    length: 20,
-    nullable: true,
-  })
+  @Column({ name: "difficulty_level", type: "varchar", length: 20, nullable: true })
   difficultyLevel?: "EASY" | "INTERMEDIATE" | "HARD" | null;
+
+  @Column({ type: "varchar", length: 100, nullable: true })
+  artist?: string | null;
 
   @Column({ name: "artist_id", type: "int", nullable: true })
   artistId?: number | null;

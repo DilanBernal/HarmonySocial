@@ -1,0 +1,67 @@
+### Artists API Manual Test Collection
+
+@base = http://localhost:3000/api/artists
+@auth = Bearer {{token}}
+
+### Crear artista (status interno = PENDING)
+POST {{base}}
+Content-Type: application/json
+Authorization: {{auth}}
+
+{
+  "artist_name": "Queen",
+  "biography": "Legendaria banda británica de rock.",
+  "formation_year": 1970,
+  "country_code": "GB"
+}
+###
+
+### Actualizar artista (no cambia status)
+PUT {{base}}/1
+Content-Type: application/json
+Authorization: {{auth}}
+
+{
+  "biography": "Banda británica de rock formada en 1970 (actualizada)."
+}
+###
+
+### Aceptar artista (requiere permiso artist.accept)
+PUT {{base}}/1/accept
+Authorization: {{auth}}
+###
+
+### Rechazar artista (requiere permiso artist.reject)
+PUT {{base}}/2/reject
+Authorization: {{auth}}
+###
+
+### Buscar artistas (filtros nombre, país, status)
+GET {{base}}?name=Queen
+Authorization: {{auth}}
+###
+
+### Buscar artistas por país
+GET {{base}}?country=GB
+Authorization: {{auth}}
+###
+
+### Buscar artistas ACTIVE
+GET {{base}}?status=ACTIVE
+Authorization: {{auth}}
+###
+
+### Obtener artista por id
+GET {{base}}/1
+Authorization: {{auth}}
+###
+
+### Borrado lógico de artista (status=DELETED)
+DELETE {{base}}/1
+Authorization: {{auth}}
+###
+
+### Notas
+# - status permitido: PENDING|ACTIVE|REJECTED|DELETED (controlado por backend)
+# - Transiciones invalidas devuelven 409 BUSINESS_RULE_VIOLATION
+# - Permisos requeridos: artist.create, artist.update, artist.delete, artist.accept, artist.reject
