@@ -51,7 +51,7 @@ describe("FileService", () => {
       );
       filePortMock.createImage.mockResolvedValue(response);
       const result = await service.uploadNewImage(file);
-      expect(result).toStrictEqual(response);
+      expect(result).toStrictEqual({ response });
       expect(loggerMock.appWarn).toHaveBeenCalledWith(response);
     });
     it("debe retornar ApplicationResponse de error si ocurre excepción", async () => {

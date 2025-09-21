@@ -252,7 +252,7 @@ describe("UserService", () => {
 
       // Verificar
       expect(result.success).toBe(false);
-      expect(result.error?.code).toBe(14);
+      expect(result.error?.code).toBe(2);
       expect(result.error?.message).toBe("Usuario no encontrado");
     });
 

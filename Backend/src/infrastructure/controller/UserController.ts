@@ -3,7 +3,6 @@ import AuthService from "../../application/services/AuthService";
 import { Request, Response } from "express";
 import { ILike } from 'typeorm';
 import User from "../../domain/models/User";
-import { ParsedQs } from "qs";
 import { EntityNotFoundError } from "typeorm";
 import { ErrorCodes } from "../../application/shared/errors/ApplicationError";
 import { ApplicationResponse } from "../../application/shared/ApplicationReponse";
@@ -111,40 +110,40 @@ export default class UserController {
   }
 
   async searchUsers(req: Request, res: Response) {
-  try {
-    const q = String((req.query.q as string) ?? "").trim();
-    const limit = Math.min(Math.max(parseInt(String(req.query.limit ?? "10")) || 10, 1), 50);
+    try {
+      const q = String((req.query.q as string) ?? "").trim();
+      const limit = Math.min(Math.max(parseInt(String(req.query.limit ?? "10")) || 10, 1), 50);
 
-    const r = await this.userService.searchUsers(q, limit);
-    if (!r.success) {
-      this.logger.appError(r);
-      return res.status(500).json({ message: r.error?.message ?? "Error buscando usuarios" });
+      const r = await this.userService.searchUsers(q, limit);
+      if (!r.success) {
+        this.logger.appError(r);
+        return res.status(500).json({ message: r.error?.message ?? "Error buscando usuarios" });
+      }
+
+      // Devolvemos {rows: …} para que el frontend lo consuma sin tocar nada
+      return res.status(200).json({ rows: r.data ?? [] });
+    } catch (e: any) {
+      this.logger.error("searchUsers error", [e?.message]);
+      return res.status(500).json({ message: "Error interno" });
     }
-
-    // Devolvemos {rows: …} para que el frontend lo consuma sin tocar nada
-    return res.status(200).json({ rows: r.data ?? [] });
-  } catch (e: any) {
-    this.logger.error("searchUsers error", [e?.message]);
-    return res.status(500).json({ message: "Error interno" });
   }
-}
 
-async listUsers(req: Request, res: Response) {
-  try {
-    const limit = Math.min(Math.max(parseInt(String(req.query.limit ?? "100")) || 100, 1), 1000);
-    const r = await this.userService.listUsers(limit);
-    if (!r.success) {
-      this.logger.appError(r);
-      return res.status(500).json({ message: r.error?.message ?? "Error listando usuarios" });
+  async listUsers(req: Request, res: Response) {
+    try {
+      const limit = Math.min(Math.max(parseInt(String(req.query.limit ?? "100")) || 100, 1), 1000);
+      const r = await this.userService.listUsers(limit);
+      if (!r.success) {
+        this.logger.appError(r);
+        return res.status(500).json({ message: r.error?.message ?? "Error listando usuarios" });
+      }
+      return res.status(200).json({ rows: r.data ?? [] });
+    } catch (e: any) {
+      this.logger.error("listUsers error", [e?.message]);
+      return res.status(500).json({ message: "Error interno" });
     }
-    return res.status(200).json({ rows: r.data ?? [] });
-  } catch (e: any) {
-    this.logger.error("listUsers error", [e?.message]);
-    return res.status(500).json({ message: "Error interno" });
   }
-}
 
-  
+
 
   async loginUser(req: Request, res: Response) {
     const loginRequest: LoginRequest = req.body;

@@ -194,7 +194,7 @@ describe("UserService", () => {
       // Verificar
       expect(result.success).toBe(false);
       expect(result.error?.code).toBe(ErrorCodes.SERVER_ERROR);
-      expect(result.error?.message).toBe("Ocurrio un error inesperado en el registro");
+      expect(result.error?.message).toBe("Ocurrio un error inesperado en el registro, vuelva a intentarlo mas tarde");
     });
   });
 

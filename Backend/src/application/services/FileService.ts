@@ -13,7 +13,7 @@ export default class FileService {
   constructor(
     private readonly filePort: FilePort,
     private readonly logger: LoggerAdapter,
-  ) {}
+  ) { }
 
   /** Convierte ApplicationResponse<T> -> T o lanza ApplicationError */
   private unwrap<T>(resp: ApplicationResponse<T>): T {
@@ -35,7 +35,7 @@ export default class FileService {
         e,
       );
       this.logger.appWarn(appErr as any);
-      throw appErr;
+      return ApplicationResponse.failure(appErr);
     }
   }
 
@@ -47,10 +47,10 @@ export default class FileService {
       const appErr = new ApplicationError(
         e?.message || "Error en uploadNewSong",
         ErrorCodes.SERVER_ERROR,
-        e,
+        { e },
       );
       this.logger.appWarn(appErr as any);
-      throw appErr;
+      return ApplicationResponse.failure(appErr);
     }
   }
 

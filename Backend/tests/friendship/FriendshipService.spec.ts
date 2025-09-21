@@ -38,6 +38,9 @@ describe("FriendshipService", () => {
     mockUserPort = {
       createUser: jest.fn(),
       updateUser: jest.fn(),
+      getUsersByIds: jest.fn(),
+      listUsers: jest.fn(),
+      searchUsers: jest.fn(),
       deleteUser: jest.fn(),
       getAllUsers: jest.fn(),
       getUserBasicDataById: jest.fn(),
