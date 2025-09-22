@@ -79,15 +79,14 @@ export type songRequest = {
 
 export async function playSongByBlob(song: songRequest) {
   console.log(song);
-  const url = getSongService.getSongStreamUrl(
-    song.blobName.split(
-      'http://127.0.0.1:10000/devstoreaccount1/canciones/',
-    )[1],
-  );
+  console.log(song);
+
+  const blobId = song.blobName.split('canciones/')[0]?.trim();
+
+  const url = getSongService.getSongStreamUrl(blobId);
 
   console.log(url);
 
-  // await TrackPlayer.setupPlayer(); // idempotente la primera vez
   await TrackPlayer.reset();
 
   const track = {
@@ -100,5 +99,5 @@ export async function playSongByBlob(song: songRequest) {
 
   await TrackPlayer.add(track);
   await TrackPlayer.play();
+  return url;
 }
-// ...existing code...

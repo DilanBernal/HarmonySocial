@@ -30,6 +30,9 @@ export default function LibraryScreen() {
     setErr(null);
     try {
       const r = await SongsService.listMine(1, 50);
+      r.data.rows.forEach(x => {
+        console.log(x);
+      });
       setItems(r?.data?.rows ?? []);
     } catch (e: any) {
       setErr(e?.message ?? 'No se pudo cargar tu biblioteca');
