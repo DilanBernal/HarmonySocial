@@ -3,7 +3,7 @@ import TrackPlayer, {
   Capability,
 } from 'react-native-track-player';
 import { normalizeMediaUrl } from '../utils/normalizeUrl';
-import { getSongsService } from '../core/services/song/GetSongsService';
+import { GetSongsService } from '../core/services/song/GetSongsService';
 
 export async function setupPlayer() {
   await TrackPlayer.setupPlayer({ autoHandleInterruptions: true });
@@ -67,7 +67,7 @@ export async function playTest() {
   await TrackPlayer.play();
 }
 
-const getSongService = new getSongsService();
+const getSongService = new GetSongsService();
 
 export type songRequest = {
   id?: string;

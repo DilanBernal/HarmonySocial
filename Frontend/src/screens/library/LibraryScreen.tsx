@@ -7,7 +7,11 @@ import {
   Text,
   View,
 } from 'react-native';
-import { Song, SongsService } from '../../core/services/song/GetSongsService';
+import {
+  GetSongsService,
+  Song,
+  SongsService,
+} from '../../core/services/song/GetSongsService';
 import {
   playSongByBlob,
   setupPlayer,
@@ -20,6 +24,7 @@ export default function LibraryScreen() {
   const [items, setItems] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
+  const getSongService: GetSongsService = new GetSongsService();
 
   useEffect(() => {
     setupPlayer();
@@ -29,12 +34,19 @@ export default function LibraryScreen() {
     setLoading(true);
     setErr(null);
     try {
-      const r = await SongsService.listMine(1, 50);
-      r.data.rows.forEach(x => {
+      const r: any = await SongsService.listMine(1, 50).then(x => {
+        console.log(x);
+        return x;
+      });
+      await getSongService.listMine(1, 50);
+      console.log(r);
+
+      r.data.rows.forEach((x: any) => {
         console.log(x);
       });
       setItems(r?.data?.rows ?? []);
     } catch (e: any) {
+      console.error(e);
       setErr(e?.message ?? 'No se pudo cargar tu biblioteca');
     } finally {
       setLoading(false);
