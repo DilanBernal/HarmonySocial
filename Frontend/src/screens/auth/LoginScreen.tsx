@@ -27,8 +27,11 @@ const validationSchema = Yup.object().shape({
     .required('La contraseña es obligatoria'),
 });
 
+type LoginScreenNavigationProp =
+  NavigateStackNavigationProp<RootStackParamList>;
+
 const LoginScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<LoginScreenNavigationProp>();
   const [showPassword, setShowPassword] = useState(false);
   const [focus, setFocus] = useState<'user' | 'pass' | null>(null);
 
