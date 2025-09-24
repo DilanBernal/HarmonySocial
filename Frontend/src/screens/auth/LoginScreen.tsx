@@ -15,10 +15,12 @@ import {
   View,
   Alert,
 } from 'react-native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import LinearGradient from 'react-native-linear-gradient';
 import * as Yup from 'yup';
 import { EqBars } from '../../components/general/EqBars';
 import { AuthUserService } from '../../core/services/user/auth/AuthUserService';
+import { RootStackParamList } from '../../App';
 
 const validationSchema = Yup.object().shape({
   userOrEmail: Yup.string().required('El nombre de usuario es obligatorio'),
@@ -27,8 +29,7 @@ const validationSchema = Yup.object().shape({
     .required('La contraseña es obligatoria'),
 });
 
-type LoginScreenNavigationProp =
-  NavigateStackNavigationProp<RootStackParamList>;
+type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const LoginScreen = () => {
   const navigation = useNavigation<LoginScreenNavigationProp>();

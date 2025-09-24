@@ -1,7 +1,3 @@
-// import { Platform } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-// import axios, { AxiosRequestConfig } from "axios";
-import UserService from '../core/services/user/user/UserService';
 import { AuthUserService } from '../core/services/user/auth/AuthUserService';
 import { AppConfig } from '../config/AppConfig';
 

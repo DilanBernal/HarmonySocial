@@ -16,4 +16,6 @@ export type UseRegisterViewModelReturn = {
   errors: object | any;
   setValue: UseFormSetValue<RegisterFormData>;
   reset: () => void;
+  isLoading: boolean;
+  error: string | null;
 };

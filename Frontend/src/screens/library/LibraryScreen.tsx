@@ -1,5 +1,5 @@
 import { useFocusEffect } from '@react-navigation/native';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -10,7 +10,7 @@ import {
 import {
   GetSongsService,
   Song,
-  SongsService,
+  songsService, // Cambiado de SongsService a songsService (la instancia)
 } from '../../core/services/song/GetSongsService';
 import {
   playSongByBlob,
@@ -18,46 +18,79 @@ import {
   songRequest,
 } from '../../player/controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRxSubscriptions } from '../../hooks/useRxSubscriptions';
 
 export default function LibraryScreen() {
   const insets = useSafeAreaInsets();
   const [items, setItems] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
-  const getSongService: GetSongsService = new GetSongsService();
+
+  const { addSubscription } = useRxSubscriptions();
+
+  const isLoadingRef = useRef(false);
 
   useEffect(() => {
-    setupPlayer();
+    console.log('[LibraryScreen] useEffect - Initial mount, calling load()');
+    load();
   }, []);
 
-  const load = useCallback(async () => {
+  const load = () => {
+    if (isLoadingRef.current) {
+      console.log('[LibraryScreen] Already loading, skipping...');
+      return;
+    }
+
+    console.log('[LibraryScreen] Starting load...');
+    isLoadingRef.current = true;
     setLoading(true);
     setErr(null);
     try {
-      const r: any = await SongsService.listMine(1, 50).then(x => {
-        console.log(x);
-        return x;
-      });
-      await getSongService.listMine(1, 50);
-      console.log(r);
+      const subscription = songsService.listMine(1, 50).subscribe({
+        next: (response: any) => {
+          console.log('Library response:', response);
+          const songs = response?.data?.data?.rows ?? [];
 
-      r.data.rows.forEach((x: any) => {
-        console.log(x);
+          songs.forEach((song: Song) => {
+            console.log('Song:', song);
+          });
+
+          setItems(songs);
+          setLoading(false);
+          isLoadingRef.current = false;
+        },
+        error: (error: any) => {
+          console.error('Library error:', error);
+          setErr(error?.message ?? 'No se pudo cargar tu biblioteca');
+          setLoading(false);
+          isLoadingRef.current = false;
+        },
       });
-      setItems(r?.data?.rows ?? []);
+
+      // Usar el hook para manejo automático de subscripciones
+      addSubscription(subscription);
     } catch (e: any) {
       console.error(e);
       setErr(e?.message ?? 'No se pudo cargar tu biblioteca');
-    } finally {
       setLoading(false);
+      isLoadingRef.current = false;
     }
-  }, []);
+  }; // ✅ Sin useCallback para evitar dependencias circulares
 
+  // ✅ COMENTAMOS useFocusEffect temporalmente para debuggear el bucle infinito
+  /*
   useFocusEffect(
     useCallback(() => {
+      console.log('[LibraryScreen] useFocusEffect triggered');
       load();
+
+      // Cleanup para prevenir múltiples subscripciones
+      return () => {
+        console.log('[LibraryScreen] useFocusEffect cleanup');
+      };
     }, [load]),
   );
+  */
 
   if (loading) {
     return (

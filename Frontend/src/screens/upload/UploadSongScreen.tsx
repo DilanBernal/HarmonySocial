@@ -8,9 +8,10 @@ import {
   Alert,
 } from 'react-native';
 import { pickAudio, uploadSongMultipart } from '../../services/upload';
-import { api } from '../../services/api';
+import { songsService } from '../../services/songs';
 import type { DocumentPickerResponse } from '@react-native-documents/picker';
 import { AuthUserService } from '../../core/services/user/auth/AuthUserService';
+import { useRxSubscriptions } from '../../hooks/useRxSubscriptions';
 
 const toNumber = (s: string): number | undefined => {
   if (!s?.trim()) return undefined;
@@ -35,6 +36,9 @@ export default function UploadSongScreen() {
   const [progress, setProgress] = useState<number>(0);
   const [loading, setLoading] = useState(false);
 
+  // Hook para manejar subscripciones de RxJS
+  const { addSubscription } = useRxSubscriptions();
+
   const handlePick = async () => {
     const f = await pickAudio();
     if (!f) return;
@@ -43,6 +47,7 @@ export default function UploadSongScreen() {
   };
 
   const authService = new AuthUserService();
+
   const handleUpload = async () => {
     if (!audioFile)
       return Alert.alert('Falta el audio', 'Selecciona un archivo.');
@@ -50,9 +55,31 @@ export default function UploadSongScreen() {
       return Alert.alert('Campos obligatorios', 'Título y artista.');
 
     try {
-      const tok = await authService.getToken();
-      if (!tok) return Alert.alert('Error', 'No auth token (inicia sesión)');
+      // Obtener token usando RxJS
+      const tokenSubscription = authService.getToken().subscribe({
+        next: tok => {
+          if (!tok)
+            return Alert.alert('Error', 'No auth token (inicia sesión)');
 
+          // Continuar con el upload una vez que tenemos el token
+          executeUpload(tok);
+        },
+        error: error => {
+          console.error('Error getting token:', error);
+          Alert.alert('Error', 'No se pudo obtener el token');
+        },
+      });
+
+      addSubscription(tokenSubscription);
+    } catch (error) {
+      console.error('Upload error:', error);
+      Alert.alert('Error', 'Ocurrió un error durante la subida');
+      setLoading(false);
+    }
+  };
+
+  const executeUpload = (tok: string) => {
+    try {
       setLoading(true);
       setProgress(0);
 
@@ -61,8 +88,8 @@ export default function UploadSongScreen() {
       const bpm = toNumber(bpmStr);
       const decade = toNumber(decadeStr);
 
-      // 1) subir blob con metadata opcional
-      const up = await uploadSongMultipart({
+      // 1) subir blob con metadata opcional usando RxJS
+      const uploadSubscription = uploadSongMultipart({
         title: title.trim(),
         artist: artist.trim(),
         genre: genre.trim() || undefined,
@@ -71,69 +98,98 @@ export default function UploadSongScreen() {
         bpm,
         decade,
         country: country.trim() || undefined,
-        audio: audioFile,
+        audio: audioFile!, // Ya validamos que no sea null al inicio
         token: tok,
         onProgress: setProgress,
+      }).subscribe({
+        next: up => {
+          // Log para ver la forma exacta que devuelve tu backend
+          console.log('[uploadSongMultipart] response:', up);
+
+          // Intentar extraer la URL desde varias claves comunes
+          const audioUrlCandidates = [
+            up?.data?.url,
+            up?.data?.audioUrl,
+            up?.data?.fileUrl,
+            up?.url,
+            up?.blobUrl,
+            up?.Location, // algunos backends estilo S3
+          ];
+          console.log(audioUrlCandidates);
+          const audioUrl = audioUrlCandidates.find(
+            v => typeof v === 'string' && v.length > 0,
+          ) as string | undefined;
+
+          if (!audioUrl) {
+            const backendMsg =
+              (up && (up.message || up.error?.message)) ||
+              'No se recibió URL del audio';
+            throw new Error(String(backendMsg));
+          }
+
+          console.log(audioUrl);
+
+          // 2) crear registro en DB usando RxJS
+          const createSongSubscription = songsService
+            .createSong({
+              title: title.trim(),
+              artist: artist.trim(),
+              description: description.trim() || null,
+              audioUrl: audioUrl.split('canciones/')[1],
+              duration: typeof duration === 'number' ? duration : null,
+              bpm: typeof bpm === 'number' ? bpm : null,
+              decade: typeof decade === 'number' ? decade : null,
+              country: country.trim() || null,
+              genre: genre.trim() || null,
+            })
+            .subscribe({
+              next: response => {
+                console.log('[createSong] response:', response);
+                Alert.alert('Listo', 'Canción subida.');
+
+                // Reset form
+                setTitle('');
+                setArtist('');
+                setGenre('');
+                setDescription('');
+                setDurationStr('');
+                setBpmStr('');
+                setDecadeStr('');
+                setCountry('');
+                setAudioFile(null);
+                setAudioName(null);
+                setProgress(0);
+                setLoading(false);
+              },
+              error: error => {
+                console.error('[createSong] error:', error);
+                const message =
+                  error?.message ||
+                  'Error al crear la canción en la base de datos';
+                Alert.alert('Error', message);
+                setLoading(false);
+              },
+            });
+
+          // Agregar subscripción para cleanup automático
+          addSubscription(createSongSubscription);
+        },
+        error: error => {
+          console.error('[uploadSongMultipart] error:', error);
+          const message = error?.message || 'No se pudo subir el archivo';
+          Alert.alert('Error', message);
+          setLoading(false);
+        },
       });
 
-      // Log para ver la forma exacta que devuelve tu backend
-      console.log('[uploadSongMultipart] response:', up);
-
-      // Intentar extraer la URL desde varias claves comunes
-      const audioUrlCandidates = [
-        up?.data?.url,
-        up?.data?.audioUrl,
-        up?.data?.fileUrl,
-        up?.url,
-        up?.blobUrl,
-        up?.Location, // algunos backends estilo S3
-      ];
-      console.log(audioUrlCandidates);
-      const audioUrl = audioUrlCandidates.find(
-        v => typeof v === 'string' && v.length > 0,
-      ) as string | undefined;
-
-      if (!audioUrl) {
-        const backendMsg =
-          (up && (up.message || up.error?.message)) ||
-          'No se recibió URL del audio';
-        throw new Error(String(backendMsg));
-      }
-
-      console.log(audioUrl);
-
-      // 2) crear registro en DB
-      await api.post('/songs', {
-        title: title.trim(),
-        artist: artist.trim(), // si tu backend no lo soporta, elimínalo
-        description: description.trim() || null,
-        audioUrl: audioUrl.split('canciones/')[1],
-        duration: typeof duration === 'number' ? duration : null,
-        bpm: typeof bpm === 'number' ? bpm : null,
-        decade: typeof decade === 'number' ? decade : null,
-        country: country.trim() || null,
-        genre: genre.trim() || null,
-      });
-
-      Alert.alert('Listo', 'Canción subida.');
-      setTitle('');
-      setArtist('');
-      setGenre('');
-      setDescription('');
-      setDurationStr('');
-      setBpmStr('');
-      setDecadeStr('');
-      setCountry('');
-      setAudioFile(null);
-      setAudioName(null);
-      setProgress(0);
+      // Agregar subscripción para cleanup automático
+      addSubscription(uploadSubscription);
     } catch (e: unknown) {
       const message =
         typeof e === 'object' && e !== null && 'message' in e
           ? String((e as { message?: unknown }).message)
           : 'No se pudo subir';
       Alert.alert('Error', message);
-    } finally {
       setLoading(false);
     }
   };

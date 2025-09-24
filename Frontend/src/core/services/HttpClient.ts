@@ -1,3 +1,9 @@
+import { HttpError } from '../models/utils/HttpError';
+import { HttpResponse } from '../models/utils/HttpResponse';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Observable, from, throwError, of } from 'rxjs';
+import { map, catchError, switchMap, timeout, retry } from 'rxjs/operators';
+
 export default class HttpClient {
   private baseURL: string;
   private defaultTimeout: number = 10000;
@@ -13,32 +19,61 @@ export default class HttpClient {
     };
 
     if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+      headers.Authorization = `Bearer ${token}`;
     }
 
     return headers;
   }
 
   private handleResponse<T>(response: Response): Observable<HttpResponse<T>> {
-    return from(response.json()).pipe(
-      map(data => ({
-        data,
-        status: response.status,
-        statusText: response.statusText,
-      })),
-      catchError(error => {
-        if (!response.ok) {
+    if (!response.ok) {
+      return from(response.text()).pipe(
+        switchMap(errorText => {
+          let errorData;
+          try {
+            errorData = JSON.parse(errorText);
+          } catch {
+            errorData = errorText;
+          }
           return throwError(() => ({
             message: `HTTP Error ${response.status}`,
             status: response.status,
-            data: error,
+            data: errorData,
           }));
+        }),
+      );
+    }
+
+    // Handle 204 No Content
+    if (response.status === 204) {
+      return of({
+        data: undefined as T,
+        status: response.status,
+        statusText: response.statusText,
+      });
+    }
+
+    // Try to parse as JSON, fallback to text
+    return from(response.text()).pipe(
+      map(text => {
+        let data: T;
+        try {
+          data = text ? JSON.parse(text) : undefined;
+        } catch {
+          data = text as unknown as T;
         }
-        return throwError(() => ({
+        return {
+          data,
+          status: response.status,
+          statusText: response.statusText,
+        };
+      }),
+      catchError(error =>
+        throwError(() => ({
           message: 'Error parsing response',
           data: error,
-        }));
-      }),
+        })),
+      ),
     );
   }
 
