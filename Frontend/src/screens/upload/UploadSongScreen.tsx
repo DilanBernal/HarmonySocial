@@ -7,16 +7,71 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import { pickAudio, uploadSongMultipart } from '../../services/upload';
-import { songsService } from '../../services/songs';
+import { pickAudio, uploadSongMultipart } from '../../core/services/upload';
+import { songsService } from '../../core/services/songs';
+import { AppConfig } from '../../config/AppConfig';
 import type { DocumentPickerResponse } from '@react-native-documents/picker';
 import { AuthUserService } from '../../core/services/user/auth/AuthUserService';
-import { useRxSubscriptions } from '../../hooks/useRxSubscriptions';
+import { useRxSubscriptions } from '../../core/hooks';
 
 const toNumber = (s: string): number | undefined => {
   if (!s?.trim()) return undefined;
   const n = Number(s.trim().replace(',', '.'));
   return Number.isFinite(n) ? n : undefined;
+};
+
+/**
+ * Extrae el blob_name de la URL del archivo subido
+ * Maneja diferentes formatos de URL y respuestas del backend
+ */
+const extractBlobName = (uploadResponse: any): string | null => {
+  console.log('[extractBlobName] Processing response:', uploadResponse);
+
+  // 1. Intentar obtener blob_name directamente si existe
+  if (uploadResponse?.data?.blob_name || uploadResponse?.data?.blobName) {
+    const directBlobName =
+      uploadResponse.data.blob_name || uploadResponse.data.blobName;
+    console.log('[extractBlobName] Found direct blob_name:', directBlobName);
+    return directBlobName;
+  }
+
+  // 2. Intentar extraer desde diferentes campos de URL
+  const urlCandidates = [
+    uploadResponse?.data?.url,
+    uploadResponse?.data?.audioUrl,
+    uploadResponse?.data?.fileUrl,
+    uploadResponse?.url,
+    uploadResponse?.blobUrl,
+    uploadResponse?.Location,
+    uploadResponse?.location,
+  ];
+
+  for (const url of urlCandidates) {
+    if (typeof url === 'string' && url.length > 0) {
+      console.log('[extractBlobName] Trying to extract from URL:', url);
+
+      // Intentar diferentes patrones comunes
+      const patterns = [
+        /\/canciones\/(.+?)(?:\?|$)/, // /canciones/blob_name?params
+        /\/files\/(.+?)(?:\?|$)/, // /files/blob_name?params
+        /\/uploads\/(.+?)(?:\?|$)/, // /uploads/blob_name?params
+        /\/([^\/]+\.(mp3|wav|m4a|flac|ogg))(?:\?|$)/i, // cualquier archivo de audio
+        /\/([^\/\?]+)$/, // último segmento sin query params
+      ];
+
+      for (const pattern of patterns) {
+        const match = url.match(pattern);
+        if (match && match[1]) {
+          const extracted = match[1];
+          console.log('[extractBlobName] Extracted blob_name:', extracted);
+          return extracted;
+        }
+      }
+    }
+  }
+
+  console.error('[extractBlobName] Could not extract blob_name from response');
+  return null;
 };
 
 export default function UploadSongScreen() {
@@ -48,6 +103,19 @@ export default function UploadSongScreen() {
 
   const authService = new AuthUserService();
 
+  const checkConnectivity = async () => {
+    try {
+      const url = AppConfig.apiBaseUrl.replace(/\/$/, '') + '/ping';
+      console.log('[connectivity] HEAD ->', url);
+      const res = await fetch(url, { method: 'HEAD' });
+      console.log('[connectivity] status', res.status);
+      Alert.alert('Conectividad', `HEAD status: ${res.status}`);
+    } catch (err) {
+      console.error('[connectivity] error', err);
+      Alert.alert('Conectividad', `Error: ${String(err)}`);
+    }
+  };
+
   const handleUpload = async () => {
     if (!audioFile)
       return Alert.alert('Falta el audio', 'Selecciona un archivo.');
@@ -55,7 +123,6 @@ export default function UploadSongScreen() {
       return Alert.alert('Campos obligatorios', 'Título y artista.');
 
     try {
-      // Obtener token usando RxJS
       const tokenSubscription = authService.getToken().subscribe({
         next: tok => {
           if (!tok)
@@ -116,18 +183,18 @@ export default function UploadSongScreen() {
             up?.Location, // algunos backends estilo S3
           ];
           console.log(audioUrlCandidates);
-          const audioUrl = audioUrlCandidates.find(
-            v => typeof v === 'string' && v.length > 0,
-          ) as string | undefined;
 
-          if (!audioUrl) {
+          // Extraer blob_name de la respuesta usando función robusta
+          const blobName = extractBlobName(up);
+
+          if (!blobName) {
             const backendMsg =
               (up && (up.message || up.error?.message)) ||
-              'No se recibió URL del audio';
+              'No se pudo extraer el blob_name del archivo subido';
             throw new Error(String(backendMsg));
           }
 
-          console.log(audioUrl);
+          console.log('[Upload] Extracted blob_name:', blobName);
 
           // 2) crear registro en DB usando RxJS
           const createSongSubscription = songsService
@@ -135,7 +202,7 @@ export default function UploadSongScreen() {
               title: title.trim(),
               artist: artist.trim(),
               description: description.trim() || null,
-              audioUrl: audioUrl.split('canciones/')[1],
+              audioUrl: blobName, // Usar blob_name directamente
               duration: typeof duration === 'number' ? duration : null,
               bpm: typeof bpm === 'number' ? bpm : null,
               decade: typeof decade === 'number' ? decade : null,
@@ -375,17 +442,32 @@ export default function UploadSongScreen() {
           </View>
         </View>
       ) : (
-        <Pressable
-          onPress={handleUpload}
-          style={{
-            backgroundColor: '#4f46e5',
-            borderRadius: 8,
-            padding: 14,
-            alignItems: 'center',
-          }}
-        >
-          <Text style={{ color: 'white', fontWeight: '600' }}>Subir</Text>
-        </Pressable>
+        <>
+          <Pressable
+            onPress={checkConnectivity}
+            style={{
+              backgroundColor: '#1f2937',
+              borderRadius: 8,
+              padding: 10,
+              alignItems: 'center',
+              marginBottom: 8,
+            }}
+          >
+            <Text style={{ color: 'white' }}>Probar conectividad (HEAD)</Text>
+          </Pressable>
+
+          <Pressable
+            onPress={handleUpload}
+            style={{
+              backgroundColor: '#4f46e5',
+              borderRadius: 8,
+              padding: 14,
+              alignItems: 'center',
+            }}
+          >
+            <Text style={{ color: 'white', fontWeight: '600' }}>Subir</Text>
+          </Pressable>
+        </>
       )}
     </View>
   );

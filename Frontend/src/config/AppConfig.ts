@@ -1,6 +1,11 @@
 import { Platform } from 'react-native';
 
 const getBaseUrl = () => {
+  // Development convenience: when running on Android emulator use host machine via 10.0.2.2
+  // This avoids flaky dev-tunnel connectivity for uploads during development.
+  if (__DEV__ && Platform.OS === 'android') {
+    return 'http://10.0.2.2:4666/api/';
+  }
   return 'https://fs571vhd-4666.use2.devtunnels.ms/api/';
 };
 

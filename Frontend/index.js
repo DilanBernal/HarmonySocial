@@ -8,4 +8,4 @@ import { name as appName } from './app.json';
 
 AppRegistry.registerComponent(appName, () => App);
 
-TrackPlayer.registerPlaybackService(() => require('./src/player/service').PlaybackService);
+TrackPlayer.registerPlaybackService(() => require('./src/core/player/playerEvents').PlaybackService);

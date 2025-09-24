@@ -11,14 +11,14 @@ import { useNavigation } from '@react-navigation/native';
 
 import SearchBar from '../../components/general/SearchBar';
 import StoriesRow from '../../components/general/StoriesRow';
-import { playSong } from '../../player/controller';
+import { playSong } from '../../core/player/playerSetup';
 import {
   SearchService,
   SearchResponse,
   SearchSong,
   SearchUser,
   SearchArtist,
-} from '../../services/search';
+} from '../../core/services/search';
 
 function debounce<F extends (...args: any[]) => void>(fn: F, wait: number) {
   let t: any;

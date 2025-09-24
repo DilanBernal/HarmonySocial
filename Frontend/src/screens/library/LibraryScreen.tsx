@@ -10,15 +10,15 @@ import {
 import {
   GetSongsService,
   Song,
-  songsService, // Cambiado de SongsService a songsService (la instancia)
+  songsService,
 } from '../../core/services/song/GetSongsService';
 import {
   playSongByBlob,
   setupPlayer,
   songRequest,
-} from '../../player/controller';
+} from '../../core/player/playerSetup';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useRxSubscriptions } from '../../hooks/useRxSubscriptions';
+import { useRxSubscriptions } from '../../core/hooks';
 
 export default function LibraryScreen() {
   const insets = useSafeAreaInsets();
@@ -75,22 +75,7 @@ export default function LibraryScreen() {
       setLoading(false);
       isLoadingRef.current = false;
     }
-  }; // ✅ Sin useCallback para evitar dependencias circulares
-
-  // ✅ COMENTAMOS useFocusEffect temporalmente para debuggear el bucle infinito
-  /*
-  useFocusEffect(
-    useCallback(() => {
-      console.log('[LibraryScreen] useFocusEffect triggered');
-      load();
-
-      // Cleanup para prevenir múltiples subscripciones
-      return () => {
-        console.log('[LibraryScreen] useFocusEffect cleanup');
-      };
-    }, [load]),
-  );
-  */
+  };
 
   if (loading) {
     return (
@@ -158,21 +143,6 @@ export default function LibraryScreen() {
         paddingTop: insets.top,
       }}
     >
-      {/* Botón de prueba con MP3 público para verificar el pipeline del player */}
-      {/* <Pressable
-        onPress={playTest}
-        style={{
-          margin: 12,
-          backgroundColor: '#22c55e',
-          padding: 10,
-          borderRadius: 8,
-        }}
-      >
-        <Text style={{ color: '#fff', fontWeight: '700' }}>
-          ▶️ Probar reproducción (HTTPS)
-        </Text>
-      </Pressable> */}
-
       <FlatList
         data={items}
         keyExtractor={s => String(s.id)}
