@@ -14,11 +14,6 @@ export class AuthUserService {
 
   constructor() {
     this.httpClient = new HttpClient(AppConfig.apiBaseUrl);
-
-    // Log de configuración para debugging
-    console.log('AuthUserService initialized with:', {
-      baseUrl: AppConfig.apiBaseUrl,
-    });
   }
 
   register(data: RegisterDTO): Observable<HttpResponse<any>> {

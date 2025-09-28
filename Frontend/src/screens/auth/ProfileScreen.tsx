@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NavigationProp } from '@react-navigation/native';
-import type { RootStackParamList } from '../../App';
+// import type { RootStackParamList } from '../../App';
 import type { ImageSourcePropType } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LoginResponse from '../../core/dtos/LoginResponse';
 import DEFAULT_AVATARS from '../../assets/defaultAvatars';
 import ProfileImage from '../../components/general/ProfileImage';
+import { RootStackParamList } from '../../../App';
 
 export default function ProfileScreen() {
   const rootNav = useNavigation<NavigationProp<RootStackParamList>>();

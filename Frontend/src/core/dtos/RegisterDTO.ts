@@ -1,4 +1,4 @@
-import { UserInstrument } from '../models/User';
+import { UserInstrument } from '../models/data/User';
 
 /**
  * DTO para el registro de usuario que coincide exactamente

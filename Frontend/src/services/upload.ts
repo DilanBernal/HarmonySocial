@@ -245,11 +245,18 @@ export function uploadSongMultipart(params: {
                   console.log(
                     '[uploadSongMultipart] attempting react-native-blob-util fetch for content://',
                   );
-                  const rbResp = await RNFetchBlob.config({ fileCache: true }).fetch('GET', audio.uri);
+                  const rbResp = await RNFetchBlob.config({
+                    fileCache: true,
+                  }).fetch('GET', audio.uri);
                   const localPath = rbResp.path();
-                  console.log('[uploadSongMultipart] react-native-blob-util saved to', localPath);
+                  console.log(
+                    '[uploadSongMultipart] react-native-blob-util saved to',
+                    localPath,
+                  );
                   form.append('file', {
-                    uri: RNFetchBlob.fs.isDir ? `file://${localPath}` : `file://${localPath}`,
+                    uri: RNFetchBlob.fs.isDir
+                      ? `file://${localPath}`
+                      : `file://${localPath}`,
                     name: fileName,
                     type: fileType,
                   } as any);

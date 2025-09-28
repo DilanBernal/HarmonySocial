@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { UserInstrument } from '../../core/models/User';
+import { UserInstrument } from '../../core/models/data/User';
 
 // Esquemas de validación por paso
 export const completeValidationSchemas = Yup.object({

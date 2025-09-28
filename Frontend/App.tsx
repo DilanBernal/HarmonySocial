@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Platform, PermissionsAndroid } from 'react-native';
@@ -12,13 +12,14 @@ import RegisterScreen from './src/screens/auth/RegisterScreen';
 import MainTabs from './src/navigation/MainTabs';
 
 import ArtistDetailsScreen from './src/screens/artist/ArtistDetailsScreen';
-import UserDetailsScreen from './src/screens/user/UserDetailsScreen';
+// import UserDetailsScreen from './src/screens/user/UserDetailsScreen';
 import SongDetailsScreen from './src/screens/song/SongDetailsScreen';
 
 export type RootStackParamList = {
   Login: undefined;
   Main: undefined;
   Register: undefined;
+  ResetPassword: undefined;
   ArtistDetails: undefined;
   UserDetails: undefined;
   SongDetails: undefined;
@@ -60,6 +61,8 @@ async function setupPlayerOnce() {
 }
 
 export default function App() {
+  const [canShowMainPage, setcanShowMainPage] = useState<boolean>(false);
+
   useEffect(() => {
     setupPlayerOnce();
   }, []);
@@ -71,18 +74,18 @@ export default function App() {
         initialRouteName="Login"
       >
         <Stack.Screen name="Login" component={LoginScreen} />
+        {canShowMainPage && <Stack.Screen name="Main" component={MainTabs} />}
         <Stack.Screen name="Register" component={RegisterScreen} />
-        <Stack.Screen name="Main" component={MainTabs} />
-        <Stack.Screen
+        {/* <Stack.Screen
           name="ArtistDetails"
           component={ArtistDetailsScreen}
           options={{ headerShown: true, title: 'Artista' }}
-        />
-        <Stack.Screen
+        /> */}
+        {/* <Stack.Screen
           name="UserDetails"
           component={UserDetailsScreen}
           options={{ headerShown: true, title: 'Usuario' }}
-        />
+        /> */}
         <Stack.Screen
           name="SongDetails"
           component={SongDetailsScreen}
