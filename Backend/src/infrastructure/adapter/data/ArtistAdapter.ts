@@ -4,10 +4,10 @@ import { AppDataSource } from "../../config/con_database";
 import ArtistEntity from "../../entities/ArtistEntity";
 import Artist, { ArtistStatus } from "../../../domain/models/Artist";
 import ArtistPort from "../../../domain/ports/data/ArtistPort";
-import { ArtistSearchFilters } from "@/application/dto/requests/Artist/ArtistSearchFilters";
+import { ArtistSearchFilters } from "../../../application/dto/requests/Artist/ArtistSearchFilters";
 import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes } from "../../../application/shared/errors/ApplicationError";
-import PaginationRequest from "@/application/dto/utils/PaginationRequest";
+import PaginationRequest from "../../../application/dto/utils/PaginationRequest";
 
 export default class ArtistAdapter implements ArtistPort {
   private repo: Repository<ArtistEntity>;

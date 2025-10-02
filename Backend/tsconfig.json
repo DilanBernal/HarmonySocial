@@ -9,12 +9,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "types": ["node", "jest"],
-    "baseUrl": "./",
-    "paths": {
-      "@/*": ["src/*"],
-      "@tests/*": ["tests/*"]
-    }
+    "types": ["node", "jest"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "tests/**/*.ts"],
   "exclude": ["node_modules", "dist"]

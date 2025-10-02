@@ -30,6 +30,7 @@ export default class UserService {
   private authPort: AuthPort;
   private emailPort: EmailPort;
   private loggerPort: LoggerPort;
+  private readonly _paginationMaxLimit: number = 150;
 
   constructor(
     userPort: UserPort,
@@ -50,9 +51,6 @@ export default class UserService {
     req: PaginationRequest<UserSearchParamsRequest>,
   ): Promise<ApplicationResponse<PaginationResponse<UserSearchRow>>> {
     try {
-      // const term = (req.general_filter ?? "").trim();
-      // if (!term) return ApplicationResponse.success<UserSearchRow[]>([]);
-      console.log(req);
       const resp = await this.userPort.searchUsers(
         PaginationRequest.create<UserSearchParamsRequest>(
           {
@@ -60,9 +58,11 @@ export default class UserService {
             full_name: req.filters?.full_name ?? "",
             username: req.filters?.username ?? "",
           },
-          Math.min(req.page_size, 50),
+          Math.min(req.page_size, this._paginationMaxLimit),
           req.general_filter,
-          req.page_size,
+          req.page_number,
+          req.first_id,
+          req.last_id,
         ),
       );
       if (!resp.success) return resp as any;

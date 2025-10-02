@@ -11,6 +11,7 @@ import {
   Repository,
   ILike,
   Like,
+  Brackets,
 } from "typeorm";
 import UserPort from "../../../domain/ports/data/UserPort";
 import UserEntity from "../../entities/UserEntity";
@@ -26,7 +27,7 @@ import UserBasicDataResponse from "../../../application/dto/responses/seg/user/U
 import NotFoundResponse from "../../../application/shared/responses/NotFoundResponse";
 import PaginationRequest from "../../../application/dto/utils/PaginationRequest";
 import PaginationResponse from "../../../application/dto/utils/PaginationResponse";
-import UserSearchParamsRequest from "@/application/dto/requests/User/UserSearchParamsRequest";
+import UserSearchParamsRequest from "../../../application/dto/requests/User/UserSearchParamsRequest";
 
 export default class UserAdapter implements UserPort {
   private userRepository: Repository<UserEntity>;
@@ -665,72 +666,73 @@ export default class UserAdapter implements UserPort {
     req: PaginationRequest<UserSearchParamsRequest>,
   ): Promise<ApplicationResponse<PaginationResponse<User>>> {
     try {
-      // Construir condición base con status y filtros
-      const baseCondition: FindOptionsWhere<UserEntity> = {
-        status: UserStatus.ACTIVE,
-        ...this.setUserFilters(req.filters!, req.general_filter),
-      };
+      console.log(req);
+      const queryBuilder = this.userRepository
+        .createQueryBuilder("app_user")
+        .select(
+          "app_user.id, app_user.email, app_user.full_name, app_user.username, app_user.learning_points, app_user.profile_image",
+        )
+        .where("app_user.status = :status", { status: UserStatus.ACTIVE })
+        .leftJoin("user_roles", "rol", "app_user.id = rol.user_id")
+        .andWhere(
+          new Brackets((qb) => {
+            if (req.filters?.email) {
+              qb.orWhere("app_user.normalized_email LIKE :email", {
+                email: req.filters.email.toUpperCase(),
+              });
+            }
+            if (req.filters?.username) {
+              qb.orWhere("app_user.normalized_username like :username", {
+                username: req.filters.username.toUpperCase() + "%",
+              });
+            }
+            if (req.filters?.full_name) {
+              qb.orWhere("app_user.full_name ILIKE :fullname", {
+                fullname: req.filters.full_name.toLowerCase() + "%",
+              });
+            }
+            if (req.general_filter) {
+              qb.orWhere("app_user.normalized_email LIKE :email", {
+                email: "%" + req.general_filter.toUpperCase() + "%",
+              });
+              qb.orWhere("app_user.normalized_username like :username", {
+                username: "%" + req.general_filter.toUpperCase() + "%",
+              });
+              qb.orWhere("app_user.full_name ILIKE :fullname", {
+                fullname: "%" + req.general_filter.toLowerCase() + "%",
+              });
+            }
+          }),
+        )
+        .andWhere("rol.role_id = 1");
 
-      // Agregar condición de paginación directamente al objeto base
-      if (req.first_id && req.last_id) {
-        baseCondition.id = Between(req.first_id, req.last_id);
-      } else if (req.first_id) {
-        baseCondition.id = LessThanOrEqual(req.first_id);
-      } else if (req.last_id) {
-        baseCondition.id = MoreThanOrEqual(req.last_id);
+      const rowCounts = await queryBuilder.getCount();
+
+      if (req.page_number) {
+        console.log(req.page_number);
+        queryBuilder.skip(req.page_number);
       }
+      queryBuilder.limit(req.page_size ?? 5);
 
-      // Condición final ya contiene todo combinado
-      const finalWhereCondition: FindOptionsWhere<UserEntity> = baseCondition;
+      if (req.first_id && req.last_id) {
+        queryBuilder.andWhere("app_user.id BETWEEN :firstId AND :lastId", {
+          firstId: req.first_id,
+          lastId: req.last_id,
+        });
+      } else if (req.first_id) {
+        queryBuilder.andWhere("app_user.id < :id", { id: req.first_id });
+      } else if (req.last_id) {
+        queryBuilder.andWhere("app_user.id > :id", { id: req.last_id });
+      }
+      const rows = await queryBuilder.getRawMany();
+      console.log(req);
 
-      const rows = await this.userRepository.find({
-        where: finalWhereCondition,
-        select: {
-          id: true,
-          email: true,
-          full_name: true,
-          username: true,
-          learning_points: true,
-          profile_image: true,
-        },
-        take: req.page_size,
-        skip: req.page_number ?? 0,
-      });
-
-      const rowCounts = await this.userRepository.count({
-        where: baseCondition,
-      });
-      const tempUser: User[] = [];
       const response: PaginationResponse<User> = PaginationResponse.create(
         rows,
-        req.page_size,
+        rows.length,
         rowCounts,
       );
-      // const term = `%${q}%`;
-      // const rows = await this.userRepository.find({
-      //   where: [
-      //     { username: ILike(term), status: Not(In(this.negativeStatus)) },
-      //     { full_name: ILike(term), status: Not(In(this.negativeStatus)) },
-      //     { email: ILike(term), status: Not(In(this.negativeStatus)) },
-      //   ],
-      //   take: Math.min(Math.max(limit || 10, 1), 50),
-      //   order: { id: "ASC" },
-      //   // selecciona solo lo necesario; añade/quita campos si hace falta
-      //   select: [
-      //     "id",
-      //     "username",
-      //     "full_name",
-      //     "email",
-      //     "profile_image",
-      //     "learning_points",
-      //     "favorite_instrument",
-      //     "status",
-      //     "created_at",
-      //     "updated_at",
-      //   ],
-      // });
 
-      // OJO: usa función flecha para mantener el this correcto
       return ApplicationResponse.success(response);
     } catch (e: any) {
       console.error(e);
@@ -771,28 +773,32 @@ export default class UserAdapter implements UserPort {
   private setUserFilters(
     filters: UserSearchParamsRequest,
     generalFilter?: string,
-  ): FindOptionsWhere<UserEntity> {
+  ): FindOptionsWhere<UserEntity>[] {
     console.log({ ...filters, generalFilter });
-    const whereOption: FindOptionsWhere<UserEntity> = {};
+    const whereOption: FindOptionsWhere<UserEntity>[] = [];
     if (filters.email) {
-      whereOption.normalized_email = Like(`${filters.email.toUpperCase()}%`);
+      whereOption.push({ normalized_email: Like(`${filters.email.toUpperCase()}%`) });
     }
     if (filters.username) {
-      whereOption.normalized_username = Like(`${filters.username.toUpperCase()}%`);
+      whereOption.push({ normalized_username: Like(`${filters.username.toUpperCase()}%`) });
     }
     if (filters.full_name) {
-      whereOption.full_name = Or(
-        ILike(`${filters.full_name.toUpperCase()}%`),
-        ILike(`${filters.full_name.toLowerCase()}%`),
-      );
+      whereOption.push({
+        full_name: Or(
+          ILike(`${filters.full_name.toUpperCase()}%`),
+          ILike(`${filters.full_name.toLowerCase()}%`),
+        ),
+      });
     }
     if (generalFilter) {
-      whereOption.normalized_email = Like(`${generalFilter.toUpperCase()}%`);
-      whereOption.normalized_username = Like(`${generalFilter.toUpperCase()}%`);
-      whereOption.full_name = Or(
-        ILike(`${generalFilter.toUpperCase()}%`),
-        ILike(`${generalFilter.toLowerCase()}%`),
-      );
+      whereOption.push({ normalized_email: Like(`${generalFilter.toUpperCase()}%`) });
+      whereOption.push({ normalized_username: Like(`${generalFilter.toUpperCase()}%`) });
+      whereOption.push({
+        full_name: Or(
+          ILike(`${generalFilter.toUpperCase()}%`),
+          ILike(`${generalFilter.toLowerCase()}%`),
+        ),
+      });
     }
     return whereOption;
   }
