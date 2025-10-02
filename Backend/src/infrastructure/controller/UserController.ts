@@ -1,9 +1,7 @@
 import UserService from "../../application/services/UserService";
 import AuthService from "../../application/services/AuthService";
 import { Request, Response } from "express";
-import { ILike } from 'typeorm';
 import User from "../../domain/models/User";
-import { EntityNotFoundError } from "typeorm";
 import { ErrorCodes } from "../../application/shared/errors/ApplicationError";
 import { ApplicationResponse } from "../../application/shared/ApplicationReponse";
 import RegisterRequest from "../../application/dto/requests/User/RegisterRequest";
@@ -14,6 +12,8 @@ import ResetPasswordRequest from "../../application/dto/requests/User/ResetPassw
 import VerifyEmailRequest from "../../application/dto/requests/User/VerifyEmailRequest";
 import NotFoundResponse from "../../application/shared/responses/NotFoundResponse";
 import LoggerPort from "../../domain/ports/utils/LoggerPort";
+import PaginationRequest from "../../application/dto/utils/PaginationRequest";
+import UserSearchParamsRequest from "../../application/dto/requests/User/UserSearchParamsRequest";
 
 export default class UserController {
   private userService: UserService;
@@ -109,19 +109,30 @@ export default class UserController {
     }
   }
 
-  async searchUsers(req: Request, res: Response) {
+  async searchPaginatedUsers(req: Request, res: Response) {
     try {
-      const q = String((req.query.q as string) ?? "").trim();
-      const limit = Math.min(Math.max(parseInt(String(req.query.limit ?? "10")) || 10, 1), 50);
+      const { full_name, username, email } = req.query;
+      const { page_size, page_number, last_id, first_id } = req.query;
+      const limit = Math.min(Math.max(parseInt(String(page_size ?? "5")), 1), 50);
 
-      const r = await this.userService.searchUsers(q, limit);
+      console.log({ full_name, username, email, page_number, last_id, fist_id: first_id, limit });
+
+      const r = await this.userService.searchUsers(
+        PaginationRequest.create<UserSearchParamsRequest>(
+          {
+            full_name: String(full_name ?? ""),
+            username: String(username ?? ""),
+            email: String(email ?? ""),
+          },
+          limit,
+        ),
+      );
       if (!r.success) {
         this.logger.appError(r);
         return res.status(500).json({ message: r.error?.message ?? "Error buscando usuarios" });
       }
 
-      // Devolvemos {rows: …} para que el frontend lo consuma sin tocar nada
-      return res.status(200).json({ rows: r.data ?? [] });
+      return res.status(200).json(r.data);
     } catch (e: any) {
       this.logger.error("searchUsers error", [e?.message]);
       return res.status(500).json({ message: "Error interno" });
@@ -143,15 +154,11 @@ export default class UserController {
     }
   }
 
-
-
   async loginUser(req: Request, res: Response) {
     const loginRequest: LoginRequest = req.body;
     try {
-      console.log(loginRequest);
       const authResponse = await this.authService.login(loginRequest);
 
-      console.log(authResponse);
       if (authResponse.success && authResponse.data) {
         return res.status(200).json({
           message: "Login exitoso",

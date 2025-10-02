@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import LoginRequest from "../../../application/dto/requests/User/LoginRequest";
-import AuthResponse from "../../../application/dto/responses/AuthResponse";
+import AuthResponse from "../../../application/dto/responses/seg/user/AuthResponse";
 import AuthPort from "../../../domain/ports/data/AuthPort";
 import envs from "../../config/environment-vars";
 import jwt from "jsonwebtoken";

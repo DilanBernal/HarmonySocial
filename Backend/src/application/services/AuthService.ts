@@ -4,7 +4,7 @@ import EmailPort from "../../domain/ports/utils/EmailPort";
 import LoggerPort from "../../domain/ports/utils/LoggerPort";
 import LoginRequest from "../dto/requests/User/LoginRequest";
 import VerifyEmailRequest from "../dto/requests/User/VerifyEmailRequest";
-import AuthResponse from "../dto/responses/AuthResponse";
+import AuthResponse from "../dto/responses/seg/user/AuthResponse";
 import { ApplicationResponse } from "../shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes, ErrorCode } from "../shared/errors/ApplicationError";
 import TokenPort from "../../domain/ports/utils/TokenPort";

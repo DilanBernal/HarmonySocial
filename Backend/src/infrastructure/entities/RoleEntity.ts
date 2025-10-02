@@ -9,7 +9,7 @@ import {
 } from "typeorm";
 import UserRoleEntity from "./UserRoleEntity";
 
-@Entity({ name: "roles" })
+@Entity({ name: "roles", schema: "seg" })
 @Index("UQ_role_name", ["name"], { unique: true })
 export default class RoleEntity {
   @PrimaryGeneratedColumn()

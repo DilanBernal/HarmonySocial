@@ -23,7 +23,7 @@ export class ApplicationError extends Error {
 export enum ErrorCodes {
   // Errores de dominio específicos
   USER_ALREADY_EXISTS,
-  VALUE_NOT_FOUND,
+  VALUE_NOT_FOUND = 1,
   INVALID_CREDENTIALS,
 
   // Errores de validación

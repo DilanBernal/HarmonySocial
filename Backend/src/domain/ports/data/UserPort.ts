@@ -1,6 +1,8 @@
-import UserBasicDataResponse from "../../../application/dto/responses/UserBasicDataResponse";
+import PaginationRequest from "@/application/dto/utils/PaginationRequest";
+import UserBasicDataResponse from "../../../application/dto/responses/seg/user/UserBasicDataResponse";
 import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
 import User from "../../models/User";
+import PaginationResponse from "@/application/dto/utils/PaginationResponse";
 
 export default interface UserPort {
   //Sección de creacion
@@ -18,13 +20,13 @@ export default interface UserPort {
   getUserStampsAndUserInfoByUserOrEmail(
     userOrEmail: string,
   ): Promise<ApplicationResponse<[string, string, number, string, string]>>;
+  existsUserByLoginRequest(userOrEmail: string): Promise<ApplicationResponse<boolean>>;
+  searchUsers(req: PaginationRequest<any>): Promise<ApplicationResponse<PaginationResponse<User>>>;
+  listUsers(limit: number): Promise<ApplicationResponse<User[]>>;
   // Batch fetch
   getUsersByIds(ids: number[]): Promise<ApplicationResponse<Array<User>>>;
   //Seccion de validación
   existsUserById(id: number): Promise<ApplicationResponse<boolean>>;
-  existsUserByLoginRequest(userOrEmail: string): Promise<ApplicationResponse<boolean>>;
-  searchUsers(q: string, limit: number): Promise<ApplicationResponse<User[]>>;
-  listUsers(limit: number): Promise<ApplicationResponse<User[]>>;
   existsUserByEmailOrUsername(
     email: string,
     username: string,

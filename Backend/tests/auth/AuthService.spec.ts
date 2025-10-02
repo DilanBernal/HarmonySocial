@@ -7,7 +7,7 @@ import TokenPort from "../../src/domain/ports/utils/TokenPort";
 import User, { UserInstrument, UserStatus } from "../../src/domain/models/User";
 import LoginRequest from "../../src/application/dto/requests/User/LoginRequest";
 import VerifyEmailRequest from "../../src/application/dto/requests/User/VerifyEmailRequest";
-import AuthResponse from "../../src/application/dto/responses/AuthResponse";
+import AuthResponse from "../../src/application/dto/responses/seg/user/AuthResponse";
 import { ApplicationResponse } from "../../src/application/shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes } from "../../src/application/shared/errors/ApplicationError";
 import UserRolePort from "@/domain/ports/data/UserRolePort";
@@ -66,7 +66,7 @@ const mockUserRole: jest.Mocked<UserRolePort> = {
   listRolesForUser: jest.fn(),
   listUsersForRole: jest.fn(),
   userHasRole: jest.fn(),
-}
+};
 
 describe("AuthService", () => {
   let authService: AuthService;
@@ -87,7 +87,7 @@ describe("AuthService", () => {
       mockEmailPort,
       mockLoggerPort,
       mockTokenPort,
-      mockUserRole
+      mockUserRole,
     );
   });
 
@@ -100,7 +100,13 @@ describe("AuthService", () => {
     it("debe autenticar un usuario exitosamente con username", async () => {
       mockUserPort.existsUserByLoginRequest.mockResolvedValue(ApplicationResponse.success(true));
       mockUserPort.getUserStampsAndUserInfoByUserOrEmail.mockResolvedValue(
-        ApplicationResponse.success(["security123", "concurrency123", 1, "avatar3", "VN87QREI1306068435075072"]),
+        ApplicationResponse.success([
+          "security123",
+          "concurrency123",
+          1,
+          "avatar3",
+          "VN87QREI1306068435075072",
+        ]),
       );
       mockAuthPort.loginUser.mockResolvedValue(mockAuthResponse);
       mockTokenPort.generateStamp.mockReturnValue("newConcurrencyStamp");
@@ -138,7 +144,13 @@ describe("AuthService", () => {
       // Configurar mocks
       mockUserPort.existsUserByLoginRequest.mockResolvedValue(ApplicationResponse.success(true));
       mockUserPort.getUserStampsAndUserInfoByUserOrEmail.mockResolvedValue(
-        ApplicationResponse.success(["security123", "concurrency123", 1, "avatar3", "VN87QREI1306068435075072"]),
+        ApplicationResponse.success([
+          "security123",
+          "concurrency123",
+          1,
+          "avatar3",
+          "VN87QREI1306068435075072",
+        ]),
       );
       mockAuthPort.loginUser.mockResolvedValue(mockAuthResponse);
       mockTokenPort.generateStamp.mockReturnValue("newConcurrencyStamp");
@@ -197,7 +209,13 @@ describe("AuthService", () => {
       // Configurar mocks para simular fallo en autenticación
       mockUserPort.existsUserByLoginRequest.mockResolvedValue(ApplicationResponse.success(true));
       mockUserPort.getUserStampsAndUserInfoByUserOrEmail.mockResolvedValue(
-        ApplicationResponse.success(["security123", "concurrency123", 1, "avatar6", "VN87QREI1306068435075072"]),
+        ApplicationResponse.success([
+          "security123",
+          "concurrency123",
+          1,
+          "avatar6",
+          "VN87QREI1306068435075072",
+        ]),
       );
 
       // Mock loginUser to return a falsy response that won't cause a runtime error
@@ -315,7 +333,13 @@ describe("AuthService", () => {
       // Configurar mocks para escenario exitoso
       mockUserPort.existsUserByLoginRequest.mockResolvedValue(ApplicationResponse.success(true));
       mockUserPort.getUserStampsAndUserInfoByUserOrEmail.mockResolvedValue(
-        ApplicationResponse.success(["security123", "concurrency123", 1, "avatar6", "VN87QREI1306068435075072"]),
+        ApplicationResponse.success([
+          "security123",
+          "concurrency123",
+          1,
+          "avatar6",
+          "VN87QREI1306068435075072",
+        ]),
       );
       mockAuthPort.loginUser.mockResolvedValue(mockAuthResponse);
 
@@ -350,7 +374,13 @@ describe("AuthService", () => {
       // Configurar mocks
       mockUserPort.existsUserByLoginRequest.mockResolvedValue(ApplicationResponse.success(true));
       mockUserPort.getUserStampsAndUserInfoByUserOrEmail.mockResolvedValue(
-        ApplicationResponse.success(["security123", "concurrency123", 42, "avatar6", "VN87QREI1306068435075072"]),
+        ApplicationResponse.success([
+          "security123",
+          "concurrency123",
+          42,
+          "avatar6",
+          "VN87QREI1306068435075072",
+        ]),
       );
 
       // AuthResponse sin ID inicial

@@ -179,23 +179,21 @@ router.post("/verify-email", async (req, res) => {
   }
 });
 
-
 router.get("/search", async (req, res) => {
   try {
-    const q = String(req.query.q ?? "").trim();
-    const limit = Math.min(Math.max(parseInt(String(req.query.limit ?? "10")) || 10, 1), 50);
-
-    const r = await userApp.searchUsers(q, limit);
-    if (!r.success) {
-      return res.status(500).json({ message: r.error?.message ?? "Error buscando usuarios" });
-    }
-    // el front espera { rows: [...] }
-    return res.json({ rows: r.data ?? [] });
+    await userController.searchPaginatedUsers(req, res);
   } catch (e: any) {
     return res.status(500).json({ message: e?.message ?? "Error interno" });
   }
 });
 
+router.get("/paginated", async (req, res) => {
+  try {
+    await userController.searchPaginatedUsers(req, res);
+  } catch (e: any) {
+    return res.status(500).json({ message: e?.message ?? "Error interno" });
+  }
+});
 
 router.get("/list", async (req, res) => {
   try {
@@ -209,7 +207,6 @@ router.get("/list", async (req, res) => {
     return res.status(500).json({ message: e?.message ?? "Error interno" });
   }
 });
-
 
 router.get("/", async (req, res) => {
   try {

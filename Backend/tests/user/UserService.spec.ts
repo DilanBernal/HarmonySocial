@@ -12,7 +12,7 @@ import UpdateUserRequest from "../../src/application/dto/requests/User/UpdateUse
 import ForgotPasswordRequest from "../../src/application/dto/requests/User/ForgotPasswordRequest";
 import ResetPasswordRequest from "../../src/application/dto/requests/User/ResetPasswordRequest";
 import VerifyEmailRequest from "../../src/application/dto/requests/User/VerifyEmailRequest";
-import UserResponse from "../../src/application/dto/responses/UserResponse";
+import UserResponse from "../../src/application/dto/responses/seg/user/UserResponse";
 import { ApplicationResponse } from "../../src/application/shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes } from "../../src/application/shared/errors/ApplicationError";
 
@@ -194,7 +194,9 @@ describe("UserService", () => {
       // Verificar
       expect(result.success).toBe(false);
       expect(result.error?.code).toBe(ErrorCodes.SERVER_ERROR);
-      expect(result.error?.message).toBe("Ocurrio un error inesperado en el registro, vuelva a intentarlo mas tarde");
+      expect(result.error?.message).toBe(
+        "Ocurrio un error inesperado en el registro, vuelva a intentarlo mas tarde",
+      );
     });
   });
 

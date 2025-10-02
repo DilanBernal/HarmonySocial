@@ -1,4 +1,3 @@
-
 services:
   pgadmin:
     image: dpage/pgadmin4
@@ -6,7 +5,7 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@harmonysocial.com
       PGADMIN_DEFAULT_PASSWORD: admin123
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_SERVER_MODE: "False"
     ports:
       - "8080:80"
     volumes:
@@ -19,11 +18,20 @@ services:
     container_name: harmony-azurite
     command: azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0 --location /data --debug /data/debug.log
     ports:
-      - "10000:10000"  # Blob service
-      - "10001:10001"  # Queue service  
-      - "10002:10002"  # Table service
+      - "10000:10000" # Blob service
+      - "10001:10001" # Queue service
+      - "10002:10002" # Table service
     volumes:
       - azurite_data:/data
+    networks:
+      - harmony-network
+
+  mailpit:
+    image: axllent/mailpit:edge
+    container_name: mailpit-docker
+    ports:
+      - "8025:8025" # Puerto externo corregido
+      - "1025:1025" # Puerto externo corregido
     networks:
       - harmony-network
 
