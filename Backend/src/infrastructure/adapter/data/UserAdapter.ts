@@ -662,13 +662,13 @@ export default class UserAdapter implements UserPort {
     }
   }
   async searchUsers(
-    req: PaginationRequest<any>,
+    req: PaginationRequest<UserSearchParamsRequest>,
   ): Promise<ApplicationResponse<PaginationResponse<User>>> {
     try {
       // Construir condición base con status y filtros
       const baseCondition: FindOptionsWhere<UserEntity> = {
         status: UserStatus.ACTIVE,
-        ...this.setUserFilters(req.filters),
+        ...this.setUserFilters(req.filters!, req.general_filter),
       };
 
       // Agregar condición de paginación directamente al objeto base
@@ -772,6 +772,7 @@ export default class UserAdapter implements UserPort {
     filters: UserSearchParamsRequest,
     generalFilter?: string,
   ): FindOptionsWhere<UserEntity> {
+    console.log({ ...filters, generalFilter });
     const whereOption: FindOptionsWhere<UserEntity> = {};
     if (filters.email) {
       whereOption.normalized_email = Like(`${filters.email.toUpperCase()}%`);

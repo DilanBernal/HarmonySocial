@@ -111,11 +111,20 @@ export default class UserController {
 
   async searchPaginatedUsers(req: Request, res: Response) {
     try {
-      const { full_name, username, email } = req.query;
+      const { full_name, username, email, q } = req.query;
       const { page_size, page_number, last_id, first_id } = req.query;
       const limit = Math.min(Math.max(parseInt(String(page_size ?? "5")), 1), 50);
 
-      console.log({ full_name, username, email, page_number, last_id, fist_id: first_id, limit });
+      console.log({
+        full_name,
+        username,
+        email,
+        page_number,
+        last_id,
+        fist_id: first_id,
+        limit,
+        q,
+      });
 
       const r = await this.userService.searchUsers(
         PaginationRequest.create<UserSearchParamsRequest>(
@@ -125,6 +134,7 @@ export default class UserController {
             email: String(email ?? ""),
           },
           limit,
+          String(q ?? ""),
         ),
       );
       if (!r.success) {

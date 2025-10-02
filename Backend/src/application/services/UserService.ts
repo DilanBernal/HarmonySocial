@@ -50,10 +50,9 @@ export default class UserService {
     req: PaginationRequest<UserSearchParamsRequest>,
   ): Promise<ApplicationResponse<PaginationResponse<UserSearchRow>>> {
     try {
-      console.log(req);
       // const term = (req.general_filter ?? "").trim();
       // if (!term) return ApplicationResponse.success<UserSearchRow[]>([]);
-
+      console.log(req);
       const resp = await this.userPort.searchUsers(
         PaginationRequest.create<UserSearchParamsRequest>(
           {
@@ -62,6 +61,7 @@ export default class UserService {
             username: req.filters?.username ?? "",
           },
           Math.min(req.page_size, 50),
+          req.general_filter,
           req.page_size,
         ),
       );

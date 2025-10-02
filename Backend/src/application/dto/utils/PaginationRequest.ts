@@ -9,11 +9,13 @@ export default class PaginationRequest<T> {
   public static create<T>(
     filters: T,
     pageSize: number,
+    generalFilter?: string,
     pageNumber?: number,
     firstId?: number,
     lastId?: number,
   ) {
     const response = new PaginationRequest<T>();
+    response.general_filter = generalFilter;
     response.filters = filters;
     response.page_size = pageSize;
     response.page_number = pageNumber;

@@ -179,14 +179,6 @@ router.post("/verify-email", async (req, res) => {
   }
 });
 
-router.get("/search", async (req, res) => {
-  try {
-    await userController.searchPaginatedUsers(req, res);
-  } catch (e: any) {
-    return res.status(500).json({ message: e?.message ?? "Error interno" });
-  }
-});
-
 router.get("/paginated", async (req, res) => {
   try {
     await userController.searchPaginatedUsers(req, res);
