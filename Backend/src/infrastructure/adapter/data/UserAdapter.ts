@@ -683,7 +683,6 @@ export default class UserAdapter implements UserPort {
       // Condición final ya contiene todo combinado
       const finalWhereCondition: FindOptionsWhere<UserEntity> = baseCondition;
 
-      console.log("Condición final:", finalWhereCondition);
       const rows = await this.userRepository.find({
         where: finalWhereCondition,
         select: {
@@ -697,19 +696,16 @@ export default class UserAdapter implements UserPort {
         take: req.page_size,
         skip: req.page_number ?? 0,
       });
-      console.log(rows);
 
       const rowCounts = await this.userRepository.count({
         where: baseCondition,
       });
-      console.log(rowCounts);
       const tempUser: User[] = [];
       const response: PaginationResponse<User> = PaginationResponse.create(
         rows,
         req.page_size,
         rowCounts,
       );
-      console.log(response);
       // const term = `%${q}%`;
       // const rows = await this.userRepository.find({
       //   where: [
@@ -776,7 +772,6 @@ export default class UserAdapter implements UserPort {
     filters: UserSearchParamsRequest,
     generalFilter?: string,
   ): FindOptionsWhere<UserEntity> {
-    console.log(filters, generalFilter);
     const whereOption: FindOptionsWhere<UserEntity> = {};
     if (filters.email) {
       whereOption.normalized_email = Like(`${filters.email.toUpperCase()}%`);

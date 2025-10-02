@@ -1,13 +1,15 @@
 import { ApplicationResponse } from "../shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes } from "../shared/errors/ApplicationError";
 import Artist, { ArtistStatus } from "../../domain/models/Artist";
-import ArtistPort, { ArtistSearchFilters } from "../../domain/ports/data/ArtistPort";
+import ArtistPort from "../../domain/ports/data/ArtistPort";
+import { ArtistSearchFilters } from "../dto/requests/Artist/ArtistSearchFilters";
 import ArtistCreateRequest from "../dto/requests/Artist/ArtistCreateRequest";
 import ArtistUpdateRequest from "../dto/requests/Artist/ArtistUpdateRequest";
 import ArtistResponse from "../dto/responses/ArtistResponse";
 import LoggerPort from "../../domain/ports/utils/LoggerPort";
 import RolePort from "../../domain/ports/data/RolePort";
 import UserRolePort from "../../domain/ports/data/UserRolePort";
+import PaginationRequest from "../dto/utils/PaginationRequest";
 
 export default class ArtistService {
   constructor(
@@ -123,7 +125,7 @@ export default class ArtistService {
 
   async search(filters: ArtistSearchFilters): Promise<ApplicationResponse<ArtistResponse[]>> {
     try {
-      const result = await this.port.search(filters);
+      const result = await this.port.searchPaginated(PaginationRequest.create(filters, 5));
       if (!result.success) return result as any;
       const data = (result.data || []).map(this.mapToResponse);
       return ApplicationResponse.success(data);

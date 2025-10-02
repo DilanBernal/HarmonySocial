@@ -36,7 +36,11 @@ router.post(
   (req, res) => controller.createAsAdmin(req, res),
 );
 router.get("/", (req, res) => controller.search(req, res));
+router.get("/search", (req, res) => controller.search(req, res));
 router.get("/:id", (req, res) => controller.getById(req, res));
+
+router.get("/paginated", async (req, res) => await controller.search(req, res));
+
 router.put(
   ":id",
   authenticateToken,
