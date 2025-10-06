@@ -43,11 +43,11 @@ export default class UserController {
         | "normalized_email"
         | "security_stamp"
       > = {
-        full_name: regRequest.full_name.trim(),
-        email: regRequest.email.trim(),
-        username: regRequest.username.trim(),
-        password: regRequest.password.trim(),
-        profile_image: regRequest.profile_image.trim(),
+        full_name: regRequest.full_name,
+        email: regRequest.email,
+        username: regRequest.username,
+        password: regRequest.password,
+        profile_image: regRequest.profile_image,
         favorite_instrument: regRequest.favorite_instrument,
       };
 

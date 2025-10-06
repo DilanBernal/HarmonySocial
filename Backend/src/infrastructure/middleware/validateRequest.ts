@@ -4,6 +4,9 @@ import { ObjectSchema } from "joi";
 
 export function validateRequest(schema: ObjectSchema) {
   return (req: Request, res: Response, next: NextFunction) => {
+    if (!req.body) {
+      return res.status(400).json({ message: "Request body is missing" });
+    }
     const { error, value } = schema.validate(req.body, { abortEarly: false, stripUnknown: true });
 
     if (error) {

@@ -10,7 +10,7 @@ import {
 import { FrienshipStatus } from "../../domain/models/Friendship";
 import UserEntity from "./UserEntity";
 
-@Entity({ name: "friendships" })
+@Entity({ name: "friendships", schema: "social" })
 @Index(["user", "friend", "status"], { unique: true })
 export default class FriendshipEntity {
   @PrimaryGeneratedColumn()

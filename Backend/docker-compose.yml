@@ -35,9 +35,23 @@ services:
     networks:
       - harmony-network
 
+  postgre_db:
+    image: postgres
+    container_name: harmony-postgres
+    environment:
+      POSTGRES_USER: harmony_user
+      POSTGRES_PASSWORD: harmony_password
+      POSTGRES_DB: harmonysocial
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - harmony-network
 volumes:
   pgadmin_data:
   azurite_data:
+  pgdata:
 
 networks:
   harmony-network:
