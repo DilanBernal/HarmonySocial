@@ -1,8 +1,3 @@
-export enum EmailPriority {
-  LOW = "low",
-  NORMAL = "normal",
-  HIGH = "high",
-}
 
 export interface EmailAttachment {
   filename: string;
@@ -27,7 +22,7 @@ export type Email = {
   replyTo?: string;
 
   // Configuraciones adicionales
-  priority?: EmailPriority;
+  priority?: "low" | "normal" | "high";
   attachments?: EmailAttachment[];
 
   // Metadatos simples

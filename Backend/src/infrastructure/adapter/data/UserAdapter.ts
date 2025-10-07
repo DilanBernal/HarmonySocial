@@ -622,7 +622,7 @@ export default class UserAdapter implements UserPort {
         return ApplicationResponse.success(false);
       }
       if (error instanceof QueryFailedError) {
-        return ApplicationResponse.failure(new ApplicationError("", 2));
+        return ApplicationResponse.failure(new ApplicationError("", ErrorCodes.DATABASE_ERROR, error.message, error));
       } else {
         return ApplicationResponse.failure(
           new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR, undefined, undefined),
