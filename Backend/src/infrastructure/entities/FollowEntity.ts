@@ -2,8 +2,8 @@ import { CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn
 import UserEntity from "./UserEntity";
 
 @Entity({ name: "user_follows", schema: "social" })
-export class UserFollowEntity {
-  @PrimaryGeneratedColumn()
+export default class UserFollowEntity {
+  @PrimaryGeneratedColumn({ type: "bigint" })
   id!: number;
 
   @ManyToOne(() => UserEntity, { nullable: false })

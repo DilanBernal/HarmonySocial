@@ -10,7 +10,7 @@ import VerifyEmailRequest from "../../src/application/dto/requests/User/VerifyEm
 import AuthResponse from "../../src/application/dto/responses/seg/user/AuthResponse";
 import { ApplicationResponse } from "../../src/application/shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes } from "../../src/application/shared/errors/ApplicationError";
-import UserRolePort from "@/domain/ports/data/UserRolePort";
+import UserRolePort from "../../src/domain/ports/data/UserRolePort";
 
 const mockUserPort: jest.Mocked<UserPort> = {
   createUser: jest.fn(),

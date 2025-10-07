@@ -4,11 +4,16 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from "typeorm";
+import ArtistEntity from "./ArtistEntity";
+import AlbumEntity from "./AlbumEntity";
+import UserEntity from "./UserEntity";
 
 @Entity({ name: "songs", schema: "music" })
 export default class SongEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: "bigint" })
   id!: number;
 
   @Column({ type: "varchar", length: 100 })
@@ -29,10 +34,10 @@ export default class SongEntity {
   @Column({ name: "key_note", type: "varchar", length: 10, nullable: true })
   keyNote?: string | null;
 
-  @Column({ type: "varchar", length: 100, nullable: true })
-  album?: string | null;
+  @ManyToOne(() => AlbumEntity)
+  @JoinColumn({ name: "album_id" })
+  album?: AlbumEntity;
 
-  // ✅ Cambiar a number
   @Column({ type: "int", nullable: true })
   decade?: number | null;
 
@@ -48,9 +53,6 @@ export default class SongEntity {
   @Column({ name: "difficulty_level", type: "varchar", length: 20, nullable: true })
   difficultyLevel?: "EASY" | "INTERMEDIATE" | "HARD" | null;
 
-  @Column({ type: "varchar", length: 100, nullable: true })
-  artist?: string | null;
-
   @Column({ name: "artist_id", type: "int", nullable: true })
   artistId?: number | null;
 
@@ -65,6 +67,14 @@ export default class SongEntity {
 
   @CreateDateColumn({ name: "created_at", type: "timestamp with time zone" })
   createdAt!: Date;
+
+  @ManyToOne(() => ArtistEntity)
+  @JoinColumn({ name: "artist_id" })
+  artist!: ArtistEntity | null;
+
+  @ManyToOne(() => UserEntity, { nullable: true })
+  @JoinColumn({ name: "user_id" })
+  user?: UserEntity | null;
 
   @UpdateDateColumn({ name: "updated_at", type: "timestamp with time zone", nullable: true })
   updatedAt!: Date | null;

@@ -13,7 +13,7 @@ import UserEntity from "./UserEntity";
 @Entity({ name: "friendships", schema: "social" })
 @Index(["user", "friend", "status"], { unique: true })
 export default class FriendshipEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: "bigint" })
   id!: number;
 
   @ManyToOne(() => UserEntity, { nullable: false })

@@ -18,7 +18,7 @@ export type CreateSongDTO = {
   duration?: number | null | string;
   bpm?: number | null | string;
   keyNote?: string | null;
-  album?: string | null;
+  album?: number;
   decade?: number | null | string;
   country?: string | null;
   instruments?: unknown | null;
@@ -44,7 +44,7 @@ export default class SongAdapter {
       duration: toInt(dto.duration),
       bpm: toInt(dto.bpm),
       keyNote: dto.keyNote ?? null,
-      album: dto.album ?? null,
+      album: { id: dto.album },
       decade: toInt(dto.decade),
       country: dto.country ?? null,
       instruments: dto.instruments ?? null,
@@ -83,6 +83,13 @@ export default class SongAdapter {
     const found = await this.repo.findOne({ where: { id } });
     if (!found) return null;
 
+    let albumObj: any = undefined;
+    if (dto.album !== undefined) {
+      // Si el DTO trae un id de álbum, busca el objeto AlbumEntity
+      const AlbumEntity = require("../../entities/AlbumEntity").default;
+      albumObj = await AppDataSource.getRepository(AlbumEntity).findOne({ where: { id: dto.album } });
+    }
+
     const partial: DeepPartial<SongEntity> = {
       ...(dto.title !== undefined && { title: dto.title }),
       ...(dto.audioUrl !== undefined && { audioUrl: dto.audioUrl }),
@@ -93,7 +100,7 @@ export default class SongAdapter {
       ...(dto.duration !== undefined && { duration: toInt(dto.duration) }),
       ...(dto.bpm !== undefined && { bpm: toInt(dto.bpm) }),
       ...(dto.keyNote !== undefined && { keyNote: dto.keyNote ?? null }),
-      ...(dto.album !== undefined && { album: dto.album ?? null }),
+      ...(dto.album !== undefined && { album: albumObj }),
       ...(dto.decade !== undefined && { decade: toInt(dto.decade) }),
       ...(dto.country !== undefined && { country: dto.country ?? null }),
       ...(dto.instruments !== undefined && { instruments: dto.instruments ?? null }),

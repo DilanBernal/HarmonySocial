@@ -8,7 +8,9 @@ import RoleEntity from "../entities/RoleEntity";
 import UserRoleEntity from "../entities/UserRoleEntity";
 import PermissionEntity from "../entities/PermissionEntity";
 import RolePermissionEntity from "../entities/RolePermissionEntity";
-import { UserFollowEntity } from "../entities/FollowEntity";
+import UserFollowEntity from "../entities/FollowEntity";
+import AlbumEntity from "../entities/AlbumEntity";
+import MusicTheoryEntity from "../entities/MusicTheoryEntity";
 
 export const AppDataSource = new DataSource({
   type: "postgres",
@@ -30,6 +32,8 @@ export const AppDataSource = new DataSource({
     PermissionEntity,
     RolePermissionEntity,
     UserFollowEntity,
+    AlbumEntity,
+    MusicTheoryEntity
   ],
 });
 

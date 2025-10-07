@@ -1,4 +1,4 @@
-import { ArtistSearchFilters } from "@/application/dto/requests/Artist/ArtistSearchFilters";
+import { ArtistSearchFilters } from "../../../application/dto/requests/Artist/ArtistSearchFilters";
 import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
 import Artist, { ArtistStatus } from "../../models/Artist";
 import PaginationRequest from "../../../application/dto/utils/PaginationRequest";

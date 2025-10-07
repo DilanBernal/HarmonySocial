@@ -575,7 +575,6 @@ export default class UserService {
         updateData.profile_image = updateRequest.profile_image.trim();
       if (updateRequest.favorite_instrument !== undefined)
         updateData.favorite_instrument = updateRequest.favorite_instrument;
-      // is_artist removed; role-based system now controls artist status
 
       // Si se está actualizando la contraseña
       if (updateRequest.new_password && updateRequest.current_password) {
@@ -646,7 +645,6 @@ export default class UserService {
         user.concurrency_stamp,
       );
 
-      // Enviar email de recuperación
       const recoveryEmail: Email = {
         to: [user.email],
         from: envs.EMAIL_FROM,
@@ -714,12 +712,8 @@ export default class UserService {
         );
       }
 
-      // Encriptar nueva contraseña
       const hashPassword = await this.authPort.encryptPassword(request.newPassword);
       const newSecurityStamp = await this.tokenPort.generateStamp();
-
-      // Actualizar contraseña y security stamp
-      // Nota: Necesitarías implementar una búsqueda por security_stamp o pasar el user ID en el token
 
       return ApplicationResponse.emptySuccess();
     } catch (error: unknown) {
