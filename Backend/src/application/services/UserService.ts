@@ -97,10 +97,6 @@ export default class UserService {
     }
   }
 
-  /**
-   * Lista compacta de usuarios (para fallback del frontend).
-   * Devuelve un ApplicationResponse<UserSearchRow[]>
-   */
   async listUsers(limit = 100): Promise<ApplicationResponse<UserSearchRow[]>> {
     try {
       const resp = await this.userPort.listUsers(Math.min(limit, 1000));
