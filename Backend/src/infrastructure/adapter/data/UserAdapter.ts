@@ -570,12 +570,13 @@ export default class UserAdapter implements UserPort {
   async existsUserByLoginRequest(userOrEmail: string): Promise<ApplicationResponse<boolean>> {
     try {
       const q = userOrEmail.trim().toLowerCase();
+      const whereOptions: FindOptionsWhere<UserEntity>[] = [
+        { normalized_email: q.toUpperCase(), status: Not(In(this.negativeStatus)) },
+        { normalized_username: q.toUpperCase(), status: Not(In(this.negativeStatus)) },
+      ];
 
-      const count = await this.userRepository
-        .createQueryBuilder("u")
-        .where("(LOWER(u.email) = :q OR LOWER(u.username) = :q)", { q })
-        .andWhere("u.status = :active", { active: UserStatus.ACTIVE })
-        .getCount();
+      const count = await this.userRepository.count({ where: whereOptions });
+
 
       return ApplicationResponse.success(count > 0);
     } catch (error: unknown) {
