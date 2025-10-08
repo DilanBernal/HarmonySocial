@@ -143,6 +143,13 @@ export default class AuthService {
   }
 
   async confirmEmail(req: VerifyEmailRequest): Promise<ApplicationResponse<boolean>> {
+    try {
+      if (!req) {
+        return ApplicationResponse.failure(new ApplicationError("No se puede verificar una solicitud vacia", ErrorCodes.VALIDATION_ERROR));
+      }
+    } catch (error) {
+
+    }
     return ApplicationResponse.success(true);
   }
 }

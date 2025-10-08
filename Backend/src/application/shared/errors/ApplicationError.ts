@@ -30,6 +30,7 @@ export enum ErrorCodes {
   VALIDATION_ERROR = 20,
   REQUIRED_FIELD = 21,
   INVALID_EMAIL = 22,
+  EMPTY_REQUEST = 23,
 
   // Errores de almacenamiento en la nube (Azure Blob Storage) (50+)
   /** El blob (archivo) no fue encontrado en el almacenamiento */

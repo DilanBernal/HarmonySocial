@@ -1,4 +1,4 @@
-import PaginationRequest from '../../src/application/dto/utils/PaginationRequest';
+import PaginationRequest from '../../../src/application/dto/utils/PaginationRequest';
 
 describe('PaginationRequest', () => {
   type FilterType = { name?: string; age?: number };

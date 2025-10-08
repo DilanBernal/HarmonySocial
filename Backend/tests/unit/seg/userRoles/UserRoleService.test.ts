@@ -1,5 +1,5 @@
-import UserRoleService from "../../../src/application/services/UserRoleService";
-import { ApplicationError, ErrorCodes } from "../../../src/application/shared/errors/ApplicationError";
+import UserRoleService from "../../../../src/application/services/UserRoleService";
+import { ApplicationError, ErrorCodes } from "../../../../src/application/shared/errors/ApplicationError";
 
 const mockUserRolePort = {
   assignRoleToUser: jest.fn(),

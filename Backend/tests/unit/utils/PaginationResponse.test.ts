@@ -1,4 +1,4 @@
-import PaginationResponse from "../../src/application/dto/utils/PaginationResponse";
+import PaginationResponse from "../../../src/application/dto/utils/PaginationResponse";
 
 describe('PaginationResponse', () => {
   type Item = { id: number; name: string };

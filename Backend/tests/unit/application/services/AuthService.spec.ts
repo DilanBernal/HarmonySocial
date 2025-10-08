@@ -1,17 +1,17 @@
-import AuthService from "../../../src/application/services/AuthService";
-import LoginRequest from "../../../src/application/dto/requests/User/LoginRequest";
-import VerifyEmailRequest from "../../../src/application/dto/requests/User/VerifyEmailRequest";
-import AuthResponse from "../../../src/application/dto/responses/seg/user/AuthResponse";
-import { ApplicationResponse } from "../../../src/application/shared/ApplicationReponse";
-import { ApplicationError, ErrorCodes } from "../../../src/application/shared/errors/ApplicationError";
+import AuthService from "../../../../src/application/services/AuthService";
+import LoginRequest from "../../../../src/application/dto/requests/User/LoginRequest";
+import VerifyEmailRequest from "../../../../src/application/dto/requests/User/VerifyEmailRequest";
+import AuthResponse from "../../../../src/application/dto/responses/seg/user/AuthResponse";
+import { ApplicationResponse } from "../../../../src/application/shared/ApplicationReponse";
+import { ApplicationError, ErrorCodes } from "../../../../src/application/shared/errors/ApplicationError";
 
 // Importar los puertos para tiparlos correctamente
-import UserPort from "../../../src/domain/ports/data/UserPort";
-import AuthPort from "../../../src/domain/ports/data/AuthPort";
-import EmailPort from "../../../src/domain/ports/utils/EmailPort";
-import LoggerPort from "../../../src/domain/ports/utils/LoggerPort";
-import TokenPort from "../../../src/domain/ports/utils/TokenPort";
-import UserRolePort from "../../../src/domain/ports/data/UserRolePort";
+import UserPort from "../../../../src/domain/ports/data/UserPort";
+import AuthPort from "../../../../src/domain/ports/data/AuthPort";
+import EmailPort from "../../../../src/domain/ports/utils/EmailPort";
+import LoggerPort from "../../../../src/domain/ports/utils/LoggerPort";
+import TokenPort from "../../../../src/domain/ports/utils/TokenPort";
+import UserRolePort from "../../../../src/domain/ports/data/UserRolePort";
 
 /**
  * Pruebas unitarias para AuthService
@@ -425,6 +425,18 @@ describe("AuthService", () => {
         // Verificaciones - actualmente la implementación es simple
         expect(result.success).toBe(true);
         expect(result.data).toBe(true);
+      });
+    });
+    describe("Casos de error", () => {
+      it("Debe saltar error cuando no exista el usuario", async () => {
+        const datosDePrueba: VerifyEmailRequest = {
+          token: "valid_token_123",
+          email: "tesxtdsfsdf@example.com"
+        }
+
+        const result = await authService.confirmEmail(datosDePrueba);
+
+        expect(result.success).toBe(false);
       });
     });
   });

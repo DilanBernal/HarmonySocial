@@ -1,5 +1,5 @@
-import { findRegex } from '../../src/application/shared/utils/regexIndex';
-import { userValidations } from "../../src/application/shared/utils/regex/userValidations";
+import { findRegex } from '../../../src/application/shared/utils/regexIndex';
+import { userValidations } from "../../../src/application/shared/utils/regex/userValidations";
 
 describe('userValidations', () => {
   it('should contain all expected regex names', () => {
