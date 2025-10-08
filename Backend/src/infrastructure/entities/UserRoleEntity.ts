@@ -9,10 +9,10 @@ import {
 import UserEntity from "./UserEntity";
 import RoleEntity from "./RoleEntity";
 
-@Entity({ name: "user_roles" })
+@Entity({ name: "user_roles", schema: "seg" })
 @Unique("UQ_user_role", ["user", "role"])
 export default class UserRoleEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: "bigint" })
   id!: number;
 
   @ManyToOne(() => UserEntity, { eager: false, onDelete: "CASCADE" })

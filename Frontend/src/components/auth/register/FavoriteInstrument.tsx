@@ -2,7 +2,7 @@ import React from 'react';
 import { Control, UseFormSetValue, useWatch } from 'react-hook-form';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { RegisterFormData } from '../../../core/dtos/RegisterFormData';
-import { UserInstrument } from '../../../core/models/User';
+import { UserInstrument } from '../../../core/models/data/User';
 import InstrumentOption from './InstrumentOption';
 
 export type instrumentOptionType = {

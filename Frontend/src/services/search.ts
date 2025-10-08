@@ -1,16 +1,47 @@
-import { api } from './api';
-export type SearchUser   = { id: string; name: string; username?: string; avatarUrl?: string; email?: string };
+import HttpClient from '../core/services/HttpClient';
+import { AppConfig } from '../config/AppConfig';
+import { Observable, forkJoin, of, Subject } from 'rxjs';
+import {
+  map,
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  switchMap,
+} from 'rxjs/operators';
+import { HttpResponse } from '../core/models/utils/HttpResponse';
+export type SearchUser = {
+  id: string;
+  name: string;
+  username?: string;
+  avatarUrl?: string;
+  email?: string;
+};
 export type SearchArtist = { id: string; name: string; avatarUrl?: string };
-export type SearchSong   = { id: string; title: string; audioUrl: string; artwork?: string; artist?: string };
+export type SearchSong = {
+  id: string;
+  title: string;
+  audioUrl: string;
+  artwork?: string;
+  artist?: string;
+};
 
-export type SearchResponse = { users: SearchUser[]; artists: SearchArtist[]; songs: SearchSong[] };
+export type SearchResponse = {
+  users: SearchUser[];
+  artists: SearchArtist[];
+  songs: SearchSong[];
+};
 
 function norm(s?: string) {
   return (s ?? '')
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase().trim().replace(/\s+/g, ' ');
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, ' ');
 }
-function has(a?: string, b?: string) { return norm(a).includes(norm(b)); }
+function has(a?: string, b?: string) {
+  return norm(a).includes(norm(b));
+}
 
 function pickRowsDeep(obj: any): any[] {
   const seen = new Set<any>();
@@ -22,11 +53,14 @@ function pickRowsDeep(obj: any): any[] {
 
     if (Array.isArray(cur)) {
       if (cur.length === 0) continue;
-      if (typeof cur[0] === 'object') return cur; 
+      if (typeof cur[0] === 'object') return cur;
       continue;
     }
     if (Array.isArray(cur.rows)) return cur.rows;
-    if (Array.isArray(cur.data)) return typeof cur.data[0] === 'object' ? cur.data : pickRowsDeep(cur.data);
+    if (Array.isArray(cur.data))
+      return typeof cur.data[0] === 'object'
+        ? cur.data
+        : pickRowsDeep(cur.data);
     if (Array.isArray(cur.items)) return cur.items;
     if (Array.isArray(cur.users)) return cur.users;
     if (Array.isArray(cur.result)) return cur.result;
@@ -59,72 +93,216 @@ const mapSong = (s: any): SearchSong => ({
   artist: s.artist_name ?? s.artist,
 });
 
-export const SearchService = {
-  async searchAll(q: string): Promise<SearchResponse> {
-    const query = q.trim();
-    if (!query) return { users: [], artists: [], songs: [] };
+export class SearchService {
+  private httpClient: HttpClient;
+  private searchSubject = new Subject<string>();
+  private lastSearchResults: SearchResponse = {
+    users: [],
+    artists: [],
+    songs: [],
+  };
 
-    try {
-      const [u, a, s] = await Promise.all([
-        api.get<any>('/users/search',   { params: { q: query, limit: 10 } }),
-        api.get<any>('/artists/search', { params: { q: query, limit: 10 } }),
-        api.get<any>('/songs/search',   { params: { q: query, limit: 10 } }),
-      ]);
-      const uRows = pickRowsDeep(u).map(mapUser);
-      const aRows = pickRowsDeep(a).map(mapArtist);
-      const sRows = pickRowsDeep(s).map(mapSong);
-      if (uRows.length || aRows.length || sRows.length) {
-        console.log('[Search]/search =>', { users: uRows.length, artists: aRows.length, songs: sRows.length });
-        return { users: uRows, artists: aRows, songs: sRows };
-      }
-      console.log('[Search]/search sin resultados → fallback');
-    } catch (e) {
-      console.log('[Search]/search no disponible → fallback. Motivo:', (e as Error)?.message);
+  constructor() {
+    this.httpClient = new HttpClient(AppConfig.apiBaseUrl);
+
+    // Setup debounced search
+    this.setupDebouncedSearch();
+  }
+
+  private setupDebouncedSearch() {
+    this.searchSubject
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap(query => this.searchAll(query)),
+      )
+      .subscribe({
+        next: results => {
+          this.lastSearchResults = results;
+        },
+        error: error => {
+          console.error('Debounced search error:', error);
+        },
+      });
+  }
+
+  searchAll(query: string): Observable<SearchResponse> {
+    const q = query.trim();
+    if (!q) {
+      return of({ users: [], artists: [], songs: [] });
     }
 
-    const [usersList, artistsList, songsList] = await Promise.all([
-      api.get<any>('/app_user', { params: { limit: 500 } })
-         .catch(() => api.get<any>('/users', { params: { limit: 500 } })
-         .catch(() => api.get<any>('/users/list', { params: { limit: 500 } })
-         .catch(() => ({ rows: [] })))),
-      api.get<any>('/artists', { params: { limit: 500 } }).catch(() => ({ rows: [] })),
-      api.get<any>('/songs',   { params: { limit: 500, offset: 0 } }).catch(() => ({ rows: [] })),
-    ]);
+    console.log('Starting search for:', q);
 
-    try { console.log('[Search] raw users =>', JSON.stringify(usersList).slice(0, 400)); } catch {}
-    try { console.log('[Search] raw artists =>', JSON.stringify(artistsList).slice(0, 200)); } catch {}
-    try { console.log('[Search] raw songs =>', JSON.stringify(songsList).slice(0, 200)); } catch {}
+    // Try optimized search endpoints first
+    const optimizedSearch = forkJoin({
+      users: this.httpClient
+        .get<any>(`/users/search?q=${encodeURIComponent(q)}&limit=10`)
+        .pipe(catchError(() => of({ data: [] }))),
+      artists: this.httpClient
+        .get<any>(`/artists/search?q=${encodeURIComponent(q)}&limit=10`)
+        .pipe(catchError(() => of({ data: [] }))),
+      songs: this.httpClient
+        .get<any>(`/songs/search?q=${encodeURIComponent(q)}&limit=10`)
+        .pipe(catchError(() => of({ data: [] }))),
+    }).pipe(
+      map(({ users, artists, songs }) => {
+        const uRows = pickRowsDeep(users.data).map(mapUser);
+        const aRows = pickRowsDeep(artists.data).map(mapArtist);
+        const sRows = pickRowsDeep(songs.data).map(mapSong);
 
-    const usersRaw   = pickRowsDeep(usersList);
-    const artistsRaw = pickRowsDeep(artistsList);
-    const songsRaw   = pickRowsDeep(songsList);
+        if (uRows.length || aRows.length || sRows.length) {
+          console.log('[Search] Optimized results:', {
+            users: uRows.length,
+            artists: aRows.length,
+            songs: sRows.length,
+          });
+          return { users: uRows, artists: aRows, songs: sRows };
+        }
 
-    console.log('[Search] fallback fetched =>', {
-      users: usersRaw.length, artists: artistsRaw.length, songs: songsRaw.length,
-    });
+        throw new Error('No results from optimized search');
+      }),
+    );
 
-    const users = usersRaw
-      .filter((u: any) =>
-        has(u.username,  query) ||
-        has(u.full_name, query) ||
-        has(u.name,      query) ||
-        has(u.email,     query)
-      )
-      .slice(0, 10)
-      .map(mapUser);
+    // Fallback to full search if optimized search fails
+    const fallbackSearch = forkJoin({
+      users: this.httpClient
+        .get<any>(`/app_user?limit=500`)
+        .pipe(
+          catchError(() =>
+            this.httpClient
+              .get<any>(`/users?limit=500`)
+              .pipe(
+                catchError(() =>
+                  this.httpClient
+                    .get<any>(`/users/list?limit=500`)
+                    .pipe(catchError(() => of({ data: { rows: [] } }))),
+                ),
+              ),
+          ),
+        ),
+      artists: this.httpClient
+        .get<any>(`/artists?limit=500`)
+        .pipe(catchError(() => of({ data: { rows: [] } }))),
+      songs: this.httpClient
+        .get<any>(`/songs?limit=500&offset=0`)
+        .pipe(catchError(() => of({ data: { rows: [] } }))),
+    }).pipe(
+      map(({ users, artists, songs }) => {
+        const usersRaw = pickRowsDeep(users.data);
+        const artistsRaw = pickRowsDeep(artists.data);
+        const songsRaw = pickRowsDeep(songs.data);
 
-    const artists = artistsRaw
-      .filter((a: any) => has(a.artist_name ?? a.name, query))
-      .slice(0, 10)
-      .map(mapArtist);
+        console.log('[Search] Fallback data fetched:', {
+          users: usersRaw.length,
+          artists: artistsRaw.length,
+          songs: songsRaw.length,
+        });
 
-    const songs = songsRaw
-      .filter((s: any) => has(s.title, query) || has(s.artist_name ?? s.artist, query))
-      .slice(0, 10)
-      .map(mapSong);
+        const filteredUsers = usersRaw
+          .filter(
+            (u: any) =>
+              has(u.username, q) ||
+              has(u.full_name, q) ||
+              has(u.name, q) ||
+              has(u.email, q),
+          )
+          .slice(0, 10)
+          .map(mapUser);
 
-    console.log('[Search] fallback filtered =>', { users: users.length, artists: artists.length, songs: songs.length });
+        const filteredArtists = artistsRaw
+          .filter((a: any) => has(a.artist_name ?? a.name, q))
+          .slice(0, 10)
+          .map(mapArtist);
 
-    return { users, artists, songs };
-  },
-};
+        const filteredSongs = songsRaw
+          .filter(
+            (s: any) => has(s.title, q) || has(s.artist_name ?? s.artist, q),
+          )
+          .slice(0, 10)
+          .map(mapSong);
+
+        console.log('[Search] Fallback filtered results:', {
+          users: filteredUsers.length,
+          artists: filteredArtists.length,
+          songs: filteredSongs.length,
+        });
+
+        return {
+          users: filteredUsers,
+          artists: filteredArtists,
+          songs: filteredSongs,
+        };
+      }),
+    );
+
+    return optimizedSearch.pipe(
+      catchError(error => {
+        console.log(
+          '[Search] Optimized search failed, using fallback:',
+          error.message,
+        );
+        return fallbackSearch;
+      }),
+    );
+  }
+
+  // Método para búsqueda con debounce
+  searchWithDebounce(query: string): void {
+    this.searchSubject.next(query);
+  }
+
+  // Obtener los últimos resultados de búsqueda
+  getLastSearchResults(): SearchResponse {
+    return this.lastSearchResults;
+  }
+
+  // Búsquedas específicas por tipo
+  searchUsers(query: string): Observable<HttpResponse<SearchUser[]>> {
+    return this.httpClient
+      .get<any>(`/users/search?q=${encodeURIComponent(query)}&limit=20`)
+      .pipe(
+        map(response => ({
+          ...response,
+          data: pickRowsDeep(response.data).map(mapUser),
+        })),
+        catchError(error => {
+          console.error('SearchService.searchUsers - Error:', error);
+          return of({ data: [], status: 500, statusText: 'Error' });
+        }),
+      );
+  }
+
+  searchArtists(query: string): Observable<HttpResponse<SearchArtist[]>> {
+    return this.httpClient
+      .get<any>(`/artists/search?q=${encodeURIComponent(query)}&limit=20`)
+      .pipe(
+        map(response => ({
+          ...response,
+          data: pickRowsDeep(response.data).map(mapArtist),
+        })),
+        catchError(error => {
+          console.error('SearchService.searchArtists - Error:', error);
+          return of({ data: [], status: 500, statusText: 'Error' });
+        }),
+      );
+  }
+
+  searchSongs(query: string): Observable<HttpResponse<SearchSong[]>> {
+    return this.httpClient
+      .get<any>(`/songs/search?q=${encodeURIComponent(query)}&limit=20`)
+      .pipe(
+        map(response => ({
+          ...response,
+          data: pickRowsDeep(response.data).map(mapSong),
+        })),
+        catchError(error => {
+          console.error('SearchService.searchSongs - Error:', error);
+          return of({ data: [], status: 500, statusText: 'Error' });
+        }),
+      );
+  }
+}
+
+// Exportar instancia singleton
+export const searchService = new SearchService();

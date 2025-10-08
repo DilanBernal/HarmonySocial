@@ -8,7 +8,7 @@ import UpdateUserRequest from "../dto/requests/User/UpdateUserRequest";
 import ForgotPasswordRequest from "../dto/requests/User/ForgotPasswordRequest";
 import ResetPasswordRequest from "../dto/requests/User/ResetPasswordRequest";
 import VerifyEmailRequest from "../dto/requests/User/VerifyEmailRequest";
-import UserResponse from "../dto/responses/UserResponse";
+import UserResponse from "../dto/responses/seg/user/UserResponse";
 import { ApplicationResponse } from "../shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes } from "../shared/errors/ApplicationError";
 import LoggerPort from "../../domain/ports/utils/LoggerPort";
@@ -18,22 +18,19 @@ import TokenPort from "../../domain/ports/utils/TokenPort";
 import RolePort from "../../domain/ports/data/RolePort";
 import { findRegex } from "../shared/utils/regex";
 import NotFoundResponse from "../shared/responses/NotFoundResponse";
-import UserBasicDataResponse from "../dto/responses/UserBasicDataResponse";
+import UserBasicDataResponse from "../dto/responses/seg/user/UserBasicDataResponse";
 import UserRolePort from "../../domain/ports/data/UserRolePort";
-
-export type UserSearchRow = {
-  id: number;
-  username: string;
-  full_name: string;
-  email: string;
-  profile_image: string | null;
-};
+import { UserSearchRow } from "../dto/responses/seg/user/UserSearchRow";
+import PaginationRequest from "../dto/utils/PaginationRequest";
+import UserSearchParamsRequest from "../dto/requests/User/UserSearchParamsRequest";
+import PaginationResponse from "../dto/utils/PaginationResponse";
 
 export default class UserService {
   private userPort: UserPort;
   private authPort: AuthPort;
   private emailPort: EmailPort;
   private loggerPort: LoggerPort;
+  private readonly _paginationMaxLimit: number = 150;
 
   constructor(
     userPort: UserPort,
@@ -50,17 +47,27 @@ export default class UserService {
     this.loggerPort = logger;
   }
 
-
-  
-  async searchUsers(q: string, limit = 10): Promise<ApplicationResponse<UserSearchRow[]>> {
+  async searchUsers(
+    req: PaginationRequest<UserSearchParamsRequest>,
+  ): Promise<ApplicationResponse<PaginationResponse<UserSearchRow>>> {
     try {
-      const term = (q ?? '').trim();
-      if (!term) return ApplicationResponse.success<UserSearchRow[]>([]);
-
-      const resp = await this.userPort.searchUsers(term, Math.min(limit, 50));
+      const resp = await this.userPort.searchUsers(
+        PaginationRequest.create<UserSearchParamsRequest>(
+          {
+            email: req.filters?.email ?? "",
+            full_name: req.filters?.full_name ?? "",
+            username: req.filters?.username ?? "",
+          },
+          Math.min(req.page_size, this._paginationMaxLimit),
+          req.general_filter,
+          req.page_number,
+          req.first_id,
+          req.last_id,
+        ),
+      );
       if (!resp.success) return resp as any;
 
-      const users = (resp.data ?? []).map<UserSearchRow>((u: any) => ({
+      const users = (resp.data?.rows ?? []).map<UserSearchRow>((u: any) => ({
         id: u.id,
         username: u.username,
         full_name: u.full_name,
@@ -68,25 +75,28 @@ export default class UserService {
         profile_image: u.profile_image ?? null,
       }));
 
-      return ApplicationResponse.success(users);
+      return ApplicationResponse.success(
+        PaginationResponse.create(users, resp.data!.page_size, resp.data!.total_rows),
+      );
     } catch (error: unknown) {
       if (error instanceof ApplicationResponse) return error;
       if (error instanceof Error) {
-        this.loggerPort.error('Error en searchUsers', [error.name, error.message, error]);
+        this.loggerPort.error("Error en searchUsers", [error.name, error.message, error]);
         return ApplicationResponse.failure(
-          new ApplicationError('Error interno en búsqueda de usuarios', ErrorCodes.SERVER_ERROR, [error.name, error.message], error),
+          new ApplicationError(
+            "Error interno en búsqueda de usuarios",
+            ErrorCodes.SERVER_ERROR,
+            [error.name, error.message],
+            error,
+          ),
         );
       }
       return ApplicationResponse.failure(
-        new ApplicationError('Error desconocido', ErrorCodes.SERVER_ERROR),
+        new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR),
       );
     }
   }
 
-  /**
-   * Lista compacta de usuarios (para fallback del frontend).
-   * Devuelve un ApplicationResponse<UserSearchRow[]>
-   */
   async listUsers(limit = 100): Promise<ApplicationResponse<UserSearchRow[]>> {
     try {
       const resp = await this.userPort.listUsers(Math.min(limit, 1000));
@@ -104,13 +114,18 @@ export default class UserService {
     } catch (error: unknown) {
       if (error instanceof ApplicationResponse) return error;
       if (error instanceof Error) {
-        this.loggerPort.error('Error en listUsers', [error.name, error.message, error]);
+        this.loggerPort.error("Error en listUsers", [error.name, error.message, error]);
         return ApplicationResponse.failure(
-          new ApplicationError('Error interno listando usuarios', ErrorCodes.SERVER_ERROR, [error.name, error.message], error),
+          new ApplicationError(
+            "Error interno listando usuarios",
+            ErrorCodes.SERVER_ERROR,
+            [error.name, error.message],
+            error,
+          ),
         );
       }
       return ApplicationResponse.failure(
-        new ApplicationError('Error desconocido', ErrorCodes.SERVER_ERROR),
+        new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR),
       );
     }
   }
@@ -556,7 +571,6 @@ export default class UserService {
         updateData.profile_image = updateRequest.profile_image.trim();
       if (updateRequest.favorite_instrument !== undefined)
         updateData.favorite_instrument = updateRequest.favorite_instrument;
-      // is_artist removed; role-based system now controls artist status
 
       // Si se está actualizando la contraseña
       if (updateRequest.new_password && updateRequest.current_password) {
@@ -627,7 +641,6 @@ export default class UserService {
         user.concurrency_stamp,
       );
 
-      // Enviar email de recuperación
       const recoveryEmail: Email = {
         to: [user.email],
         from: envs.EMAIL_FROM,
@@ -695,12 +708,8 @@ export default class UserService {
         );
       }
 
-      // Encriptar nueva contraseña
       const hashPassword = await this.authPort.encryptPassword(request.newPassword);
       const newSecurityStamp = await this.tokenPort.generateStamp();
-
-      // Actualizar contraseña y security stamp
-      // Nota: Necesitarías implementar una búsqueda por security_stamp o pasar el user ID en el token
 
       return ApplicationResponse.emptySuccess();
     } catch (error: unknown) {

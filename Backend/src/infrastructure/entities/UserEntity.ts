@@ -1,11 +1,11 @@
 import { BeforeInsert, BeforeUpdate, Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
 import { UserInstrument, UserStatus } from "../../domain/models/User";
 
-@Entity({ name: "app_user" })
+@Entity({ name: "app_user", schema: "seg" })
 @Index("IDX_user_email_status", ["email", "status"], { unique: true })
 @Index("IDX_user_username_status", ["username", "status"], { unique: true })
 export default class UserEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: "bigint" })
   id!: number;
 
   @Column({ type: "varchar", length: 50 })
@@ -29,7 +29,7 @@ export default class UserEntity {
   @Column({ type: "varchar", length: 255 })
   profile_image!: string;
 
-  @Column({ type: "enum", enum: UserStatus, default: UserStatus.ACTIVE })
+  @Column({ type: "enum", enum: UserStatus, default: UserStatus.FROZEN })
   status!: UserStatus;
 
   @Column({ type: "enum", enum: UserInstrument })

@@ -12,7 +12,7 @@ import { UserStatus } from "../../domain/models/User";
 // DEPRECATED: Mantener solo para compatibilidad de datos; no usar en nueva lógica.
 @Entity({ name: "artist_user" })
 export default class ArtistUserEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: "bigint" })
   id!: number;
 
   @Column({ type: "varchar", length: 50 })

@@ -3,9 +3,15 @@ import {
   FindOptionsWhere,
   In,
   Not,
+  Or,
   QueryFailedError,
+  Between,
+  LessThanOrEqual,
+  MoreThanOrEqual,
   Repository,
   ILike,
+  Like,
+  Brackets,
 } from "typeorm";
 import UserPort from "../../../domain/ports/data/UserPort";
 import UserEntity from "../../entities/UserEntity";
@@ -17,8 +23,11 @@ import {
   ErrorCodes,
   ErrorResponse,
 } from "../../../application/shared/errors/ApplicationError";
-import UserBasicDataResponse from "../../../application/dto/responses/UserBasicDataResponse";
+import UserBasicDataResponse from "../../../application/dto/responses/seg/user/UserBasicDataResponse";
 import NotFoundResponse from "../../../application/shared/responses/NotFoundResponse";
+import PaginationRequest from "../../../application/dto/utils/PaginationRequest";
+import PaginationResponse from "../../../application/dto/utils/PaginationResponse";
+import UserSearchParamsRequest from "../../../application/dto/requests/User/UserSearchParamsRequest";
 
 export default class UserAdapter implements UserPort {
   private userRepository: Repository<UserEntity>;
@@ -613,7 +622,7 @@ export default class UserAdapter implements UserPort {
         return ApplicationResponse.success(false);
       }
       if (error instanceof QueryFailedError) {
-        return ApplicationResponse.failure(new ApplicationError("", 2));
+        return ApplicationResponse.failure(new ApplicationError("", ErrorCodes.DATABASE_ERROR, error.message, error));
       } else {
         return ApplicationResponse.failure(
           new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR, undefined, undefined),
@@ -653,49 +662,86 @@ export default class UserAdapter implements UserPort {
       );
     }
   }
-  async searchUsers(q: string, limit: number): Promise<ApplicationResponse<User[]>> {
+  async searchUsers(
+    req: PaginationRequest<UserSearchParamsRequest>,
+  ): Promise<ApplicationResponse<PaginationResponse<User>>> {
     try {
-      const term = `%${q}%`;
-      const rows = await this.userRepository.find({
-        where: [
-          { username: ILike(term), status: Not(In(this.negativeStatus)) },
-          { full_name: ILike(term), status: Not(In(this.negativeStatus)) },
-          { email: ILike(term),    status: Not(In(this.negativeStatus)) },
-        ],
-        take: Math.min(Math.max(limit || 10, 1), 50),
-        order: { id: "ASC" },
-        // selecciona solo lo necesario; añade/quita campos si hace falta
-        select: [
-          "id",
-          "username",
-          "full_name",
-          "email",
-          "profile_image",
-          "learning_points",
-          "favorite_instrument",
-          "status",
-          "created_at",
-          "updated_at",
-        ],
-      });
+      console.log(req);
+      const queryBuilder = this.userRepository
+        .createQueryBuilder("app_user")
+        .select(
+          "app_user.id, app_user.email, app_user.full_name, app_user.username, app_user.learning_points, app_user.profile_image",
+        )
+        .where("app_user.status = :status", { status: UserStatus.ACTIVE })
+        .leftJoin("user_roles", "rol", "app_user.id = rol.user_id")
+        .andWhere(
+          new Brackets((qb) => {
+            if (req.filters?.email) {
+              qb.orWhere("app_user.normalized_email LIKE :email", {
+                email: req.filters.email.toUpperCase(),
+              });
+            }
+            if (req.filters?.username) {
+              qb.orWhere("app_user.normalized_username like :username", {
+                username: req.filters.username.toUpperCase() + "%",
+              });
+            }
+            if (req.filters?.full_name) {
+              qb.orWhere("app_user.full_name ILIKE :fullname", {
+                fullname: req.filters.full_name.toLowerCase() + "%",
+              });
+            }
+            if (req.general_filter) {
+              qb.orWhere("app_user.normalized_email LIKE :email", {
+                email: "%" + req.general_filter.toUpperCase() + "%",
+              });
+              qb.orWhere("app_user.normalized_username like :username", {
+                username: "%" + req.general_filter.toUpperCase() + "%",
+              });
+              qb.orWhere("app_user.full_name ILIKE :fullname", {
+                fullname: "%" + req.general_filter.toLowerCase() + "%",
+              });
+            }
+          }),
+        )
+        .andWhere("rol.role_id = 1");
 
-      // OJO: usa función flecha para mantener el this correcto
-      return ApplicationResponse.success(rows.map((r) => this.toDomain(r)));
+      const rowCounts = await queryBuilder.getCount();
+
+      if (req.page_number) {
+        console.log(req.page_number);
+        queryBuilder.skip(req.page_number);
+      }
+      queryBuilder.limit(req.page_size ?? 5);
+
+      if (req.first_id && req.last_id) {
+        queryBuilder.andWhere("app_user.id BETWEEN :firstId AND :lastId", {
+          firstId: req.first_id,
+          lastId: req.last_id,
+        });
+      } else if (req.first_id) {
+        queryBuilder.andWhere("app_user.id < :id", { id: req.first_id });
+      } else if (req.last_id) {
+        queryBuilder.andWhere("app_user.id > :id", { id: req.last_id });
+      }
+      const rows = await queryBuilder.getRawMany();
+      console.log(req);
+
+      const response: PaginationResponse<User> = PaginationResponse.create(
+        rows,
+        rows.length,
+        rowCounts,
+      );
+
+      return ApplicationResponse.success(response);
     } catch (e: any) {
+      console.error(e);
       return ApplicationResponse.failure(
-        new ApplicationError(
-          "DB error en searchUsers",
-          ErrorCodes.DATABASE_ERROR,
-          e?.message,
-          e,
-        ),
+        new ApplicationError("DB error en searchUsers", ErrorCodes.DATABASE_ERROR, e?.message, e),
       );
     }
   }
 
-  /**
-   * Listado compacto para fallback del frontend
-   */
   async listUsers(limit: number): Promise<ApplicationResponse<User[]>> {
     try {
       const rows = await this.userRepository.find({
@@ -719,13 +765,41 @@ export default class UserAdapter implements UserPort {
       return ApplicationResponse.success(rows.map((r) => this.toDomain(r)));
     } catch (e: any) {
       return ApplicationResponse.failure(
-        new ApplicationError(
-          "DB error en listUsers",
-          ErrorCodes.DATABASE_ERROR,
-          e?.message,
-          e,
-        ),
+        new ApplicationError("DB error en listUsers", ErrorCodes.DATABASE_ERROR, e?.message, e),
       );
     }
+  }
+
+  private setUserFilters(
+    filters: UserSearchParamsRequest,
+    generalFilter?: string,
+  ): FindOptionsWhere<UserEntity>[] {
+    console.log({ ...filters, generalFilter });
+    const whereOption: FindOptionsWhere<UserEntity>[] = [];
+    if (filters.email) {
+      whereOption.push({ normalized_email: Like(`${filters.email.toUpperCase()}%`) });
+    }
+    if (filters.username) {
+      whereOption.push({ normalized_username: Like(`${filters.username.toUpperCase()}%`) });
+    }
+    if (filters.full_name) {
+      whereOption.push({
+        full_name: Or(
+          ILike(`${filters.full_name.toUpperCase()}%`),
+          ILike(`${filters.full_name.toLowerCase()}%`),
+        ),
+      });
+    }
+    if (generalFilter) {
+      whereOption.push({ normalized_email: Like(`${generalFilter.toUpperCase()}%`) });
+      whereOption.push({ normalized_username: Like(`${generalFilter.toUpperCase()}%`) });
+      whereOption.push({
+        full_name: Or(
+          ILike(`${generalFilter.toUpperCase()}%`),
+          ILike(`${generalFilter.toLowerCase()}%`),
+        ),
+      });
+    }
+    return whereOption;
   }
 }

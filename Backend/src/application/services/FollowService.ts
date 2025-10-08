@@ -1,9 +1,9 @@
 // src/application/services/UserFollowService.ts
 import { UserFollowRepository } from "../../domain/ports/data/FollowPort";
-import { UserFollow } from "../../infrastructure/entities/FollowEntity";
+import UserFollow from "../../infrastructure/entities/FollowEntity";
 
 export class UserFollowService {
-  constructor(private userFollowRepo: UserFollowRepository) {}
+  constructor(private userFollowRepo: UserFollowRepository) { }
 
   async follow(followerId: number, followedId: number): Promise<UserFollow> {
     if (followerId === followedId) throw new Error("Cannot follow yourself");

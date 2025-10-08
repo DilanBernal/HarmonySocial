@@ -10,7 +10,7 @@ import LibraryScreen from '../screens/library/LibraryScreen';
 import defaultColors from '../assets/style/colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import SearchStack from '../navigation/SearchStack';
-
+import LoginScreen from '../screens/auth/LoginScreen';
 
 export type MainTabsParamList = {
   Home: undefined;
@@ -23,7 +23,7 @@ export type MainTabsParamList = {
   Subir: undefined;
   Biblioteca: undefined;
   Profile: undefined;
-  caracteristicas: undefined
+  caracteristicas: undefined;
 };
 
 const Tab = createBottomTabNavigator<MainTabsParamList>();
@@ -65,22 +65,23 @@ export default function MainTabs() {
       />
 
       {/* Search */}
-      <Tab.Screen
+      {/* <Tab.Screen
         name="Buscar"
-        component={SearchStack}           
+        component={SearchStack}
         options={{ title: 'Buscar' }}
-      /> 
+      />
       <Tab.Screen
         name="Subir"
         component={UploadSongScreen}
         options={{ title: '+' }}
       />
       <Tab.Screen name="Biblioteca" component={LibraryScreen} />
-      <Tab.Screen
+      */}
+      {/* <Tab.Screen
         name="Profile"
         component={ProfileScreen}
         options={{ title: 'Perfil' }}
-      />
+      /> */}
     </Tab.Navigator>
   );
 }

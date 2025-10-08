@@ -42,8 +42,8 @@ export class ApiService {
     );
   }
 
-  async get<T>(url: string): Promise<T> {
-    const response = await this.api.get<T>(url);
+  async get<T>(url: string, params?: any): Promise<T> {
+    const response = await this.api.get<T>(url, params);
     return response.data;
   }
 

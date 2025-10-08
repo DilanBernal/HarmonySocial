@@ -1,0 +1,58 @@
+services:
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: harmony-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@harmonysocial.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - harmony-network
+
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    container_name: harmony-azurite
+    command: azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0 --location /data --debug /data/debug.log
+    ports:
+      - "10000:10000" # Blob service
+      - "10001:10001" # Queue service
+      - "10002:10002" # Table service
+    volumes:
+      - azurite_data:/data
+    networks:
+      - harmony-network
+
+  mailpit:
+    image: axllent/mailpit:edge
+    container_name: mailpit-docker
+    ports:
+      - "8025:8025" # Puerto externo corregido
+      - "1025:1025" # Puerto externo corregido
+    networks:
+      - harmony-network
+
+  postgre_db:
+    image: postgres
+    container_name: harmony-postgres
+    environment:
+      POSTGRES_USER: harmony_user
+      POSTGRES_PASSWORD: harmony_password
+      POSTGRES_DB: harmonysocial
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - harmony-network
+volumes:
+  pgadmin_data:
+  azurite_data:
+  pgdata:
+
+networks:
+  harmony-network:
+    driver: bridge

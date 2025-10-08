@@ -1,15 +1,19 @@
+import { useState } from 'react';
 import { RegisterDTO } from '../core/dtos/RegisterDTO';
 import { transformToRegisterDTO } from '../core/utils/transforms/transformToRegisterDTO';
 import { INITIAL_REGISTER_FORM } from '../config/const/InitialRegisterForm';
 import { RegisterFormData } from '../core/dtos/RegisterFormData';
-// Agregar import del servicio
-import { AuthUserService } from '../core/services/user/auth/AuthUserService';
+import { useAppServices } from '../services/AppServices';
 import { UseRegisterViewModelReturn } from './types/RegisterViewModelTypes';
 import { completeValidationSchemas } from './types/stepValidationSchemas';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 export const useRegisterViewModel = (): UseRegisterViewModelReturn => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { services, addSubscription } = useAppServices();
+
   const {
     control,
     reset,
@@ -25,10 +29,11 @@ export const useRegisterViewModel = (): UseRegisterViewModelReturn => {
     delayError: 0,
   });
 
-  const UserService: AuthUserService = new AuthUserService();
+  const onSubmit = () => {
+    console.log('Sending register petition');
+    setIsLoading(true);
+    setError(null);
 
-  const onSubmit = async () => {
-    console.log('sending register petition');
     try {
       const userRegisterForm: RegisterFormData = {
         fullName: getValues('fullName'),
@@ -41,12 +46,26 @@ export const useRegisterViewModel = (): UseRegisterViewModelReturn => {
       };
       const userDTO: RegisterDTO = transformToRegisterDTO(userRegisterForm);
 
-      const serviceResponse = await UserService.register(userDTO);
+      const subscription = services.auth.register(userDTO).subscribe({
+        next: response => {
+          console.log('Registration successful:', response);
+          setIsLoading(false);
 
-      console.log(serviceResponse);
-    } catch (error) {
-      console.error(error);
-      throw error;
+          // Aquí podrías redirigir al login o mostrar mensaje de éxito
+          // navigation.navigate('Login');
+        },
+        error: registrationError => {
+          console.error('Registration error:', registrationError);
+          setError(registrationError.message || 'Error en el registro');
+          setIsLoading(false);
+        },
+      });
+
+      addSubscription(subscription);
+    } catch (syncError) {
+      console.error('Sync registration error:', syncError);
+      setError('Error preparando los datos de registro');
+      setIsLoading(false);
     }
   };
 
@@ -59,5 +78,7 @@ export const useRegisterViewModel = (): UseRegisterViewModelReturn => {
     errors,
     setValue,
     reset,
+    isLoading,
+    error,
   };
 };
