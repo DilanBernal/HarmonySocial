@@ -16,7 +16,7 @@ import Email from "../dto/utils/Email";
 import envs from "../../infrastructure/config/environment-vars";
 import TokenPort from "../../domain/ports/utils/TokenPort";
 import RolePort from "../../domain/ports/data/RolePort";
-import { findRegex } from "../shared/utils/regexIndex";
+import { findRegex, userFindRegex } from "../shared/utils/regexIndex";
 import NotFoundResponse from "../shared/responses/NotFoundResponse";
 import UserBasicDataResponse from "../dto/responses/seg/user/UserBasicDataResponse";
 import UserRolePort from "../../domain/ports/data/UserRolePort";
@@ -419,7 +419,7 @@ export default class UserService {
 
   async getUserByEmail(email: string): Promise<ApplicationResponse<UserResponse>> {
     try {
-      if (!email || !findRegex("emailRegex").test(email)) {
+      if (!email || !userFindRegex("emailRegex").test(email)) {
         return ApplicationResponse.failure(
           new ApplicationError("Email inválido", ErrorCodes.VALIDATION_ERROR),
         );
@@ -502,28 +502,28 @@ export default class UserService {
       let errors: Array<[string, string]> = [];
 
       // Validaciones
-      if (updateRequest.username && !findRegex("usernameRegex").test(updateRequest.username)) {
+      if (updateRequest.username && !userFindRegex("usernameRegex").test(updateRequest.username)) {
         errors.push(["username", "El username no esta en el formato correcto"]);
       }
 
-      if (updateRequest.full_name && !findRegex("fullNameRegex").test(updateRequest.full_name)) {
+      if (updateRequest.full_name && !userFindRegex("fullNameRegex").test(updateRequest.full_name)) {
         errors.push(["full_name", "El nombre no esta en el formato correcto"]);
       }
 
-      if (updateRequest.email && !findRegex("emailRegex").test(updateRequest.email)) {
+      if (updateRequest.email && !userFindRegex("emailRegex").test(updateRequest.email)) {
         errors.push(["email", "El email no esta en el formato correcto"]);
       }
 
       if (
         updateRequest.profile_image &&
-        !findRegex("profileImageRegex").test(updateRequest.profile_image)
+        !userFindRegex("profileImageRegex").test(updateRequest.profile_image)
       ) {
         errors.push(["profile_image", "La imagen de usuario no esta en el formato correcto"]);
       }
 
       if (
         updateRequest.new_password &&
-        !findRegex("passwordRegex").test(updateRequest.new_password)
+        !userFindRegex("passwordRegex").test(updateRequest.new_password)
       ) {
         errors.push(["new_password", "La nueva contraseña no esta en el formato correcto"]);
       }
@@ -614,7 +614,7 @@ export default class UserService {
         );
       }
 
-      if (!findRegex("emailRegex").test(request.email)) {
+      if (!userFindRegex("emailRegex").test(request.email)) {
         return ApplicationResponse.failure(
           new ApplicationError("Email inválido", ErrorCodes.VALIDATION_ERROR),
         );
@@ -678,19 +678,14 @@ export default class UserService {
 
   async resetPassword(request: ResetPasswordRequest): Promise<ApplicationResponse> {
     try {
-      if (!request || !request.token || !request.newPassword || !request.confirmPassword) {
+      if (!request || !request.token || !request.newPassword) {
         return ApplicationResponse.failure(
           new ApplicationError("Todos los campos son requeridos", ErrorCodes.VALIDATION_ERROR),
         );
       }
 
-      if (request.newPassword !== request.confirmPassword) {
-        return ApplicationResponse.failure(
-          new ApplicationError("Las contraseñas no coinciden", ErrorCodes.VALIDATION_ERROR),
-        );
-      }
 
-      if (!findRegex("passwordRegex").test(request.newPassword)) {
+      if (!userFindRegex("passwordRegex").test(request.newPassword)) {
         return ApplicationResponse.failure(
           new ApplicationError(
             "La nueva contraseña no cumple con los requisitos",
@@ -709,7 +704,9 @@ export default class UserService {
       }
 
       const hashPassword = await this.authPort.encryptPassword(request.newPassword);
-      const newSecurityStamp = await this.tokenPort.generateStamp();
+      const newSecurityStamp = this.tokenPort.generateStamp();
+      const newConcurrencyStamp = this.tokenPort.generateStamp();
+
 
       return ApplicationResponse.emptySuccess();
     } catch (error: unknown) {

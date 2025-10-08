@@ -111,8 +111,8 @@ export default class UserController {
 
   async searchPaginatedUsers(req: Request, res: Response) {
     try {
-      const { full_name, username, email, q } = req.query;
-      const { page_size, page_number, last_id, first_id } = req.query;
+      const { full_name, username, email } = req.parsedQuery?.filters ?? {};
+      const { page_size, page_number, last_id, first_id, q } = req.parsedQuery!;
 
       const r = await this.userService.searchUsers(
         PaginationRequest.create<UserSearchParamsRequest>(

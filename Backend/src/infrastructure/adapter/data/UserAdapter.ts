@@ -667,7 +667,6 @@ export default class UserAdapter implements UserPort {
     req: PaginationRequest<UserSearchParamsRequest>,
   ): Promise<ApplicationResponse<PaginationResponse<User>>> {
     try {
-      console.log(req);
       const queryBuilder = this.userRepository
         .createQueryBuilder("app_user")
         .select(
@@ -679,7 +678,7 @@ export default class UserAdapter implements UserPort {
           new Brackets((qb) => {
             if (req.filters?.email) {
               qb.orWhere("app_user.normalized_email LIKE :email", {
-                email: req.filters.email.toUpperCase(),
+                email: req.filters.email.toUpperCase() + '%',
               });
             }
             if (req.filters?.username) {

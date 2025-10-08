@@ -36,12 +36,21 @@ class App {
       }),
     );
 
+
     this.app.use(express.json({ limit: "10mb" }));
     this.app.use(express.urlencoded({ extended: true }));
   }
 
   private routes(): void {
     this.app.use("/api", mainRouter);
+
+    this.app.use(/.*/, (req, res) => {
+      res.status(404).json({
+        error: 'Endpoint no encontrado',
+        message: `La ruta ${req.originalUrl} no existe`,
+        method: req.method
+      });
+    });
   }
 
   getApp() {

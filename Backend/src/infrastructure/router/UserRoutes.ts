@@ -13,6 +13,9 @@ import { validateRequest } from "../middleware/validateRequest";
 import loginSchema from "../validator/seg/user/LoginValidator";
 import registerSchema from "../validator/seg/user/RegisterValidator";
 import authenticateToken from "../middleware/authMiddleware";
+import { validatePaginatedRequest } from "../middleware/validatePaginatedRequest";
+import userSearchParamsSchema from "../validator/seg/user/UserPaginatedValidator";
+import parseNestedQuery from "../middleware/parseNestedQuery";
 
 const router = Router();
 
@@ -179,7 +182,7 @@ router.post("/verify-email", async (req, res) => {
   }
 });
 
-router.get("/paginated", async (req, res) => {
+router.get("/paginated", parseNestedQuery, validatePaginatedRequest(userSearchParamsSchema), async (req, res) => {
   try {
     await userController.searchPaginatedUsers(req, res);
   } catch (e: any) {
