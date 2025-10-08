@@ -10,8 +10,8 @@ import EmailNodemailerAdapter from "../adapter/utils/EmailAdapter";
 import LoggerAdapter from "../adapter/utils/LoggerAdapter";
 import TokenAdapter from "../adapter/utils/TokenAdapter";
 import { validateRequest } from "../middleware/validateRequest";
-import loginSchema from "../validator/LoginValidator";
-import registerSchema from "../validator/RegisterValidator";
+import loginSchema from "../validator/seg/user/LoginValidator";
+import registerSchema from "../validator/seg/user/RegisterValidator";
 import authenticateToken from "../middleware/authMiddleware";
 
 const router = Router();

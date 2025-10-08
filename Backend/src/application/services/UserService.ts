@@ -16,7 +16,7 @@ import Email from "../dto/utils/Email";
 import envs from "../../infrastructure/config/environment-vars";
 import TokenPort from "../../domain/ports/utils/TokenPort";
 import RolePort from "../../domain/ports/data/RolePort";
-import { findRegex } from "../shared/utils/regex";
+import { findRegex } from "../shared/utils/regexIndex";
 import NotFoundResponse from "../shared/responses/NotFoundResponse";
 import UserBasicDataResponse from "../dto/responses/seg/user/UserBasicDataResponse";
 import UserRolePort from "../../domain/ports/data/UserRolePort";

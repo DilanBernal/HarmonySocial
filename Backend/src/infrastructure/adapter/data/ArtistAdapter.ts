@@ -1,5 +1,5 @@
 // Clean implementation without duplicates
-import { Repository, ILike, Like, FindOptionsWhere } from "typeorm";
+import { Repository, ILike, Like, FindOptionsWhere, Brackets } from "typeorm";
 import { AppDataSource } from "../../config/con_database";
 import ArtistEntity from "../../entities/ArtistEntity";
 import Artist, { ArtistStatus } from "../../../domain/models/Artist";
@@ -133,16 +133,36 @@ export default class ArtistAdapter implements ArtistPort {
     req: PaginationRequest<ArtistSearchFilters>,
   ): Promise<ApplicationResponse<Artist[]>> {
     try {
+      const tableRefName: string = "artist";
       const filters = req.filters;
       console.log(filters);
       console.log(req);
       if (!filters) {
         return ApplicationResponse.success([]);
       }
+      const queryBuilder = this.repo.createQueryBuilder(`${tableRefName}`)
+        .select(`
+          ${tableRefName}.id,
+          ${tableRefName}.artist_name,
+          ${tableRefName}.verified`)
+        .where(`${tableRefName}.status = :status`, { status: ArtistStatus.ACTIVE })
+        .andWhere(new Brackets((qb) => {
+          if (filters) {
+            if (req.filters?.name) {
+              qb.orWhere(`lower(${tableRefName}.artist_name) LIKE :artistName`, { artistName: req.filters.name.toLowerCase() });
+            }
+            if (req.filters?.country) {
+              qb.orWhere(`LOWER${tableRefName}.country_code LIKE :countryCode`, { countryCode: req.filters.country })
+            }
+            if (req.filters?.formationYear) {
+              qb.orWhere(`EXTRACT(${tableRefName}.formation_year) = :formationYear`, { formationYear: req.filters.formationYear })
+            }
+          }
+        }));
       const where: FindOptionsWhere<ArtistEntity> = {};
       if (filters.name) where.artist_name = ILike(`${filters.name}%`);
       if (filters.country) where.country_code = Like(`${filters.country.toUpperCase()}`);
-      if (filters.status) where.status = filters.status;
+      // if (filters.status) where.status = filters.status;
       const list = await this.repo.find({ where: where });
       return ApplicationResponse.success(list.map((e) => this.toDomain(e)));
     } catch (error: any) {

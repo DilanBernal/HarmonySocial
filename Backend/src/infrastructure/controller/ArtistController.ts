@@ -5,13 +5,12 @@ import { ErrorCodes } from "../../application/shared/errors/ApplicationError";
 import { ApplicationResponse } from "../../application/shared/ApplicationReponse";
 import ArtistCreateRequest from "../../application/dto/requests/Artist/ArtistCreateRequest";
 import ArtistUpdateRequest from "../../application/dto/requests/Artist/ArtistUpdateRequest";
-import { ArtistStatus } from "../../domain/models/Artist";
 
 export default class ArtistController {
   constructor(
     private service: ArtistService,
     private logger: LoggerPort,
-  ) {}
+  ) { }
 
   async create(req: Request, res: Response) {
     const createRequest: ArtistCreateRequest = req.body;
@@ -67,7 +66,7 @@ export default class ArtistController {
     const { name, country, status, q } = req.query as any;
     try {
       console.log(req.query);
-      const response = await this.service.search({ name: q, country, status: ArtistStatus.ACTIVE });
+      const response = await this.service.search({ name: q, country: country });
       console.log(response);
       if (response.success) return res.status(200).json(response.data);
       return this.handleErrorResponse(res, response);

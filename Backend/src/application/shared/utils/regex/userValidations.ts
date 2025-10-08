@@ -1,7 +1,6 @@
-type ValidationType = {
-  name: string;
-  regex: RegExp;
-};
+import { ValidationType } from "../regexIndex";
+
+
 export const userValidations: Array<ValidationType> = [
   { name: "usernameRegex", regex: /^[a-zA-Z0-9_*\-#$!|°.+]{2,50}$/ },
   {
@@ -17,6 +16,3 @@ export const userValidations: Array<ValidationType> = [
   { name: "emailRegex", regex: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/ },
   { name: "profileImageRegex", regex: /^(https?:\/\/[^\s]+|avatar[1-8])$/ },
 ];
-
-export const findRegex = (name: string): RegExp =>
-  userValidations.find((x) => x.name === name)!.regex;

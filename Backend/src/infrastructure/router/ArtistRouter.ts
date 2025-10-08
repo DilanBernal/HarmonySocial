@@ -7,8 +7,8 @@ import LoggerAdapter from "../adapter/utils/LoggerAdapter";
 import ArtistController from "../controller/ArtistController";
 import { validateRequest } from "../middleware/validateRequest";
 import authenticateToken from "../middleware/authMiddleware";
-import artistCreateSchema from "../validator/ArtistCreateValidator";
-import artistUpdateSchema from "../validator/ArtistUpdateValidator";
+import artistCreateSchema from "../validator/music/artist/ArtistCreateValidator";
+import artistUpdateSchema from "../validator/music/artist/ArtistUpdateValidator";
 import {
   requirePermissions,
   enrichPermissionsFromToken,

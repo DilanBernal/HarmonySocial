@@ -4,6 +4,5 @@ export interface ArtistSearchFilters {
   name?: string;
   country?: string;
   verified?: boolean;
-  decade?: string;
-  status?: ArtistStatus;
+  formationYear?: string;
 }

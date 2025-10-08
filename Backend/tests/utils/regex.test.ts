@@ -1,4 +1,5 @@
-import { userValidations, findRegex } from '../../src/application/shared/utils/regex';
+import { findRegex } from '../../src/application/shared/utils/regexIndex';
+import { userValidations } from "../../src/application/shared/utils/regex/userValidations";
 
 describe('userValidations', () => {
   it('should contain all expected regex names', () => {
@@ -16,7 +17,7 @@ describe('userValidations', () => {
   });
 
   describe('usernameRegex', () => {
-    const regex = findRegex('usernameRegex');
+    const regex = findRegex('usernameRegex', userValidations);
     it('validates correct usernames', () => {
       expect('user_01').toMatch(regex);
       expect('aB1*').toMatch(regex);
@@ -30,7 +31,7 @@ describe('userValidations', () => {
   });
 
   describe('fullNameRegex', () => {
-    const regex = findRegex('fullNameRegex');
+    const regex = findRegex('fullNameRegex', userValidations);
     it('validates correct full names', () => {
       expect('José Álvarez').toMatch(regex);
       expect("O'Connor").toMatch(regex);
@@ -45,7 +46,7 @@ describe('userValidations', () => {
   });
 
   describe('userOrEmailRegex', () => {
-    const regex = findRegex('userOrEmailRegex');
+    const regex = findRegex('userOrEmailRegex', userValidations);
     it('validates usernames', () => {
       expect('user_01').toMatch(regex);
     });
@@ -60,7 +61,7 @@ describe('userValidations', () => {
   });
 
   describe('passwordRegex', () => {
-    const regex = findRegex('passwordRegex');
+    const regex = findRegex('passwordRegex', userValidations);
     it('validates strong passwords', () => {
       expect('Abcdef1!').toMatch(regex);
       expect('StrongPass123$').toMatch(regex);
@@ -76,7 +77,7 @@ describe('userValidations', () => {
   });
 
   describe('emailRegex', () => {
-    const regex = findRegex('emailRegex');
+    const regex = findRegex('emailRegex', userValidations);
     it('validates correct emails', () => {
       expect('test@example.com').toMatch(regex);
       expect('user.name+tag@domain.co.uk').toMatch(regex);
@@ -90,7 +91,7 @@ describe('userValidations', () => {
   });
 
   describe('profileImageRegex', () => {
-    const regex = findRegex('profileImageRegex');
+    const regex = findRegex('profileImageRegex', userValidations);
     it('validates avatar names', () => {
       for (let i = 1; i <= 8; i++) {
         expect(`avatar${i}`).toMatch(regex);
