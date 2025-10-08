@@ -5,6 +5,8 @@ import { ErrorCodes } from "../../application/shared/errors/ApplicationError";
 import { ApplicationResponse } from "../../application/shared/ApplicationReponse";
 import ArtistCreateRequest from "../../application/dto/requests/Artist/ArtistCreateRequest";
 import ArtistUpdateRequest from "../../application/dto/requests/Artist/ArtistUpdateRequest";
+import PaginationRequest from "../../application/dto/utils/PaginationRequest";
+import { ArtistSearchFilters } from "../../application/dto/requests/Artist/ArtistSearchFilters";
 
 export default class ArtistController {
   constructor(
@@ -63,10 +65,17 @@ export default class ArtistController {
   }
 
   async search(req: Request, res: Response) {
-    const { name, country, status, q } = req.query as any;
+    const { name, country, formationYear, verified } = req.parsedQuery?.filters as ArtistSearchFilters ?? {};
+    const { general_filter, page_size, page_number, last_id, first_id } = req.parsedQuery!;
     try {
-      console.log(req.query);
-      const response = await this.service.search({ name: q, country: country });
+      const response = await this.service.search(PaginationRequest.create<ArtistSearchFilters>(
+        { country, name, formationYear, verified },
+        parseInt(page_size),
+        general_filter,
+        page_number,
+        first_id,
+        last_id
+      ));
       console.log(response);
       if (response.success) return res.status(200).json(response.data);
       return this.handleErrorResponse(res, response);

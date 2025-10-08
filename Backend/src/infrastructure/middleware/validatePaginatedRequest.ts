@@ -25,11 +25,11 @@ export function validatePaginatedRequest<T>(schema: ObjectSchema) {
         details: errorFilters.details.map((d) => d.message),
       });
     }
-    console.log('valueFilters', valueFilters)
 
-    valuePagSchema.filters = valueFilters;
+    if (valueFilters)
+      valuePagSchema.filters = valueFilters;
 
-    req.body = valuePagSchema;
+    req.parsedQuery = valuePagSchema;
     next();
   }
 }

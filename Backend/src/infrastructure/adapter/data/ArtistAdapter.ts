@@ -1,4 +1,3 @@
-// Clean implementation without duplicates
 import { Repository, ILike, Like, FindOptionsWhere, Brackets } from "typeorm";
 import { AppDataSource } from "../../config/con_database";
 import ArtistEntity from "../../entities/ArtistEntity";
@@ -8,6 +7,8 @@ import { ArtistSearchFilters } from "../../../application/dto/requests/Artist/Ar
 import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes } from "../../../application/shared/errors/ApplicationError";
 import PaginationRequest from "../../../application/dto/utils/PaginationRequest";
+import PaginationResponse from "../../../application/dto/utils/PaginationResponse";
+import areAllValuesEmpty from "../../../application/shared/utils/functions/areAllValuesEmpty";
 
 export default class ArtistAdapter implements ArtistPort {
   private repo: Repository<ArtistEntity>;
@@ -131,40 +132,72 @@ export default class ArtistAdapter implements ArtistPort {
 
   async searchPaginated(
     req: PaginationRequest<ArtistSearchFilters>,
-  ): Promise<ApplicationResponse<Artist[]>> {
+  ): Promise<ApplicationResponse<PaginationResponse<Artist>>> {
     try {
       const tableRefName: string = "artist";
-      const filters = req.filters;
+      const filters = req.filters ?? undefined;
       console.log(filters);
       console.log(req);
       if (!filters) {
-        return ApplicationResponse.success([]);
+        return ApplicationResponse.success(PaginationResponse.createEmpty());
       }
       const queryBuilder = this.repo.createQueryBuilder(`${tableRefName}`)
         .select(`
           ${tableRefName}.id,
           ${tableRefName}.artist_name,
           ${tableRefName}.verified`)
-        .where(`${tableRefName}.status = :status`, { status: ArtistStatus.ACTIVE })
-        .andWhere(new Brackets((qb) => {
-          if (filters) {
-            if (req.filters?.name) {
-              qb.orWhere(`lower(${tableRefName}.artist_name) LIKE :artistName`, { artistName: req.filters.name.toLowerCase() });
-            }
-            if (req.filters?.country) {
-              qb.orWhere(`LOWER${tableRefName}.country_code LIKE :countryCode`, { countryCode: req.filters.country })
-            }
-            if (req.filters?.formationYear) {
-              qb.orWhere(`EXTRACT(${tableRefName}.formation_year) = :formationYear`, { formationYear: req.filters.formationYear })
-            }
+        .where(`${tableRefName}.status = :status`, { status: ArtistStatus.ACTIVE });
+
+      if (!areAllValuesEmpty(filters)) {
+        queryBuilder.andWhere(new Brackets((qb) => {
+          if (filters.name) {
+            qb.where(`LOWER(${tableRefName}.artist_name) LIKE :artistName`, { artistName: filters.name + '%' });
+          }
+          if (filters.country) {
+            qb.orWhere(`${tableRefName}.country_code LIKE :countryCode`, { countryCode: filters.country })
+          }
+          if (filters.formationYear) {
+            qb.orWhere(`EXTRACT(${tableRefName}.formation_year) = :formationYear`, { formationYear: filters.formationYear })
           }
         }));
-      const where: FindOptionsWhere<ArtistEntity> = {};
-      if (filters.name) where.artist_name = ILike(`${filters.name}%`);
-      if (filters.country) where.country_code = Like(`${filters.country.toUpperCase()}`);
-      // if (filters.status) where.status = filters.status;
-      const list = await this.repo.find({ where: where });
-      return ApplicationResponse.success(list.map((e) => this.toDomain(e)));
+      }
+      if (req.general_filter) {
+        queryBuilder.andWhere(new Brackets((qb) => {
+          qb.orWhere(`${tableRefName}.artist_name ILIKE :name`, { name: '%' + req.general_filter + '%' })
+          qb.orWhere(`${tableRefName}.country_code = :countryCode`, { countryCode: req.general_filter })
+        }));
+      }
+
+      const rowCounts = await queryBuilder.getCount();
+
+      if (rowCounts < 1) {
+        return ApplicationResponse.success(PaginationResponse.createEmpty());
+      }
+
+      if (req.page_number) {
+        console.log(req.page_number);
+        queryBuilder.skip(req.page_number);
+      }
+      queryBuilder.limit(req.page_size ?? 5);
+
+      if (req.first_id && req.last_id) {
+        queryBuilder.andWhere(`${tableRefName}.id BETWEEN :firstId AND :lastId`, {
+          firstId: req.first_id,
+          lastId: req.last_id,
+        });
+      } else if (req.first_id) {
+        queryBuilder.andWhere(`${tableRefName}.id < :id`, { id: req.first_id });
+      } else if (req.last_id) {
+        queryBuilder.andWhere(`${tableRefName}.id > :id`, { id: req.last_id });
+      }
+
+      const list = await queryBuilder.getRawMany();
+      const response: PaginationResponse<Artist> = PaginationResponse.create(
+        list,
+        list.length,
+        rowCounts
+      )
+      return ApplicationResponse.success(response);
     } catch (error: any) {
       console.log(error);
       return ApplicationResponse.failure(

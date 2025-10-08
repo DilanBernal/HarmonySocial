@@ -14,6 +14,10 @@ import {
   enrichPermissionsFromToken,
 } from "../middleware/authorizationMiddleware";
 import { CorePermission } from "../../domain/models/Permission";
+import parseNestedQuery from "../middleware/parseNestedQuery";
+import { validatePaginatedRequest } from "../middleware/validatePaginatedRequest";
+import userSearchParamsSchema from "../validator/seg/user/UserPaginatedValidator";
+import artistPaginatedRequestValidator from "../validator/music/artist/ArtistPaginatedRequestValidator";
 
 const router = Router();
 const adapter = new ArtistAdapter();
@@ -37,9 +41,9 @@ router.post(
 );
 router.get("/", (req, res) => controller.search(req, res));
 router.get("/search", (req, res) => controller.search(req, res));
-router.get("/:id", (req, res) => controller.getById(req, res));
+router.get("/id/:id", (req, res) => controller.getById(req, res));
 
-router.get("/paginated", async (req, res) => await controller.search(req, res));
+router.get("/paginated", parseNestedQuery, validatePaginatedRequest(artistPaginatedRequestValidator), async (req, res) => await controller.search(req, res));
 
 router.put(
   ":id",

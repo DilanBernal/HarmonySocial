@@ -2,6 +2,7 @@ import { ArtistSearchFilters } from "../../../application/dto/requests/Artist/Ar
 import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
 import Artist, { ArtistStatus } from "../../models/Artist";
 import PaginationRequest from "../../../application/dto/utils/PaginationRequest";
+import PaginationResponse from "../../../application/dto/utils/PaginationResponse";
 
 export default interface ArtistPort {
   create(
@@ -12,7 +13,7 @@ export default interface ArtistPort {
   findById(id: number): Promise<ApplicationResponse<Artist>>;
   searchPaginated(
     filters: PaginationRequest<ArtistSearchFilters>,
-  ): Promise<ApplicationResponse<Artist[]>>;
+  ): Promise<ApplicationResponse<PaginationResponse<Artist>>>;
   existsById(id: number): Promise<ApplicationResponse<boolean>>;
   updateStatus(id: number, status: ArtistStatus): Promise<ApplicationResponse>;
 }

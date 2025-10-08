@@ -5,7 +5,7 @@ const paginatedRequestValidator = joi.object({
     'object.base': 'Los filtros deben ser un objeto válido'
   }),
 
-  general_filer: joi.string().optional().max(200).allow(null).messages({
+  general_filter: joi.string().optional().trim().lowercase().max(200).allow(null).messages({
     'string.base': 'El filtro general debe ser una cadena de texto',
     'string.max': 'El filtro general no puede exceder los 200 caracteres'
   }),

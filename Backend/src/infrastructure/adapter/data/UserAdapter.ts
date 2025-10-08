@@ -725,7 +725,6 @@ export default class UserAdapter implements UserPort {
         queryBuilder.andWhere("app_user.id > :id", { id: req.last_id });
       }
       const rows = await queryBuilder.getRawMany();
-      console.log(req);
 
       const response: PaginationResponse<User> = PaginationResponse.create(
         rows,

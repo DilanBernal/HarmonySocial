@@ -26,6 +26,10 @@ export default function parseNestedQuery(req: Request, res: Response, next: Next
 
       current[keys[keys.length - 1]] = value;
     } else {
+      if (key === 'q') {
+        parsedQuery['general_filter'] = value;
+        continue;
+      }
       parsedQuery[key] = value;
     }
   }
