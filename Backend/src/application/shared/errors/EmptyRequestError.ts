@@ -3,6 +3,8 @@ import { ApplicationError, ErrorCodes } from "./ApplicationError";
 /**
  * @param message Es el mensaje completo que se va a mostrar 
  * @param entity Se reemplazara un mensaje predetermiado por este parametro de entidad
+ * @example message: `No se puede mandar la solicitud de 'x' vacia`
+ * @example entity: No se puede procesar la solicitude de ${errorDetails.entity} vacia
  */
 export type emptyRequestErrorDetails = {
   message?: string;
@@ -22,7 +24,7 @@ export default class EmptyRequestError extends ApplicationError {
    */
   constructor(errorDetails: emptyRequestErrorDetails, details?: any, originalError?: Error) {
     super(
-      errorDetails.message ?? `No se encontro ${errorDetails.entity}`,
+      errorDetails.message ?? `No se puede procesar la solicitude de ${errorDetails.entity} vacia`,
       ErrorCodes.EMPTY_REQUEST,
       details,
       originalError,

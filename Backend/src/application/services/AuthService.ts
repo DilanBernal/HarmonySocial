@@ -10,6 +10,9 @@ import { ApplicationError, ErrorCodes, ErrorCode } from "../shared/errors/Applic
 import TokenPort from "../../domain/ports/utils/TokenPort";
 import UserRolePort from "../../domain/ports/data/UserRolePort";
 import RolePermissionAdapter from "../../infrastructure/adapter/data/RolePermissionAdapter";
+import EmptyRequestResponse from "../shared/responses/EmptyRequestResponse";
+import NotFoundResponse from "../shared/responses/NotFoundResponse";
+import areAllValuesEmpty from "../shared/utils/functions/areAllValuesEmpty";
 
 export default class AuthService {
   private userPort: UserPort;
@@ -144,8 +147,14 @@ export default class AuthService {
 
   async confirmEmail(req: VerifyEmailRequest): Promise<ApplicationResponse<boolean>> {
     try {
-      if (!req) {
-        return ApplicationResponse.failure(new ApplicationError("No se puede verificar una solicitud vacia", ErrorCodes.VALIDATION_ERROR));
+      if (!req || areAllValuesEmpty(req)) {
+        return new EmptyRequestResponse({ entity: "validación de email" });
+      }
+
+      const user = await this.userPort.getUserByEmail(req.email);
+
+      if (!user.data || !user.success) {
+        return new NotFoundResponse({ message: "No se pudo encontrar un usuario con el email dado" })
       }
     } catch (error) {
 

@@ -12,6 +12,11 @@ import EmailPort from "../../../../src/domain/ports/utils/EmailPort";
 import LoggerPort from "../../../../src/domain/ports/utils/LoggerPort";
 import TokenPort from "../../../../src/domain/ports/utils/TokenPort";
 import UserRolePort from "../../../../src/domain/ports/data/UserRolePort";
+import { createMockTokenPort } from "../../mocks/ports/utils/TokenPort.mock";
+import createEmailPortMock from "../../mocks/ports/utils/EmailPort.mock";
+import createLoggerPort from "../../mocks/ports/extra/LoggerPort.mock";
+import createUserPortMock from "../../mocks/ports/data/UserPort.mock";
+import createUserRolePortMock from "../../mocks/ports/data/UserRolePort.mock";
 
 /**
  * Pruebas unitarias para AuthService
@@ -27,22 +32,7 @@ describe("AuthService", () => {
   let authService: AuthService;
 
   // Mocks de todas las dependencias
-  const mockUserPort: jest.Mocked<UserPort> = {
-    existsUserByLoginRequest: jest.fn(),
-    getUserStampsAndUserInfoByUserOrEmail: jest.fn(),
-    updateUser: jest.fn(),
-    createUser: jest.fn(),
-    deleteUser: jest.fn(),
-    getAllUsers: jest.fn(),
-    getUserById: jest.fn(),
-    getUserBasicDataById: jest.fn(),
-    getUserByEmail: jest.fn(),
-    getUserByLoginRequest: jest.fn(),
-    getUserByEmailOrUsername: jest.fn(),
-    existsUserById: jest.fn(),
-    existsUserByEmailOrUsername: jest.fn(),
-    getUsersByIds: jest.fn(),
-  } as any;
+  const mockUserPort: jest.Mocked<UserPort> = createUserPortMock();
 
   const mockAuthPort: jest.Mocked<AuthPort> = {
     comparePasswords: jest.fn(),
@@ -51,35 +41,13 @@ describe("AuthService", () => {
     verifyPassword: jest.fn(),
   } as any;
 
-  const mockEmailPort: jest.Mocked<EmailPort> = {
-    sendEmail: jest.fn(),
-    sendEmails: jest.fn(),
-  } as any;
+  const mockEmailPort: jest.Mocked<EmailPort> = createEmailPortMock();
 
-  const mockLoggerPort: jest.Mocked<LoggerPort> = {
-    debug: jest.fn(),
-    error: jest.fn(),
-    warn: jest.fn(),
-    info: jest.fn(),
-    log: jest.fn(),
-    appError: jest.fn(),
-    appWarn: jest.fn(),
-  } as any;
+  const mockLoggerPort: jest.Mocked<LoggerPort> = createLoggerPort()
 
-  const mockTokenPort: jest.Mocked<TokenPort> = {
-    generateStamp: jest.fn(),
-    generateConfirmAccountToken: jest.fn(),
-    generateRecoverPasswordToken: jest.fn(),
-    verifyToken: jest.fn(),
-  } as any;
+  const mockTokenPort: jest.Mocked<TokenPort> = createMockTokenPort();
 
-  const mockUserRolePort: jest.Mocked<UserRolePort> = {
-    assignRoleToUser: jest.fn(),
-    removeRoleFromUser: jest.fn(),
-    listRolesForUser: jest.fn(),
-    userHasRole: jest.fn(),
-    listUsersForRole: jest.fn(),
-  } as any;
+  const mockUserRolePort: jest.Mocked<UserRolePort> = createUserRolePortMock();
 
   // Datos de prueba reutilizables
   const validLoginRequest: LoginRequest = {
@@ -407,7 +375,7 @@ describe("AuthService", () => {
         // Datos de prueba
         const verifyEmailRequest: VerifyEmailRequest = {
           token: "valid_token_123",
-          email: "test@example.com"
+          email: "testuser@example.com"
         } as any;
 
         // Ejecutar
@@ -418,26 +386,45 @@ describe("AuthService", () => {
         expect(result.data).toBe(true);
       });
 
+    });
+    describe("Casos de error", () => {
+
+      it("Debe fallar cuando llegue null", async () => {
+        const result = await authService.confirmEmail({} as any);
+
+        expect(result.success).toBe(false);
+        expect(result.data).toBeUndefined();
+        expect(result.error?.code).toBe(23);
+      });
+
       it("debe manejar solicitud null", async () => {
         // Ejecutar con null
         const result = await authService.confirmEmail(null as any);
 
         // Verificaciones - actualmente la implementación es simple
-        expect(result.success).toBe(true);
-        expect(result.data).toBe(true);
+        expect(result.success).toBe(false);
+        expect(result.data).toBeUndefined();
+        expect(result.error?.code).toBe(23);
       });
-    });
-    describe("Casos de error", () => {
+
       it("Debe saltar error cuando no exista el usuario", async () => {
         const datosDePrueba: VerifyEmailRequest = {
           token: "valid_token_123",
-          email: "tesxtdsfsdf@example.com"
+          email: "email_wrong@example.com"
         }
 
         const result = await authService.confirmEmail(datosDePrueba);
 
         expect(result.success).toBe(false);
+        expect(result.error?.code).toBe(10);
       });
+
+      it("Debe saltar error cuando el token sea invalido", async () => {
+        const datosDePrueba: VerifyEmailRequest = {
+          token: "",
+          email: ""
+        }
+      })
     });
   });
 

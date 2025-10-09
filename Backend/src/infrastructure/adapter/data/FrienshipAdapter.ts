@@ -38,13 +38,14 @@ export default class FriendshipAdapter implements FriendshipPort {
     return friendshipEntity;
   }
   private toFriendshipsResponse(list: Array<Friendship>): FriendshipsResponse {
-    const friendshipResponse: FriendshipsResponse = new FriendshipsResponse();
-    friendshipResponse.friendships = list.map((x) => ({
-      id: x.id,
-      user_id: x.user_id,
-      friend_id: x.friend_id,
-      status: x.status,
-    }));
+    let friendshipResponse: FriendshipsResponse = {
+      friendships: list.map((x) => ({
+        id: x.id,
+        user_id: x.user_id,
+        friend_id: x.friend_id,
+        status: x.status,
+      }))
+    };
     return friendshipResponse;
   }
 

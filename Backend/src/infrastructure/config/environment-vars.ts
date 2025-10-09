@@ -59,7 +59,7 @@ function validateEnvVars(vars: NodeJS.ProcessEnv): ValidationEnvironmentVars {
   return { error, value };
 }
 
-const loadEnvVars = (): ReturnEnvironmentVars => {
+function loadEnvVars(): ReturnEnvironmentVars {
   const result = validateEnvVars(process.env);
   if (result.error) {
     throw new Error(`Error validating environment variables: ${result.error.message}`);
