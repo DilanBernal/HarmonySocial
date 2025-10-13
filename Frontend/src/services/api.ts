@@ -1,15 +1,7 @@
-// import { Platform } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-// import axios, { AxiosRequestConfig } from "axios";
-import UserService from '../core/services/user/user/UserService';
 import { AuthUserService } from '../core/services/user/auth/AuthUserService';
+import { AppConfig } from '../config/AppConfig';
 
-// Mantengo tu IP fija (la cambias manualmente cuando sea necesario)
-// const HOST = Platform.OS === 'android' ? 'localhost' : 'localhost';
-// export const API_BASE = `http://${HOST}:4200/api`;
-// export const API_BASE = `http://192.168.1.3:4200/api`;
-export const API_BASE = `https://kw389p26-4200.use2.devtunnels.ms/api`;
-// export const API_BASE = `${AppConfig.apiBaseUrl}/api`;
+export const API_BASE = `${AppConfig.apiBaseUrl}`;
 
 const authService: AuthUserService = new AuthUserService();
 
@@ -18,6 +10,7 @@ async function request<T>(
   options: RequestInit = {},
   timeoutMs = 10000,
 ): Promise<T> {
+  console.log(`${API_BASE}${path}`);
   const url = `${API_BASE}${path}`;
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);

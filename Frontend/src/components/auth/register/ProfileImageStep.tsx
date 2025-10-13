@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import { RegisterFormData } from '../../../core/dtos/RegisterFormData';
-import { UserInstrument } from '../../../core/models/User';
+import { UserInstrument } from '../../../core/models/data/User';
 
 // Avatares por defecto basados en el instrumento favorito
 const DEFAULT_AVATARS = {
@@ -112,7 +112,8 @@ export const ProfileImageStep: React.FC<ProfileImageStepProps> = ({
           <Image
             source={
               // Si es una key de avatar local, busca el objeto y usa su src
-              recommendedAvatars.find(a => a.key === selectedImage)?.src || { // Si no, asume que es una url remota
+              recommendedAvatars.find(a => a.key === selectedImage)?.src || {
+                // Si no, asume que es una url remota
                 uri: selectedImage,
               }
             }

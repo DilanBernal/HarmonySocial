@@ -1,5 +1,5 @@
 import { useFocusEffect } from '@react-navigation/native';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -7,13 +7,18 @@ import {
   Text,
   View,
 } from 'react-native';
-import { Song, SongsService } from '../../core/services/song/GetSongsService';
+import {
+  GetSongsService,
+  Song,
+  songsService,
+} from '../../core/services/song/GetSongsService';
 import {
   playSongByBlob,
   setupPlayer,
   songRequest,
-} from '../../player/controller';
+} from '../../core/player/playerSetup';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRxSubscriptions } from '../../core/hooks';
 
 export default function LibraryScreen() {
   const insets = useSafeAreaInsets();
@@ -21,28 +26,56 @@ export default function LibraryScreen() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
 
+  const { addSubscription } = useRxSubscriptions();
+
+  const isLoadingRef = useRef(false);
+
   useEffect(() => {
-    setupPlayer();
+    console.log('[LibraryScreen] useEffect - Initial mount, calling load()');
+    load();
   }, []);
 
-  const load = useCallback(async () => {
+  const load = () => {
+    if (isLoadingRef.current) {
+      console.log('[LibraryScreen] Already loading, skipping...');
+      return;
+    }
+
+    console.log('[LibraryScreen] Starting load...');
+    isLoadingRef.current = true;
     setLoading(true);
     setErr(null);
     try {
-      const r = await SongsService.listMine(1, 50);
-      setItems(r?.data?.rows ?? []);
-    } catch (e: any) {
-      setErr(e?.message ?? 'No se pudo cargar tu biblioteca');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+      const subscription = songsService.listMine(1, 50).subscribe({
+        next: (response: any) => {
+          console.log('Library response:', response);
+          const songs = response?.data?.data?.rows ?? [];
 
-  useFocusEffect(
-    useCallback(() => {
-      load();
-    }, [load]),
-  );
+          songs.forEach((song: Song) => {
+            console.log('Song:', song);
+          });
+
+          setItems(songs);
+          setLoading(false);
+          isLoadingRef.current = false;
+        },
+        error: (error: any) => {
+          console.error('Library error:', error);
+          setErr(error?.message ?? 'No se pudo cargar tu biblioteca');
+          setLoading(false);
+          isLoadingRef.current = false;
+        },
+      });
+
+      // Usar el hook para manejo automático de subscripciones
+      addSubscription(subscription);
+    } catch (e: any) {
+      console.error(e);
+      setErr(e?.message ?? 'No se pudo cargar tu biblioteca');
+      setLoading(false);
+      isLoadingRef.current = false;
+    }
+  };
 
   if (loading) {
     return (
@@ -110,21 +143,6 @@ export default function LibraryScreen() {
         paddingTop: insets.top,
       }}
     >
-      {/* Botón de prueba con MP3 público para verificar el pipeline del player */}
-      {/* <Pressable
-        onPress={playTest}
-        style={{
-          margin: 12,
-          backgroundColor: '#22c55e',
-          padding: 10,
-          borderRadius: 8,
-        }}
-      >
-        <Text style={{ color: '#fff', fontWeight: '700' }}>
-          ▶️ Probar reproducción (HTTPS)
-        </Text>
-      </Pressable> */}
-
       <FlatList
         data={items}
         keyExtractor={s => String(s.id)}

@@ -1,10 +1,10 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
 import { ArtistStatus } from "../../domain/models/Artist";
 
-@Entity({ name: "artists" })
+@Entity({ name: "artists", schema: "music" })
 @Index("IDX_artist_name_status", ["artist_name", "status"])
 export default class ArtistEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: "bigint" })
   id!: number;
 
   @Column({ type: "varchar", length: 150 })

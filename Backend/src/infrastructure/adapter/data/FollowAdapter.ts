@@ -1,10 +1,10 @@
 // src/infrastructure/adapters/PostgresUserFollowRepository.ts
 import { Pool } from "pg";
-import { UserFollow } from "../../../infrastructure/entities/FollowEntity";
+import UserFollow from "../../../infrastructure/entities/FollowEntity";
 import { UserFollowRepository } from "../../../domain/ports/data/FollowPort";
 
 export class PostgresUserFollowRepository implements UserFollowRepository {
-  constructor(private pool: Pool) {}
+  constructor(private pool: Pool) { }
 
   async follow(followerId: number, followedId: number): Promise<UserFollow> {
     const result = await this.pool.query(
@@ -17,7 +17,7 @@ export class PostgresUserFollowRepository implements UserFollowRepository {
     if (!result.rows[0]) throw new Error("Already following");
 
     const row = result.rows[0];
-    return new UserFollow(row.id, row.follower_id, row.followed_id, row.created_at);
+    return new UserFollow();
   }
 
   async unfollow(followerId: number, followedId: number): Promise<void> {
@@ -32,7 +32,8 @@ export class PostgresUserFollowRepository implements UserFollowRepository {
       userId,
     ]);
     return result.rows.map(
-      (row) => new UserFollow(row.id, row.follower_id, row.followed_id, row.created_at),
+      (row) => new UserFollow(),
+      //row.id, { id: row.follower_id }, { id: row.followed_id }, row.created_at
     );
   }
 
@@ -41,7 +42,7 @@ export class PostgresUserFollowRepository implements UserFollowRepository {
       userId,
     ]);
     return result.rows.map(
-      (row) => new UserFollow(row.id, row.follower_id, row.followed_id, row.created_at),
+      (row) => new UserFollow(),
     );
   }
 

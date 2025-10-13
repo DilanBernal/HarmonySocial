@@ -1,16 +1,12 @@
 import { Platform } from 'react-native';
 
-// Para Android, necesitamos usar 10.0.2.2 en lugar de localhost en el emulador
 const getBaseUrl = () => {
-  return 'https://kw389p26-4200.use2.devtunnels.ms/api/';
-  // if (__DEV__) {
-  //   if (Platform.OS === 'android') {
-  //     return 'http://10.0.2.2:4666/api/';
-  //   } else {
-  //     return 'http://localhost:4666/api/';
-  //   }
-  // }
-  // URL de producción (DevTunnels o servidor real)
+  // Development convenience: when running on Android emulator use host machine via 10.0.2.2
+  // This avoids flaky dev-tunnel connectivity for uploads during development.
+  if (__DEV__ && Platform.OS === 'android') {
+    return 'https://fs571vhd-4666.use2.devtunnels.ms/api/';
+  }
+  return 'https://fs571vhd-4666.use2.devtunnels.ms/api/';
 };
 
 export const AppConfig = {

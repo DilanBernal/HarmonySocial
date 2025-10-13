@@ -8,6 +8,9 @@ import RoleEntity from "../entities/RoleEntity";
 import UserRoleEntity from "../entities/UserRoleEntity";
 import PermissionEntity from "../entities/PermissionEntity";
 import RolePermissionEntity from "../entities/RolePermissionEntity";
+import UserFollowEntity from "../entities/FollowEntity";
+import AlbumEntity from "../entities/AlbumEntity";
+import MusicTheoryEntity from "../entities/MusicTheoryEntity";
 
 export const AppDataSource = new DataSource({
   type: "postgres",
@@ -19,7 +22,6 @@ export const AppDataSource = new DataSource({
   synchronize: envs.DB_SYNC,
   logging: envs.ENVIRONMENT === "dev" ? true : false,
   schema: envs.DB_SCHEMA,
-  ssl: true,
   entities: [
     UserEntity,
     FriendshipEntity,
@@ -29,6 +31,9 @@ export const AppDataSource = new DataSource({
     UserRoleEntity,
     PermissionEntity,
     RolePermissionEntity,
+    UserFollowEntity,
+    AlbumEntity,
+    MusicTheoryEntity
   ],
 });
 

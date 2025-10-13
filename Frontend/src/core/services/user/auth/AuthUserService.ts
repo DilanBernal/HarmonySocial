@@ -1,84 +1,83 @@
-import ApiService from '../../general/ApiService';
+import HttpClient from '../../HttpClient';
 import { AppConfig } from '../../../../config/AppConfig';
 import { RegisterDTO } from '../../../dtos/RegisterDTO';
 import LoginDTO from '../../../dtos/LoginDTO';
 import LoginResponse from '../../../dtos/LoginResponse';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import UserService from '../user/UserService';
+import { Observable, from, of } from 'rxjs';
+import { switchMap, tap, catchError, map } from 'rxjs/operators';
+import { HttpResponse } from '../../../models/utils/HttpResponse';
 
 export class AuthUserService {
-  private readonly baseUrl: string;
-  private readonly timeout: number;
+  private httpClient: HttpClient;
 
   constructor() {
-    this.baseUrl = AppConfig.apiBaseUrl;
-    this.timeout = AppConfig.apiTimeout;
-
-    // Log de configuración para debugging
-    console.log('AuthUserService initialized with:', {
-      baseUrl: this.baseUrl,
-      timeout: this.timeout,
-    });
+    this.httpClient = new HttpClient(AppConfig.apiBaseUrl);
   }
 
-  async register(data: RegisterDTO): Promise<any> {
-    try {
-      const response = await ApiService.post('users/register', data);
-      // console.log('AuthUserService.register - Success:', response.status);
-      return response;
-    } catch (error: any) {
-      console.error('AuthUserService.register - Error:', {
-        message: error.message,
-        code: error.code,
-        config: {
-          url: error.config?.url,
-          method: error.config?.method,
-          baseURL: error.config?.baseURL,
-        },
-      });
+  register(data: RegisterDTO): Observable<HttpResponse<any>> {
+    console.log('AuthUserService.register - Starting registration');
 
-      throw error;
-    }
+    return this.httpClient.post<any>('/users/register', data).pipe(
+      tap(response => {
+        console.log('AuthUserService.register - Success:', response.status);
+      }),
+      catchError(error => {
+        console.error('AuthUserService.register - Error:', error);
+        throw error;
+      }),
+    );
   }
 
-  async login(data: LoginDTO): Promise<LoginResponse> {
+  login(data: LoginDTO): Observable<HttpResponse<LoginResponse>> {
+    console.log('AuthUserService.login - Starting login');
+
+    return this.httpClient.post<LoginResponse>('/users/login', data).pipe(
+      switchMap(response => {
+        console.log('Login response:', response.data);
+
+        // Guardar datos de usuario y token
+        return from(this.saveLoginData(response.data)).pipe(
+          switchMap(() => {
+            // Obtener datos adicionales del usuario
+            const userService = new UserService();
+            return from(userService.getUserData(response.data.data.id)).pipe(
+              map(() => response), // Retornar la respuesta original
+              catchError(userError => {
+                console.warn('Failed to get additional user data:', userError);
+                return of(response); // Continuar con la respuesta original si falla
+              }),
+            );
+          }),
+        );
+      }),
+      catchError(error => {
+        console.error('AuthUserService.login - Error:', error);
+        throw error;
+      }),
+    );
+  }
+
+  private async saveLoginData(loginResponse: LoginResponse): Promise<void> {
     try {
-      const response = await ApiService.post<LoginResponse>(
-        'users/login',
-        data,
-      );
-      console.log(response);
-
-      await AsyncStorage.setItem('user', JSON.stringify(response));
-
-      await AsyncStorage.setItem(
-        'userData',
-        JSON.stringify({
-          profileImage: response.data.profile_image,
-          username: response.data.username,
-          id: response.data.id,
-        }),
-      );
-
-      await AsyncStorage.setItem('token', response.data.token);
-
-      return response;
-    } catch (error: any) {
-      console.error('AuthUserService.Login - Error:', {
-        message: error.message,
-        code: error.code,
-        config: {
-          url: error.config?.url,
-          method: error.config?.method,
-          baseURL: error.config?.baseURL,
-        },
-      });
-
+      await Promise.all([
+        AsyncStorage.setItem('user', JSON.stringify(loginResponse)),
+        AsyncStorage.setItem('userLoginRes', JSON.stringify(loginResponse)),
+        AsyncStorage.setItem('token', loginResponse.data.token),
+      ]);
+    } catch (error) {
+      console.error('Error saving login data:', error);
       throw error;
     }
   }
 
   /** Intenta recuperar el JWT desde AsyncStorage probando varias claves y formatos. */
-  async getToken(): Promise<string | null> {
+  getToken(): Observable<string | null> {
+    return from(this.getTokenAsync());
+  }
+
+  private async getTokenAsync(): Promise<string | null> {
     const keys = [
       'token',
       'userData',
@@ -88,9 +87,11 @@ export class AuthUserService {
       'jwt',
       'userToken',
     ];
+
     for (const k of keys) {
       const raw = await AsyncStorage.getItem(k);
       if (!raw) continue;
+
       try {
         const parsed = JSON.parse(raw);
         if (typeof parsed === 'string') return parsed;
@@ -101,5 +102,35 @@ export class AuthUserService {
       }
     }
     return null;
+  }
+
+  logout(): Observable<boolean> {
+    return from(this.clearAuthData()).pipe(
+      map(() => true),
+      catchError(error => {
+        console.error('Error during logout:', error);
+        return of(false);
+      }),
+    );
+  }
+
+  private async clearAuthData(): Promise<void> {
+    const keys = [
+      'token',
+      'userData',
+      'userInfo',
+      'authToken',
+      'accessToken',
+      'jwt',
+      'userToken',
+      'user',
+      'userLoginRes',
+    ];
+
+    await Promise.all(keys.map(key => AsyncStorage.removeItem(key)));
+  }
+
+  isAuthenticated(): Observable<boolean> {
+    return this.getToken().pipe(map(token => token !== null));
   }
 }

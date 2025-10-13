@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ActivityIndicator, Image, ScrollView } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
-import { ArtistsService, Artist } from '../../services/artist';
+import { ArtistsService, Artist } from '../../core/services/artist';
 
 type Params = { ArtistDetails: { artistId?: string; artistName?: string } };
 type ScreenRoute = RouteProp<Params, 'ArtistDetails'>;
@@ -34,28 +34,72 @@ export default function ArtistDetailsScreen() {
   }, [params?.artistId, params?.artistName]);
 
   if (loading) {
-    return <View style={{ flex:1, backgroundColor:'#0b0c16', alignItems:'center', justifyContent:'center' }}>
-      <ActivityIndicator />
-      <Text style={{ color:'#fff', marginTop:8 }}>Cargando artista…</Text>
-    </View>;
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: '#0b0c16',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <ActivityIndicator />
+        <Text style={{ color: '#fff', marginTop: 8 }}>Cargando artista…</Text>
+      </View>
+    );
   }
 
   if (err || !artist) {
-    return <View style={{ flex:1, backgroundColor:'#0b0c16', alignItems:'center', justifyContent:'center', padding:16 }}>
-      <Text style={{ color:'#fff', textAlign:'center' }}>{err || 'No hay registros.'}</Text>
-    </View>;
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: '#0b0c16',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 16,
+        }}
+      >
+        <Text style={{ color: '#fff', textAlign: 'center' }}>
+          {err || 'No hay registros.'}
+        </Text>
+      </View>
+    );
   }
 
   return (
-    <ScrollView style={{ flex:1, backgroundColor:'#0b0c16' }} contentContainerStyle={{ padding:16 }}>
-      <View style={{ alignItems:'center' }}>
-        <Image source={{ uri: artist.avatarUrl || 'https://placehold.co/160x160/png' }}
-               style={{ width:120, height:120, borderRadius:60, marginBottom:12 }}/>
-        <Text style={{ color:'#fff', fontSize:20, fontWeight:'700' }}>{artist.artist_name}</Text>
-        {!!artist.verified && <Text style={{ color:'#22c55e', marginTop:4 }}>Verificado</Text>}
+    <ScrollView
+      style={{ flex: 1, backgroundColor: '#0b0c16' }}
+      contentContainerStyle={{ padding: 16 }}
+    >
+      <View style={{ alignItems: 'center' }}>
+        <Image
+          source={{
+            uri: artist.avatarUrl || 'https://placehold.co/160x160/png',
+          }}
+          style={{
+            width: 120,
+            height: 120,
+            borderRadius: 60,
+            marginBottom: 12,
+          }}
+        />
+        <Text style={{ color: '#fff', fontSize: 20, fontWeight: '700' }}>
+          {artist.artist_name}
+        </Text>
+        {!!artist.verified && (
+          <Text style={{ color: '#22c55e', marginTop: 4 }}>Verificado</Text>
+        )}
       </View>
 
-      <View style={{ marginTop:16, backgroundColor:'#151827', padding:12, borderRadius:12 }}>
+      <View
+        style={{
+          marginTop: 16,
+          backgroundColor: '#151827',
+          padding: 12,
+          borderRadius: 12,
+        }}
+      >
         <Row label="Año de formación" value={artist.formation_year ?? '-'} />
         <Row label="País" value={artist.country_code ?? '-'} />
         <Row label="Estado" value={artist.status ?? '-'} />
@@ -66,9 +110,15 @@ export default function ArtistDetailsScreen() {
 
 function Row({ label, value }: { label: string; value: any }) {
   return (
-    <View style={{ flexDirection:'row', justifyContent:'space-between', paddingVertical:6 }}>
-      <Text style={{ color:'#9aa3b2' }}>{label}</Text>
-      <Text style={{ color:'#fff', fontWeight:'600' }}>{String(value)}</Text>
+    <View
+      style={{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingVertical: 6,
+      }}
+    >
+      <Text style={{ color: '#9aa3b2' }}>{label}</Text>
+      <Text style={{ color: '#fff', fontWeight: '600' }}>{String(value)}</Text>
     </View>
   );
 }

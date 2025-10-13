@@ -10,7 +10,7 @@ import {
 import RolePermissionEntity from "./RolePermissionEntity";
 // import RolePermissionEntity from "./RolePermissionEntity";
 
-@Entity({ name: "permissions" })
+@Entity({ name: "permissions", schema: "seg" })
 @Index("UQ_permission_name", ["name"], { unique: true })
 export default class PermissionEntity {
   @PrimaryGeneratedColumn()

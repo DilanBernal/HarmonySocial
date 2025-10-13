@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NavigationProp } from '@react-navigation/native';
-import type { RootStackParamList } from '../../App';
+// import type { RootStackParamList } from '../../App';
 import type { ImageSourcePropType } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LoginResponse from '../../core/dtos/LoginResponse';
 import DEFAULT_AVATARS from '../../assets/defaultAvatars';
 import ProfileImage from '../../components/general/ProfileImage';
+import { RootStackParamList } from '../../../App';
 
 export default function ProfileScreen() {
   const rootNav = useNavigation<NavigationProp<RootStackParamList>>();
@@ -19,7 +20,7 @@ export default function ProfileScreen() {
 
   useEffect(() => {
     const getUserData = async () => {
-      const userStorage = await AsyncStorage.getItem('user');
+      const userStorage = await AsyncStorage.getItem('userData');
       console.log(userStorage);
       if (!userStorage) {
         onLogout();
@@ -27,19 +28,18 @@ export default function ProfileScreen() {
       }
       try {
         const userJson = JSON.parse(userStorage);
-        console.log(userJson.data);
-        setProfileImage(userJson.data.profile_image);
-        setUsername(userJson.data.username || '');
+        console.log(userJson);
+        setProfileImage(userJson.profile_image);
+        setUsername(userJson.username || '');
         // Si tienes la fecha de registro, puedes setearla aquí
-        // setMemberSince(userJson.createdAt || '2022');
-        setMemberSince('2022'); // Hardcodeado por ahora
+        setMemberSince(userJson.activeFrom || '');
+        // setMemberSince('2022'); // Hardcodeado por ahora
       } catch (error) {
         // Si hay error, forzar logout
         onLogout();
       }
     };
     getUserData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onLogout = async () => {
@@ -52,13 +52,15 @@ export default function ProfileScreen() {
 
   return (
     <View style={s.container}>
-      <ProfileImage image={profileImage} imageStyle={s.avatar} />
-      <Text style={s.name}>{username || 'Usuario'}</Text>
-      <Text style={s.muted}>Miembro desde {memberSince}</Text>
+      <View style={s.innerContainer}>
+        <ProfileImage image={profileImage} imageStyle={s.avatar} />
+        <Text style={s.name}>{username || 'Usuario'}</Text>
+        <Text style={s.muted}>Miembro desde {memberSince}</Text>
 
-      <Pressable style={s.btn} onPress={onLogout}>
-        <Text style={s.btnText}>Cerrar sesión</Text>
-      </Pressable>
+        <Pressable style={s.btn} onPress={onLogout}>
+          <Text style={s.btnText}>Cerrar sesión</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -81,4 +83,13 @@ const s = StyleSheet.create({
     borderRadius: 12,
   },
   btnText: { color: 'white', fontWeight: '800' },
+  innerContainer: {
+    height: ' 100%',
+    flex: 1,
+    paddingVertical: 50,
+    alignItems: 'center',
+    verticalAlign: 'middle',
+    alignContent: 'center',
+    margin: 'auto',
+  },
 });
