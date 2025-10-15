@@ -1,7 +1,7 @@
-import FriendshipPort from "../../domain/ports/data/FriendshipPort";
+import FriendshipPort from "../../domain/ports/data/social/FriendshipPort";
 import LoggerPort from "../../domain/ports/utils/LoggerPort";
-import UserPort from "../../domain/ports/data/UserPort";
-import { FrienshipStatus } from "../../domain/models/Friendship";
+import UserPort from "../../domain/ports/data/seg/UserPort";
+import { FrienshipStatus } from "../../domain/models/social/Friendship";
 import FriendshipUsersIdsRequest from "../dto/requests/Friendship/FriendshipUsersIdsRequest";
 import FriendshipsResponse from "../dto/responses/FriendshipsResponse";
 import { ApplicationResponse } from "../shared/ApplicationReponse";

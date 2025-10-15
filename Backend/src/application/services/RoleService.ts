@@ -1,5 +1,5 @@
-import RolePort from "../../domain/ports/data/RolePort";
-import UserRolePort from "../../domain/ports/data/UserRolePort";
+import RolePort from "../../domain/ports/data/seg/RolePort";
+import UserRolePort from "../../domain/ports/data/seg/UserRolePort";
 import RoleCreateRequest from "../dto/requests/Role/RoleCreateRequest";
 import RoleUpdateRequest from "../dto/requests/Role/RoleUpdateRequest";
 import RoleResponse from "../dto/responses/RoleResponse";
@@ -12,7 +12,7 @@ export default class RoleService {
     private rolePort: RolePort,
     private userRolePort: UserRolePort,
     private logger: LoggerPort,
-  ) {}
+  ) { }
 
   async create(request: RoleCreateRequest): Promise<ApplicationResponse<number>> {
     try {

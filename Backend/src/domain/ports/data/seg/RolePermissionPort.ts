@@ -1,5 +1,5 @@
-import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
-import Permission from "../../models/Permission";
+import { ApplicationResponse } from "../../../../application/shared/ApplicationReponse";
+import Permission from "../../../models/seg/Permission";
 
 export default interface RolePermissionPort {
   assign(roleId: number, permissionId: number): Promise<ApplicationResponse<void>>;

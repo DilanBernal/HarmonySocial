@@ -1,5 +1,5 @@
 // src/domain/ports/UserFollowRepository.ts
-import UserFollow from "../../../infrastructure/entities/FollowEntity";
+import UserFollow from "../../../../infrastructure/entities/UserFollowsUserEntity";
 
 export interface UserFollowRepository {
   follow(followerId: number, followedId: number): Promise<UserFollow>;

@@ -1,5 +1,5 @@
 import { Repository, ILike, DeepPartial } from "typeorm";
-import { AppDataSource } from "../../config/con_database";
+import { SqlAppDataSource } from "../../config/con_database";
 import SongEntity from "../../entities/SongEntity";
 
 const toInt = (v: unknown): number | null => {
@@ -30,7 +30,7 @@ export default class SongAdapter {
   private readonly repo: Repository<SongEntity>;
 
   constructor() {
-    this.repo = AppDataSource.getRepository(SongEntity);
+    this.repo = SqlAppDataSource.getRepository(SongEntity);
   }
 
   async create(dto: CreateSongDTO): Promise<SongEntity> {
@@ -87,7 +87,7 @@ export default class SongAdapter {
     if (dto.album !== undefined) {
       // Si el DTO trae un id de álbum, busca el objeto AlbumEntity
       const AlbumEntity = require("../../entities/AlbumEntity").default;
-      albumObj = await AppDataSource.getRepository(AlbumEntity).findOne({ where: { id: dto.album } });
+      albumObj = await SqlAppDataSource.getRepository(AlbumEntity).findOne({ where: { id: dto.album } });
     }
 
     const partial: DeepPartial<SongEntity> = {

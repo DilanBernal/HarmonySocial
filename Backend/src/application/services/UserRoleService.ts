@@ -1,5 +1,5 @@
-import UserRolePort from "../../domain/ports/data/UserRolePort";
-import RolePort from "../../domain/ports/data/RolePort";
+import UserRolePort from "../../domain/ports/data/seg/UserRolePort";
+import RolePort from "../../domain/ports/data/seg/RolePort";
 import { ApplicationResponse } from "../shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes } from "../shared/errors/ApplicationError";
 import LoggerPort from "../../domain/ports/utils/LoggerPort";
@@ -9,7 +9,7 @@ export default class UserRoleService {
     private userRolePort: UserRolePort,
     private rolePort: RolePort,
     private logger: LoggerPort,
-  ) {}
+  ) { }
 
   async assign(userId: number, roleId: number): Promise<ApplicationResponse<void>> {
     try {

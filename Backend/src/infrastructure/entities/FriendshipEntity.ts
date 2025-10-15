@@ -7,7 +7,7 @@ import {
   JoinColumn,
   RelationId,
 } from "typeorm";
-import { FrienshipStatus } from "../../domain/models/Friendship";
+import { FrienshipStatus } from "../../domain/models/social/Friendship";
 import UserEntity from "./UserEntity";
 
 @Entity({ name: "friendships", schema: "social" })

@@ -1,11 +1,11 @@
-import PermissionPort from "../../domain/ports/data/PermissionPort";
-import RolePermissionPort from "../../domain/ports/data/RolePermissionPort";
+import PermissionPort from "../../domain/ports/data/seg/PermissionPort";
+import RolePermissionPort from "../../domain/ports/data/seg/RolePermissionPort";
 import { ApplicationResponse } from "../shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes } from "../shared/errors/ApplicationError";
-import Permission, { CorePermission } from "../../domain/models/Permission";
+import Permission, { CorePermission } from "../../domain/models/seg/Permission";
 
 export default class PermissionService {
-  constructor(private permissionPort: PermissionPort) {}
+  constructor(private permissionPort: PermissionPort) { }
 
   async create(name: string, description?: string) {
     if (!name || name.length < 3) {

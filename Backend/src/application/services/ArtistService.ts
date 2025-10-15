@@ -1,14 +1,14 @@
 import { ApplicationResponse } from "../shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes } from "../shared/errors/ApplicationError";
-import Artist, { ArtistStatus } from "../../domain/models/Artist";
+import Artist, { ArtistStatus } from "../../domain/models/music/Artist";
 import ArtistPort from "../../domain/ports/data/ArtistPort";
 import { ArtistSearchFilters } from "../dto/requests/Artist/ArtistSearchFilters";
 import ArtistCreateRequest from "../dto/requests/Artist/ArtistCreateRequest";
 import ArtistUpdateRequest from "../dto/requests/Artist/ArtistUpdateRequest";
 import ArtistResponse from "../dto/responses/ArtistResponse";
 import LoggerPort from "../../domain/ports/utils/LoggerPort";
-import RolePort from "../../domain/ports/data/RolePort";
-import UserRolePort from "../../domain/ports/data/UserRolePort";
+import RolePort from "../../domain/ports/data/seg/RolePort";
+import UserRolePort from "../../domain/ports/data/seg/UserRolePort";
 import PaginationRequest from "../dto/utils/PaginationRequest";
 import PaginationResponse from "../dto/utils/PaginationResponse";
 

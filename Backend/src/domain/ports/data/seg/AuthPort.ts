@@ -1,5 +1,5 @@
-import LoginRequest from "../../../application/dto/requests/User/LoginRequest";
-import AuthResponse from "../../../application/dto/responses/seg/user/AuthResponse";
+import LoginRequest from "../../../../application/dto/requests/User/LoginRequest";
+import AuthResponse from "../../../../application/dto/responses/seg/user/AuthResponse";
 
 export default interface AuthPort {
   loginUser(

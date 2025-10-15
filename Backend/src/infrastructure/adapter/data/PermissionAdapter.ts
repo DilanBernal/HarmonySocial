@@ -1,14 +1,14 @@
 import { Repository } from "typeorm";
-import PermissionPort from "../../../domain/ports/data/PermissionPort";
+import PermissionPort from "../../../domain/ports/data/seg/PermissionPort";
 import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
-import { AppDataSource } from "../../config/con_database";
+import { SqlAppDataSource } from "../../config/con_database";
 import PermissionEntity from "../../entities/PermissionEntity";
-import Permission from "../../../domain/models/Permission";
+import Permission from "../../../domain/models/seg/Permission";
 
 export default class PermissionAdapter implements PermissionPort {
   private repo: Repository<PermissionEntity>;
   constructor() {
-    this.repo = AppDataSource.getRepository(PermissionEntity);
+    this.repo = SqlAppDataSource.getRepository(PermissionEntity);
   }
 
   async create(permission: Partial<Permission>) {

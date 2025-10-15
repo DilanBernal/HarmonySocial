@@ -1,5 +1,5 @@
-import Permission from "../../models/Permission";
-import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
+import Permission from "../../../models/seg/Permission";
+import { ApplicationResponse } from "../../../../application/shared/ApplicationReponse";
 
 export default interface PermissionPort {
   create(permission: Partial<Permission>): Promise<ApplicationResponse<number>>;

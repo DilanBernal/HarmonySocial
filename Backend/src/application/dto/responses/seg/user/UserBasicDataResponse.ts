@@ -1,4 +1,4 @@
-import { UserInstrument } from "../../../../../domain/models/User";
+import { UserInstrument } from "../../../../../domain/models/seg/User";
 
 type UserBasicDataResponse = {
   id: number;

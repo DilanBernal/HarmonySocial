@@ -1,4 +1,4 @@
-import { Song } from "../../models/Song";
+import { Song } from "../../models/music/Song";
 import { SongCreateDTO } from "../../../application/dto/requests/Song/SongCreateRequestDto";
 import { SongUpdateDTO } from "../../../application/dto/requests/Song/SongUpdateRequestDto";
 

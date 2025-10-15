@@ -1,5 +1,5 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
-import { ArtistStatus } from "../../domain/models/Artist";
+import { ArtistStatus } from "../../domain/models/music/Artist";
 
 @Entity({ name: "artists", schema: "music" })
 @Index("IDX_artist_name_status", ["artist_name", "status"])

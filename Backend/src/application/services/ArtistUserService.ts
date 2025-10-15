@@ -1,5 +1,5 @@
-import UserRolePort from "../../domain/ports/data/UserRolePort";
-import UserPort from "../../domain/ports/data/UserPort";
+import UserRolePort from "../../domain/ports/data/seg/UserRolePort";
+import UserPort from "../../domain/ports/data/seg/UserPort";
 import { ApplicationResponse } from "../shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes } from "../shared/errors/ApplicationError";
 import LoggerPort from "../../domain/ports/utils/LoggerPort";
@@ -9,7 +9,7 @@ export default class ArtistUserService {
     private userRolePort: UserRolePort,
     private userPort: UserPort,
     private logger: LoggerPort,
-  ) {}
+  ) { }
 
   async listArtistUsers(): Promise<ApplicationResponse<any[]>> {
     try {

@@ -1,5 +1,5 @@
-import AuthPort from "../../domain/ports/data/AuthPort";
-import UserPort from "../../domain/ports/data/UserPort";
+import AuthPort from "../../domain/ports/data/seg/AuthPort";
+import UserPort from "../../domain/ports/data/seg/UserPort";
 import EmailPort from "../../domain/ports/utils/EmailPort";
 import LoggerPort from "../../domain/ports/utils/LoggerPort";
 import LoginRequest from "../dto/requests/User/LoginRequest";
@@ -8,7 +8,7 @@ import AuthResponse from "../dto/responses/seg/user/AuthResponse";
 import { ApplicationResponse } from "../shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes, ErrorCode } from "../shared/errors/ApplicationError";
 import TokenPort from "../../domain/ports/utils/TokenPort";
-import UserRolePort from "../../domain/ports/data/UserRolePort";
+import UserRolePort from "../../domain/ports/data/seg/UserRolePort";
 import RolePermissionAdapter from "../../infrastructure/adapter/data/RolePermissionAdapter";
 import EmptyRequestResponse from "../shared/responses/EmptyRequestResponse";
 import NotFoundResponse from "../shared/responses/NotFoundResponse";

@@ -1,4 +1,4 @@
-import Role from "../../models/Role";
+import Role from "../../../models/seg/Role";
 
 export interface RoleCreateData {
   name: string;

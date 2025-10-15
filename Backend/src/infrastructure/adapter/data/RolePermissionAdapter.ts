@@ -1,20 +1,20 @@
 import { In, Repository } from "typeorm";
-import RolePermissionPort from "../../../domain/ports/data/RolePermissionPort";
+import RolePermissionPort from "../../../domain/ports/data/seg/RolePermissionPort";
 import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
-import { AppDataSource } from "../../config/con_database";
+import { SqlAppDataSource } from "../../config/con_database";
 import RolePermissionEntity from "../../entities/RolePermissionEntity";
 import RoleEntity from "../../entities/RoleEntity";
 import PermissionEntity from "../../entities/PermissionEntity";
-import Permission from "../../../domain/models/Permission";
+import Permission from "../../../domain/models/seg/Permission";
 
 export default class RolePermissionAdapter implements RolePermissionPort {
   private repo: Repository<RolePermissionEntity>;
   private roleRepo: Repository<RoleEntity>;
   private permRepo: Repository<PermissionEntity>;
   constructor() {
-    this.repo = AppDataSource.getRepository(RolePermissionEntity);
-    this.roleRepo = AppDataSource.getRepository(RoleEntity);
-    this.permRepo = AppDataSource.getRepository(PermissionEntity);
+    this.repo = SqlAppDataSource.getRepository(RolePermissionEntity);
+    this.roleRepo = SqlAppDataSource.getRepository(RoleEntity);
+    this.permRepo = SqlAppDataSource.getRepository(PermissionEntity);
   }
 
   async assign(roleId: number, permissionId: number) {

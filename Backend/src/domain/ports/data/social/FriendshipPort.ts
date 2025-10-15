@@ -1,7 +1,7 @@
-import FriendshipUsersIdsRequest from "../../../application/dto/requests/Friendship/FriendshipUsersIdsRequest";
-import Friendship from "../../models/Friendship";
-import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
-import FriendshipsResponse from "../../../application/dto/responses/FriendshipsResponse";
+import FriendshipUsersIdsRequest from "../../../../application/dto/requests/Friendship/FriendshipUsersIdsRequest";
+import Friendship from "../../../models/social/Friendship";
+import { ApplicationResponse } from "../../../../application/shared/ApplicationReponse";
+import FriendshipsResponse from "../../../../application/dto/responses/FriendshipsResponse";
 
 export default interface FriendshipPort {
   createFriendship(req: FriendshipUsersIdsRequest): Promise<ApplicationResponse<boolean>>;

@@ -1,10 +1,10 @@
-import { AppDataSource } from "../../config/con_database";
+import { SqlAppDataSource } from "../../config/con_database";
 import RoleEntity from "../../entities/RoleEntity";
-import RolePort, { RoleCreateData, RoleUpdateData } from "../../../domain/ports/data/RolePort";
-import Role from "../../../domain/models/Role";
+import RolePort, { RoleCreateData, RoleUpdateData } from "../../../domain/ports/data/seg/RolePort";
+import Role from "../../../domain/models/seg/Role";
 
 export default class RoleAdapter implements RolePort {
-  private repo = AppDataSource.getRepository(RoleEntity);
+  private repo = SqlAppDataSource.getRepository(RoleEntity);
 
   async create(data: RoleCreateData): Promise<number> {
     const entity = this.repo.create({ name: data.name, description: data.description });
@@ -26,12 +26,12 @@ export default class RoleAdapter implements RolePort {
     const r = await this.repo.findOne({ where: { id } });
     return r
       ? {
-          id: r.id,
-          name: r.name,
-          description: r.description ?? undefined,
-          created_at: r.created_at,
-          updated_at: r.updated_at ?? undefined,
-        }
+        id: r.id,
+        name: r.name,
+        description: r.description ?? undefined,
+        created_at: r.created_at,
+        updated_at: r.updated_at ?? undefined,
+      }
       : null;
   }
 
@@ -39,12 +39,12 @@ export default class RoleAdapter implements RolePort {
     const r = await this.repo.findOne({ where: { name } });
     return r
       ? {
-          id: r.id,
-          name: r.name,
-          description: r.description ?? undefined,
-          created_at: r.created_at,
-          updated_at: r.updated_at ?? undefined,
-        }
+        id: r.id,
+        name: r.name,
+        description: r.description ?? undefined,
+        created_at: r.created_at,
+        updated_at: r.updated_at ?? undefined,
+      }
       : null;
   }
 

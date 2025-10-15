@@ -1,8 +1,8 @@
-import PaginationRequest from "../../../application/dto/utils/PaginationRequest";
-import UserBasicDataResponse from "../../../application/dto/responses/seg/user/UserBasicDataResponse";
-import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
-import User from "../../models/User";
-import PaginationResponse from "../../../application/dto/utils/PaginationResponse";
+import PaginationRequest from "../../../../application/dto/utils/PaginationRequest";
+import UserBasicDataResponse from "../../../../application/dto/responses/seg/user/UserBasicDataResponse";
+import { ApplicationResponse } from "../../../../application/shared/ApplicationReponse";
+import User from "../../../models/seg/User";
+import PaginationResponse from "../../../../application/dto/utils/PaginationResponse";
 
 export default interface UserPort {
   //Sección de creacion

@@ -13,10 +13,10 @@ import {
   Like,
   Brackets,
 } from "typeorm";
-import UserPort from "../../../domain/ports/data/UserPort";
+import UserPort from "../../../domain/ports/data/seg/UserPort";
 import UserEntity from "../../entities/UserEntity";
-import { AppDataSource } from "../../config/con_database";
-import User, { UserStatus } from "../../../domain/models/User";
+import { SqlAppDataSource } from "../../config/con_database";
+import User, { UserStatus } from "../../../domain/models/seg/User";
 import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
 import {
   ApplicationError,
@@ -46,7 +46,7 @@ export default class UserAdapter implements UserPort {
   ];
 
   constructor() {
-    this.userRepository = AppDataSource.getRepository(UserEntity);
+    this.userRepository = SqlAppDataSource.getRepository(UserEntity);
   }
 
   private toDomain(user: UserEntity): User {
