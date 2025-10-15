@@ -1,9 +1,9 @@
 import UserTag from "./UserTag";
 
 type UserPreferences = {
-  UserId: number;
-  LikedTags: Array<UserTag>;
-  DislikedTags: Array<UserTag>;
+  userId: number;
+  likedTags?: Array<UserTag>;
+  dislikedTags?: Array<UserTag>;
 }
 
 export default UserPreferences;

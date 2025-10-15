@@ -1,5 +1,8 @@
 import Tag from "./Tag";
 
-type UserTag = Record<Tag, number>;
+type UserTag = {
+  name: Tag,
+  count: number
+};
 
 export default UserTag;
