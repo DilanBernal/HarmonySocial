@@ -6,12 +6,12 @@ import { ApplicationResponse } from "../../../../src/application/shared/Applicat
 import { ApplicationError, ErrorCodes } from "../../../../src/application/shared/errors/ApplicationError";
 
 // Importar los puertos para tiparlos correctamente
-import UserPort from "../../../../src/domain/ports/data/UserPort";
-import AuthPort from "../../../../src/domain/ports/data/AuthPort";
+import UserPort from "../../../../src/domain/ports/data/seg/UserPort";
+import AuthPort from "../../../../src/domain/ports/data/seg/AuthPort";
 import EmailPort from "../../../../src/domain/ports/utils/EmailPort";
 import LoggerPort from "../../../../src/domain/ports/utils/LoggerPort";
 import TokenPort from "../../../../src/domain/ports/utils/TokenPort";
-import UserRolePort from "../../../../src/domain/ports/data/UserRolePort";
+import UserRolePort from "../../../../src/domain/ports/data/seg/UserRolePort";
 import { createMockTokenPort } from "../../mocks/ports/utils/TokenPort.mock";
 import createEmailPortMock from "../../mocks/ports/utils/EmailPort.mock";
 import createLoggerPort from "../../mocks/ports/extra/LoggerPort.mock";

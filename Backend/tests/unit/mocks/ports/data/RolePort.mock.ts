@@ -1,5 +1,5 @@
-import RolePort, { RoleCreateData, RoleUpdateData } from "../../../../../src/domain/ports/data/RolePort";
-import Role from "../../../../../src/domain/models/Role";
+import RolePort, { RoleCreateData, RoleUpdateData } from "../../../../../src/domain/ports/data/seg/RolePort";
+import Role from "../../../../../src/domain/models/seg/Role";
 
 // Mock data para roles basados en el seed y la estructura real
 const mockRoles: Role[] = [

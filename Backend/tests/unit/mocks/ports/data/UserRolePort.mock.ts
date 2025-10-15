@@ -1,6 +1,6 @@
-import UserRolePort from "../../../../../src/domain/ports/data/UserRolePort";
-import Role from "../../../../../src/domain/models/Role";
-import { CorePermission } from "../../../../../src/domain/models/Permission";
+import UserRolePort from "../../../../../src/domain/ports/data/seg/UserRolePort";
+import Role from "../../../../../src/domain/models/seg/Role";
+import { CorePermission } from "../../../../../src/domain/models/seg/Permission";
 
 // Mock data para roles basados en el seed
 const mockRoles: Role[] = [

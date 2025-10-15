@@ -1,7 +1,7 @@
 import UserService from "../../application/services/UserService";
 import AuthService from "../../application/services/AuthService";
 import { Request, Response } from "express";
-import User from "../../domain/models/User";
+import User from "../../domain/models/seg/User";
 import { ErrorCodes } from "../../application/shared/errors/ApplicationError";
 import { ApplicationResponse } from "../../application/shared/ApplicationReponse";
 import RegisterRequest from "../../application/dto/requests/User/RegisterRequest";

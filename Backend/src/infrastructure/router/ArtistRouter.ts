@@ -13,7 +13,7 @@ import {
   requirePermissions,
   enrichPermissionsFromToken,
 } from "../middleware/authorizationMiddleware";
-import { CorePermission } from "../../domain/models/Permission";
+import { CorePermission } from "../../domain/models/seg/Permission";
 import parseNestedQuery from "../middleware/parseNestedQuery";
 import { validatePaginatedRequest } from "../middleware/validatePaginatedRequest";
 import userSearchParamsSchema from "../validator/seg/user/UserPaginatedValidator";

@@ -1,6 +1,6 @@
 import * as joi from "joi";
 import { findRegex, userFindRegex } from "../../../../application/shared/utils/regexIndex";
-import { UserInstrument } from "../../../../domain/models/User";
+import { UserInstrument } from "../../../../domain/models/seg/User";
 
 const instrumentValues = Object.values(UserInstrument);
 

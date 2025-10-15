@@ -2,11 +2,11 @@ import RegisterRequest from "../../../../src/application/dto/requests/User/Regis
 import UserService from "../../../../src/application/services/UserService";
 import { ApplicationResponse } from "../../../../src/application/shared/ApplicationReponse";
 import { ErrorCodes } from "../../../../src/application/shared/errors/ApplicationError";
-import User, { UserStatus, UserInstrument } from "../../../../src/domain/models/User";
-import AuthPort from "../../../../src/domain/ports/data/AuthPort";
-import RolePort from "../../../../src/domain/ports/data/RolePort";
-import UserPort from "../../../../src/domain/ports/data/UserPort";
-import UserRolePort from "../../../../src/domain/ports/data/UserRolePort";
+import User, { UserStatus, UserInstrument } from "../../../../src/domain/models/seg/User";
+import AuthPort from "../../../../src/domain/ports/data/seg/AuthPort";
+import RolePort from "../../../../src/domain/ports/data/seg/RolePort";
+import UserPort from "../../../../src/domain/ports/data/seg/UserPort";
+import UserRolePort from "../../../../src/domain/ports/data/seg/UserRolePort";
 import EmailPort from "../../../../src/domain/ports/utils/EmailPort";
 import LoggerPort from "../../../../src/domain/ports/utils/LoggerPort";
 import TokenPort from "../../../../src/domain/ports/utils/TokenPort";

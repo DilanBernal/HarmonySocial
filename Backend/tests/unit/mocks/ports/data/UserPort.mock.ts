@@ -5,8 +5,8 @@ import UserBasicDataResponse from "../../../../../src/application/dto/responses/
 import PaginationRequest from "../../../../../src/application/dto/utils/PaginationRequest";
 import PaginationResponse from "../../../../../src/application/dto/utils/PaginationResponse";
 import UserSearchParamsRequest from "../../../../../src/application/dto/requests/User/UserSearchParamsRequest";
-import UserPort from "../../../../../src/domain/ports/data/UserPort";
-import User, { UserStatus, UserInstrument } from "../../../../../src/domain/models/User";
+import UserPort from "../../../../../src/domain/ports/data/seg/UserPort";
+import User, { UserStatus, UserInstrument } from "../../../../../src/domain/models/seg/User";
 
 // Mock data para las pruebas
 const mockUser: User = {
