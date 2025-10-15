@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import ArtistEntity from "./ArtistEntity";
-import UserEntity from "./UserEntity";
+import { UserEntity } from "../index";
 
 @Entity({ name: "album", schema: "music" })
 export default class AlbumEntity {

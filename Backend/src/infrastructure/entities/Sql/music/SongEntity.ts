@@ -9,7 +9,7 @@ import {
 } from "typeorm";
 import ArtistEntity from "./ArtistEntity";
 import AlbumEntity from "./AlbumEntity";
-import UserEntity from "./UserEntity";
+import UserEntity from "../seg/UserEntity";
 
 @Entity({ name: "songs", schema: "music" })
 export default class SongEntity {

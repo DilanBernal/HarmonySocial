@@ -14,6 +14,7 @@ export type ReturnEnvironmentVars = {
   DB_PG_SCHEMA: string;
   DB_PG_SYNC: boolean;
   DB_MONGO_CON_STRING: string;
+  DB_MONGO_NAME: string;
   PASSWORD_SALT: number;
   JWT_SECRET: string;
   SMTP_HOST: string;
@@ -44,6 +45,7 @@ function validateEnvVars(vars: NodeJS.ProcessEnv): ValidationEnvironmentVars {
       DB_PG_SCHEMA: joi.string().required(),
       DB_PG_SYNC: joi.boolean().default(false).required(),
       DB_MONGO_CON_STRING: joi.string().required(),
+      DB_MONGO_NAME: joi.string().required(),
       PASSWORD_SALT: joi.number().default(4).required(),
       JWT_SECRET: joi.string().min(32).required(),
       SMTP_HOST: joi.string().required(),
@@ -78,6 +80,7 @@ function loadEnvVars(): ReturnEnvironmentVars {
     DB_PG_PASSWORD: value.DB_PG_PASSWORD,
     DB_PG_SYNC: value.DB_PG_SYNC,
     DB_MONGO_CON_STRING: value.DB_MONGO_CON_STRING,
+    DB_MONGO_NAME: value.DB_MONGO_NAME,
     PASSWORD_SALT: value.PASSWORD_SALT,
     JWT_SECRET: value.JWT_SECRET,
     SMTP_HOST: value.SMTP_HOST,

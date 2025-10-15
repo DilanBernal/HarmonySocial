@@ -1,5 +1,5 @@
 import { CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import UserEntity from "./UserEntity";
+import UserEntity from "../seg/UserEntity";
 
 @Entity({ name: "user_follows_user", schema: "social" })
 export default class UserFollowEntity {

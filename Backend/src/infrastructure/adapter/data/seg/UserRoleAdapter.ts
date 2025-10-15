@@ -1,7 +1,6 @@
 import { SqlAppDataSource } from "../../../config/con_database";
 import UserRolePort from "../../../../domain/ports/data/seg/UserRolePort";
-import UserRoleEntity from "../../../entities/UserRoleEntity";
-import RoleEntity from "../../../entities/RoleEntity";
+import { RoleEntity, UserRoleEntity } from "../../../entities/Sql";
 import Role from "../../../../domain/models/seg/Role";
 
 export default class UserRoleAdapter implements UserRolePort {

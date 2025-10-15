@@ -14,7 +14,7 @@ import {
   Brackets,
 } from "typeorm";
 import UserPort from "../../../../domain/ports/data/seg/UserPort";
-import UserEntity from "../../../entities/UserEntity";
+import { UserEntity } from "../../../entities/Sql";
 import { SqlAppDataSource } from "../../../config/con_database";
 import User, { UserStatus } from "../../../../domain/models/seg/User";
 import { ApplicationResponse } from "../../../../application/shared/ApplicationReponse";

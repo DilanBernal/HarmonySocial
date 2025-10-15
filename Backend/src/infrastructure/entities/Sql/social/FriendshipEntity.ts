@@ -8,7 +8,7 @@ import {
   RelationId,
 } from "typeorm";
 import { FrienshipStatus } from "../../../../domain/models/social/Friendship";
-import UserEntity from "./UserEntity";
+import UserEntity from "../seg/UserEntity";
 
 @Entity({ name: "friendships", schema: "social" })
 @Index(["user", "friend", "status"], { unique: true })

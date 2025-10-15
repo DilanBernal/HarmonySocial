@@ -4,7 +4,6 @@ import AuthResponse from "../../../../application/dto/responses/seg/user/AuthRes
 import AuthPort from "../../../../domain/ports/data/seg/AuthPort";
 import envs from "../../../config/environment-vars";
 import jwt from "jsonwebtoken";
-import Email from "../../../../application/dto/utils/Email";
 
 export default class AuthAdapter implements AuthPort {
   async comparePasswords(password: string, hashPassword: string): Promise<boolean> {

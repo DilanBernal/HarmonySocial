@@ -1,4 +1,4 @@
-import { MongoClient, ServerApiVersion } from "mongodb";
+import { Db, MongoClient, ServerApiVersion } from "mongodb";
 import { DataSource } from "typeorm";
 import AlbumEntity from "../entities/Sql/music/AlbumEntity";
 import ArtistEntity from "../entities/Sql/music/ArtistEntity";
@@ -8,6 +8,11 @@ import { PermissionEntity, UserEntity, UserRoleEntity, RoleEntity, RolePermissio
 import FriendshipEntity from "../entities/Sql/social/FriendshipEntity";
 import UserFollowEntity from "../entities/Sql/social/UserFollowsUserEntity";
 import envs from "./environment-vars";
+import LoggerAdapter from "../adapter/utils/LoggerAdapter";
+import LoggerPort from "../../domain/ports/utils/LoggerPort";
+
+
+const loggerAdapter: LoggerPort = new LoggerAdapter();
 
 export const SqlAppDataSource = new DataSource({
   type: "postgres",
@@ -37,27 +42,49 @@ export const SqlAppDataSource = new DataSource({
 export const connectSqlDB = async () => {
   try {
     await SqlAppDataSource.initialize();
+    loggerAdapter.info("Se inicio correctamente la base de datos SQL");
   } catch (error) {
     console.error("Error connecting to the DB", error);
     process.exit(1);
   }
 };
 
-export const connectMongoDB = async () => {
-  const client = new MongoClient(envs.DB_MONGO_CON_STRING, {
-    serverApi: {
-      version: ServerApiVersion.v1,
-      strict: true,
-    }
-  });
+let mongoClient: MongoClient | null = null;
+let mongoDb: Db | null = null;
 
+export const connectMongoDB = async (): Promise<Db> => {
+  if (mongoDb) return mongoDb;
   try {
-    return await client.connect();
 
+    mongoClient = new MongoClient(envs.DB_MONGO_CON_STRING, {
+      serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+      }
+    });
+
+    await mongoClient.connect();
+    mongoDb = mongoClient.db('HarmonySocial');
+    loggerAdapter.info("Se inicio correctamente la base de datos NoSQL");
+
+    return mongoDb;
   } catch (error) {
-    console.error(error);
+    console.error("Error conectando a MongoDB:", error);
     process.exit(1);
-  } finally {
-    await client.close();
   }
 }
+
+export const getMongoDB = (): Db => {
+  if (!mongoClient) {
+    throw new Error("Mongo no esta conectado");
+  }
+
+  return mongoClient.db(envs.DB_MONGO_NAME);
+}
+
+export const closeMongoDB = async () => {
+  if (mongoClient) {
+    await mongoClient.close();
+    mongoClient = null;
+  }
+} 
