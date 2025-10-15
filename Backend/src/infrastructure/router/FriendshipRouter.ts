@@ -1,5 +1,5 @@
-import FriendshipAdapter from "../adapter/data/FrienshipAdapter";
-import UserAdapter from "../adapter/data/UserAdapter";
+import FriendshipAdapter from "../adapter/data/social/FrienshipAdapter";
+import UserAdapter from "../adapter/data/seg/UserAdapter";
 import LoggerAdapter from "../adapter/utils/LoggerAdapter";
 import FriendshipService from "../../application/services/FriendshipService";
 import authenticateToken from "../middleware/authMiddleware";
@@ -73,7 +73,7 @@ friendshipRouter.get("/user/:id", authenticateToken, async (req, res) => {
 friendshipRouter.get("/common", authenticateToken, async (req, res) => {
   try {
     await friendshipController.getCommonFriendships(req, res);
-  } catch (error) {}
+  } catch (error) { }
 });
 
 /**

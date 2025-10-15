@@ -1,6 +1,6 @@
 import { Router } from "express";
-import RoleAdapter from "../adapter/data/RoleAdapter";
-import UserRoleAdapter from "../adapter/data/UserRoleAdapter";
+import RoleAdapter from "../adapter/data/seg/RoleAdapter";
+import UserRoleAdapter from "../adapter/data/seg/UserRoleAdapter";
 import RoleService from "../../application/services/RoleService";
 import UserRoleService from "../../application/services/UserRoleService";
 import LoggerAdapter from "../adapter/utils/LoggerAdapter";

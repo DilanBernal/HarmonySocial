@@ -5,3 +5,5 @@ type UserPreferencers = {
   LikedTags: Array<UserTag>;
   DislikedTags: Array<UserTag>;
 }
+
+export default UserPreferencers;

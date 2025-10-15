@@ -1,5 +1,5 @@
 import { Router } from "express";
-import PermissionAdapter from "../adapter/data/PermissionAdapter";
+import PermissionAdapter from "../adapter/data/seg/PermissionAdapter";
 import PermissionService from "../../application/services/PermissionService";
 import PermissionController from "../controller/PermissionController";
 

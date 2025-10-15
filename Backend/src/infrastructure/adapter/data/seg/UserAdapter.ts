@@ -13,21 +13,21 @@ import {
   Like,
   Brackets,
 } from "typeorm";
-import UserPort from "../../../domain/ports/data/seg/UserPort";
-import UserEntity from "../../entities/UserEntity";
-import { SqlAppDataSource } from "../../config/con_database";
-import User, { UserStatus } from "../../../domain/models/seg/User";
-import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
+import UserPort from "../../../../domain/ports/data/seg/UserPort";
+import UserEntity from "../../../entities/UserEntity";
+import { SqlAppDataSource } from "../../../config/con_database";
+import User, { UserStatus } from "../../../../domain/models/seg/User";
+import { ApplicationResponse } from "../../../../application/shared/ApplicationReponse";
 import {
   ApplicationError,
   ErrorCodes,
   ErrorResponse,
-} from "../../../application/shared/errors/ApplicationError";
-import UserBasicDataResponse from "../../../application/dto/responses/seg/user/UserBasicDataResponse";
-import NotFoundResponse from "../../../application/shared/responses/NotFoundResponse";
-import PaginationRequest from "../../../application/dto/utils/PaginationRequest";
-import PaginationResponse from "../../../application/dto/utils/PaginationResponse";
-import UserSearchParamsRequest from "../../../application/dto/requests/User/UserSearchParamsRequest";
+} from "../../../../application/shared/errors/ApplicationError";
+import UserBasicDataResponse from "../../../../application/dto/responses/seg/user/UserBasicDataResponse";
+import NotFoundResponse from "../../../../application/shared/responses/NotFoundResponse";
+import PaginationRequest from "../../../../application/dto/utils/PaginationRequest";
+import PaginationResponse from "../../../../application/dto/utils/PaginationResponse";
+import UserSearchParamsRequest from "../../../../application/dto/requests/User/UserSearchParamsRequest";
 
 export default class UserAdapter implements UserPort {
   private userRepository: Repository<UserEntity>;

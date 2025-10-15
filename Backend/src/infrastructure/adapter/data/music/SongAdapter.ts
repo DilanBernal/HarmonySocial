@@ -1,6 +1,6 @@
 import { Repository, ILike, DeepPartial } from "typeorm";
-import { SqlAppDataSource } from "../../config/con_database";
-import SongEntity from "../../entities/SongEntity";
+import { SqlAppDataSource } from "../../../config/con_database";
+import SongEntity from "../../../entities/Sql/music/SongEntity";
 
 const toInt = (v: unknown): number | null => {
   if (v === null || v === undefined || v === "") return null;

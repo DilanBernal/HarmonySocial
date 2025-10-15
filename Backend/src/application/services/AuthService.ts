@@ -9,7 +9,7 @@ import { ApplicationResponse } from "../shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes, ErrorCode } from "../shared/errors/ApplicationError";
 import TokenPort from "../../domain/ports/utils/TokenPort";
 import UserRolePort from "../../domain/ports/data/seg/UserRolePort";
-import RolePermissionAdapter from "../../infrastructure/adapter/data/RolePermissionAdapter";
+import RolePermissionAdapter from "../../infrastructure/adapter/data/seg/RolePermissionAdapter";
 import EmptyRequestResponse from "../shared/responses/EmptyRequestResponse";
 import NotFoundResponse from "../shared/responses/NotFoundResponse";
 import areAllValuesEmpty from "../shared/utils/functions/areAllValuesEmpty";

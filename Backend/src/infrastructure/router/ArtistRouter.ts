@@ -1,8 +1,8 @@
 import { Router } from "express";
-import ArtistAdapter from "../adapter/data/ArtistAdapter";
+import ArtistAdapter from "../adapter/data/music/ArtistAdapter";
 import ArtistService from "../../application/services/ArtistService";
-import RoleAdapter from "../adapter/data/RoleAdapter";
-import UserRoleAdapter from "../adapter/data/UserRoleAdapter";
+import RoleAdapter from "../adapter/data/seg/RoleAdapter";
+import UserRoleAdapter from "../adapter/data/seg/UserRoleAdapter";
 import LoggerAdapter from "../adapter/utils/LoggerAdapter";
 import ArtistController from "../controller/ArtistController";
 import { validateRequest } from "../middleware/validateRequest";

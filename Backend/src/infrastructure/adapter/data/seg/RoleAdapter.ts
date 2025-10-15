@@ -1,7 +1,7 @@
-import { SqlAppDataSource } from "../../config/con_database";
-import RoleEntity from "../../entities/RoleEntity";
-import RolePort, { RoleCreateData, RoleUpdateData } from "../../../domain/ports/data/seg/RolePort";
-import Role from "../../../domain/models/seg/Role";
+import { SqlAppDataSource } from "../../../config/con_database";
+import RoleEntity from "../../../entities/RoleEntity";
+import RolePort, { RoleCreateData, RoleUpdateData } from "../../../../domain/ports/data/seg/RolePort";
+import Role from "../../../../domain/models/seg/Role";
 
 export default class RoleAdapter implements RolePort {
   private repo = SqlAppDataSource.getRepository(RoleEntity);

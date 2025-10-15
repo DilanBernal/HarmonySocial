@@ -9,7 +9,9 @@ import {
 } from "typeorm";
 import { UserStatus } from "../../domain/models/seg/User";
 
-// DEPRECATED: Mantener solo para compatibilidad de datos; no usar en nueva lógica.
+/**
+ * @deprecated DEPRECATED: Mantener solo para compatibilidad de datos; no usar en nueva lógica.
+ */
 @Entity({ name: "artist_user" })
 export default class ArtistUserEntity {
   @PrimaryGeneratedColumn({ type: "bigint" })

@@ -1,9 +1,9 @@
 import { Repository } from "typeorm";
-import PermissionPort from "../../../domain/ports/data/seg/PermissionPort";
-import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
-import { SqlAppDataSource } from "../../config/con_database";
-import PermissionEntity from "../../entities/PermissionEntity";
-import Permission from "../../../domain/models/seg/Permission";
+import PermissionPort from "../../../../domain/ports/data/seg/PermissionPort";
+import { ApplicationResponse } from "../../../../application/shared/ApplicationReponse";
+import { SqlAppDataSource } from "../../../config/con_database";
+import PermissionEntity from "../../../entities/PermissionEntity";
+import Permission from "../../../../domain/models/seg/Permission";
 
 export default class PermissionAdapter implements PermissionPort {
   private repo: Repository<PermissionEntity>;

@@ -1,14 +1,14 @@
 import { Repository, ILike, Like, FindOptionsWhere, Brackets } from "typeorm";
-import { SqlAppDataSource } from "../../config/con_database";
-import ArtistEntity from "../../entities/ArtistEntity";
-import Artist, { ArtistStatus } from "../../../domain/models/music/Artist";
-import ArtistPort from "../../../domain/ports/data/ArtistPort";
-import { ArtistSearchFilters } from "../../../application/dto/requests/Artist/ArtistSearchFilters";
-import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
-import { ApplicationError, ErrorCodes } from "../../../application/shared/errors/ApplicationError";
-import PaginationRequest from "../../../application/dto/utils/PaginationRequest";
-import PaginationResponse from "../../../application/dto/utils/PaginationResponse";
-import areAllValuesEmpty from "../../../application/shared/utils/functions/areAllValuesEmpty";
+import { SqlAppDataSource } from "../../../config/con_database";
+import ArtistEntity from "../../../entities/Sql/music/ArtistEntity";
+import Artist, { ArtistStatus } from "../../../../domain/models/music/Artist";
+import ArtistPort from "../../../../domain/ports/data/ArtistPort";
+import { ArtistSearchFilters } from "../../../../application/dto/requests/Artist/ArtistSearchFilters";
+import { ApplicationResponse } from "../../../../application/shared/ApplicationReponse";
+import { ApplicationError, ErrorCodes } from "../../../../application/shared/errors/ApplicationError";
+import PaginationRequest from "../../../../application/dto/utils/PaginationRequest";
+import PaginationResponse from "../../../../application/dto/utils/PaginationResponse";
+import areAllValuesEmpty from "../../../../application/shared/utils/functions/areAllValuesEmpty";
 
 export default class ArtistAdapter implements ArtistPort {
   private repo: Repository<ArtistEntity>;

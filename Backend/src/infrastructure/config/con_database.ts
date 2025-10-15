@@ -1,18 +1,13 @@
-import { DataSource } from "typeorm";
-import UserEntity from "../entities/UserEntity";
-import FriendshipEntity from "../entities/FriendshipEntity";
-import SongEntity from "../entities/SongEntity";
-import envs from "./environment-vars";
-import ArtistEntity from "../entities/ArtistEntity";
-import RoleEntity from "../entities/RoleEntity";
-import UserRoleEntity from "../entities/UserRoleEntity";
-import PermissionEntity from "../entities/PermissionEntity";
-import RolePermissionEntity from "../entities/RolePermissionEntity";
-import UserFollowEntity from "../entities/UserFollowsUserEntity";
-import AlbumEntity from "../entities/AlbumEntity";
-import MusicTheoryEntity from "../entities/MusicTheoryEntity";
 import { MongoClient, ServerApiVersion } from "mongodb";
-import e from "express";
+import { DataSource } from "typeorm";
+import AlbumEntity from "../entities/Sql/music/AlbumEntity";
+import ArtistEntity from "../entities/Sql/music/ArtistEntity";
+import MusicTheoryEntity from "../entities/Sql/music/MusicTheoryEntity";
+import SongEntity from "../entities/Sql/music/SongEntity";
+import { PermissionEntity, UserEntity, UserRoleEntity, RoleEntity, RolePermissionEntity } from "../entities/Sql";
+import FriendshipEntity from "../entities/Sql/social/FriendshipEntity";
+import UserFollowEntity from "../entities/Sql/social/UserFollowsUserEntity";
+import envs from "./environment-vars";
 
 export const SqlAppDataSource = new DataSource({
   type: "postgres",

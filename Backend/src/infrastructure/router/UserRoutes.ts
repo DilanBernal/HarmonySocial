@@ -1,11 +1,11 @@
 import { Request, Response, Router } from "express";
-import UserAdapter from "../adapter/data/UserAdapter";
+import UserAdapter from "../adapter/data/seg/UserAdapter";
 import UserService from "../../application/services/UserService";
 import AuthService from "../../application/services/AuthService";
 import UserController from "../controller/UserController";
-import RoleAdapter from "../adapter/data/RoleAdapter";
-import UserRoleAdapter from "../adapter/data/UserRoleAdapter";
-import AuthAdapter from "../adapter/data/AuthAdapter";
+import RoleAdapter from "../adapter/data/seg/RoleAdapter";
+import UserRoleAdapter from "../adapter/data/seg/UserRoleAdapter";
+import AuthAdapter from "../adapter/data/seg/AuthAdapter";
 import EmailNodemailerAdapter from "../adapter/utils/EmailAdapter";
 import LoggerAdapter from "../adapter/utils/LoggerAdapter";
 import TokenAdapter from "../adapter/utils/TokenAdapter";

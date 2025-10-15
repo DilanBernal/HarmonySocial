@@ -1,7 +1,7 @@
 // src/infrastructure/adapters/PostgresUserFollowRepository.ts
 import { Pool } from "pg";
-import UserFollow from "../../entities/UserFollowsUserEntity";
-import { UserFollowRepository } from "../../../domain/ports/data/social/UserFollowsUserPort";
+import UserFollow from "../../entities/Sql/seg/UserFollowsUserEntity";
+import { UserFollowRepository } from "../../../../domain/ports/data/social/UserFollowsUserPort";
 
 export class PostgresUserFollowRepository implements UserFollowRepository {
   constructor(private pool: Pool) { }

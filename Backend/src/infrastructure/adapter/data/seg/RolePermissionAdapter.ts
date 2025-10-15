@@ -1,11 +1,11 @@
 import { In, Repository } from "typeorm";
-import RolePermissionPort from "../../../domain/ports/data/seg/RolePermissionPort";
-import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
-import { SqlAppDataSource } from "../../config/con_database";
-import RolePermissionEntity from "../../entities/RolePermissionEntity";
-import RoleEntity from "../../entities/RoleEntity";
-import PermissionEntity from "../../entities/PermissionEntity";
-import Permission from "../../../domain/models/seg/Permission";
+import RolePermissionPort from "../../../../domain/ports/data/seg/RolePermissionPort";
+import { ApplicationResponse } from "../../../../application/shared/ApplicationReponse";
+import { SqlAppDataSource } from "../../../config/con_database";
+import RolePermissionEntity from "../../../entities/RolePermissionEntity";
+import RoleEntity from "../../../entities/RoleEntity";
+import PermissionEntity from "../../../entities/PermissionEntity";
+import Permission from "../../../../domain/models/seg/Permission";
 
 export default class RolePermissionAdapter implements RolePermissionPort {
   private repo: Repository<RolePermissionEntity>;

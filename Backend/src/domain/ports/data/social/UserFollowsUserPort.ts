@@ -1,10 +1,8 @@
-// src/domain/ports/UserFollowRepository.ts
-import UserFollow from "../../../../infrastructure/entities/UserFollowsUserEntity";
 
 export interface UserFollowRepository {
-  follow(followerId: number, followedId: number): Promise<UserFollow>;
+  follow(followerId: number, followedId: number): Promise<UserFollowsUser>;
   unfollow(followerId: number, followedId: number): Promise<void>;
-  getFollowers(userId: number): Promise<UserFollow[]>;
-  getFollowing(userId: number): Promise<UserFollow[]>;
+  getFollowers(userId: number): Promise<UserFollowsUser[]>;
+  getFollowing(userId: number): Promise<UserFollowsUser[]>;
   exists(followerId: number, followedId: number): Promise<boolean>;
 }

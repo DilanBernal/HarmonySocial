@@ -1,8 +1,8 @@
 import { Router } from "express";
 import authenticateToken from "../middleware/authMiddleware";
 import LoggerAdapter from "../adapter/utils/LoggerAdapter";
-import UserRoleAdapter from "../adapter/data/UserRoleAdapter";
-import UserAdapter from "../adapter/data/UserAdapter";
+import UserRoleAdapter from "../adapter/data/seg/UserRoleAdapter";
+import UserAdapter from "../adapter/data/seg/UserAdapter";
 import ArtistUserService from "../../application/services/ArtistUserService";
 import ArtistUserController from "../controller/ArtistUserController";
 

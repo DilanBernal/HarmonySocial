@@ -1,12 +1,12 @@
 import { FindOptionsWhere, In, QueryFailedError, Repository, Not, And } from "typeorm";
-import FriendshipUsersIdsRequest from "../../../application/dto/requests/Friendship/FriendshipUsersIdsRequest";
-import FriendshipsResponse from "../../../application/dto/responses/FriendshipsResponse";
-import { ApplicationResponse } from "../../../application/shared/ApplicationReponse";
-import FriendshipPort from "../../../domain/ports/data/social/FriendshipPort";
-import FriendshipEntity from "../../entities/FriendshipEntity";
-import { SqlAppDataSource } from "../../config/con_database";
-import Friendship, { FrienshipStatus } from "../../../domain/models/social/Friendship";
-import { ApplicationError, ErrorCodes } from "../../../application/shared/errors/ApplicationError";
+import FriendshipUsersIdsRequest from "../../../../application/dto/requests/Friendship/FriendshipUsersIdsRequest";
+import FriendshipsResponse from "../../../../application/dto/responses/FriendshipsResponse";
+import { ApplicationResponse } from "../../../../application/shared/ApplicationReponse";
+import FriendshipPort from "../../../../domain/ports/data/social/FriendshipPort";
+import FriendshipEntity from "../../../entities/Sql/social/FriendshipEntity";
+import { SqlAppDataSource } from "../../../config/con_database";
+import Friendship, { FrienshipStatus } from "../../../../domain/models/social/Friendship";
+import { ApplicationError, ErrorCodes } from "../../../../application/shared/errors/ApplicationError";
 
 export default class FriendshipAdapter implements FriendshipPort {
   private frienshipRepository: Repository<FriendshipEntity>;

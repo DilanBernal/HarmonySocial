@@ -1,10 +1,10 @@
 import bcrypt from "bcryptjs";
-import LoginRequest from "../../../application/dto/requests/User/LoginRequest";
-import AuthResponse from "../../../application/dto/responses/seg/user/AuthResponse";
-import AuthPort from "../../../domain/ports/data/seg/AuthPort";
-import envs from "../../config/environment-vars";
+import LoginRequest from "../../../../application/dto/requests/User/LoginRequest";
+import AuthResponse from "../../../../application/dto/responses/seg/user/AuthResponse";
+import AuthPort from "../../../../domain/ports/data/seg/AuthPort";
+import envs from "../../../config/environment-vars";
 import jwt from "jsonwebtoken";
-import Email from "../../../application/dto/utils/Email";
+import Email from "../../../../application/dto/utils/Email";
 
 export default class AuthAdapter implements AuthPort {
   async comparePasswords(password: string, hashPassword: string): Promise<boolean> {
