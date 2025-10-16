@@ -2,7 +2,7 @@ import { Repository, ILike, Like, FindOptionsWhere, Brackets } from "typeorm";
 import { SqlAppDataSource } from "../../../config/con_database";
 import ArtistEntity from "../../../entities/Sql/music/ArtistEntity";
 import Artist, { ArtistStatus } from "../../../../domain/models/music/Artist";
-import ArtistPort from "../../../../domain/ports/data/ArtistPort";
+import ArtistPort from "../../../../domain/ports/data/music/ArtistPort";
 import { ArtistSearchFilters } from "../../../../application/dto/requests/Artist/ArtistSearchFilters";
 import { ApplicationResponse } from "../../../../application/shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes } from "../../../../application/shared/errors/ApplicationError";
@@ -136,8 +136,6 @@ export default class ArtistAdapter implements ArtistPort {
     try {
       const tableRefName: string = "artist";
       const filters = req.filters ?? undefined;
-      console.log(filters);
-      console.log(req);
       if (!filters) {
         return ApplicationResponse.success(PaginationResponse.createEmpty());
       }
@@ -175,7 +173,6 @@ export default class ArtistAdapter implements ArtistPort {
       }
 
       if (req.page_number) {
-        console.log(req.page_number);
         queryBuilder.skip(req.page_number);
       }
       queryBuilder.limit(req.page_size ?? 5);
@@ -199,7 +196,6 @@ export default class ArtistAdapter implements ArtistPort {
       )
       return ApplicationResponse.success(response);
     } catch (error: any) {
-      console.log(error);
       return ApplicationResponse.failure(
         new ApplicationError(
           "Error al buscar artistas",

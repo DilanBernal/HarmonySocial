@@ -1,7 +1,7 @@
 import { ApplicationResponse } from "../shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes } from "../shared/errors/ApplicationError";
 import Artist, { ArtistStatus } from "../../domain/models/music/Artist";
-import ArtistPort from "../../domain/ports/data/ArtistPort";
+import ArtistPort from "../../domain/ports/data/music/ArtistPort";
 import { ArtistSearchFilters } from "../dto/requests/Artist/ArtistSearchFilters";
 import ArtistCreateRequest from "../dto/requests/Artist/ArtistCreateRequest";
 import ArtistUpdateRequest from "../dto/requests/Artist/ArtistUpdateRequest";

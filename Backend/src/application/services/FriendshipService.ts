@@ -279,8 +279,8 @@ export default class FriendshipService {
         user_id: reqId,
         friend_id: objId,
       });
-
-      console.log(response.error);
+      this.loggerPort.appDebug(response);
+      // console.log(response.error);
 
       return response;
     } catch (error) {

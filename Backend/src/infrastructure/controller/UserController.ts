@@ -54,7 +54,7 @@ export default class UserController {
       const userResponse = await this.userService.registerUser(user);
       if (userResponse.success) {
         return res.status(201).json({
-          userId: userResponse.data,
+          userId: typeof userResponse.data === "number" ? userResponse.data : Number(userResponse.data),
         });
       } else {
         if (userResponse.error) {

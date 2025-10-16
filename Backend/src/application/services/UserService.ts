@@ -180,13 +180,15 @@ export default class UserService {
         normalized_username: user.username.toUpperCase(),
       };
 
+
       const response = await this.userPort.createUser(userDomain);
+
 
       if (response.success) {
         // Asignar rol por defecto
         const userId = response.data!;
         try {
-          await this.userRolePort.assignRoleToUser(userId, defaultRole.id);
+          this.userRolePort.assignRoleToUser(userId, defaultRole.id).then(() => this.loggerPort.debug("Se le asigno el rol al usuario por defecto"));
         } catch (e) {
           this.loggerPort.error("Fallo asignando rol por defecto al usuario", [
             (e as any)?.message,
@@ -210,21 +212,13 @@ export default class UserService {
           securityStamp,
           concurrencyStamp,
         );
-        welcomeEmail.text = `Bienvenido a HarmonyMusical, entra a este link para activar tu cuenta ${envs.FRONTEND_URL}/verify-email?token=${verificationToken}`;
-        if (!(await this.emailPort.sendEmail(welcomeEmail))) {
-          this.loggerPort.fatal(
-            `No se le pudo enviar el correo de confirmacion al email ${user.email}`,
-            { origen: __dirname },
-          );
-          await this.userPort.deleteUser(userId);
 
-          return ApplicationResponse.failure(
-            new ApplicationError(
-              "Ocurrio un error al enviar el correo de confirmacion",
-              ErrorCodes.SERVER_ERROR,
-            ),
-          );
-        }
+        welcomeEmail.text = `Bienvenido a HarmonyMusical, entra a este link para activar tu cuenta ${envs.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+
+        this.emailPort.sendEmail(welcomeEmail)
+          .then(() => { this.loggerPort.info(`Correo enviado a ${user.email}`) })
+          .catch((err) => { this.loggerPort.error("Fallo enviando el correo", err) });
+
       }
       return response;
     } catch (error: unknown) {
@@ -250,6 +244,7 @@ export default class UserService {
         new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR, undefined, undefined),
       );
     }
+
   }
 
   async deleteUser(id: number): Promise<ApplicationResponse> {
@@ -750,8 +745,8 @@ export default class UserService {
           new ApplicationError("Token inválido o expirado", ErrorCodes.VALIDATION_ERROR),
         );
       }
-      const user = await this.userPort.getUserByEmail(request.email);
-      if (!user.success && user.data) {
+      const user = await this.userPort.getUserByEmail(request.email.toUpperCase());
+      if (!user.success || !user.data) {
         return ApplicationResponse.failure(
           new ApplicationError("No se encontro el usuario", ErrorCodes.INVALID_EMAIL),
         );
@@ -764,7 +759,6 @@ export default class UserService {
         security_stamp: this.tokenPort.generateStamp(),
       };
 
-      // Aquí necesitarías el ID del usuario desde el token
       await this.userPort.updateUser(user.data!.id, updateData);
 
       return ApplicationResponse.emptySuccess();

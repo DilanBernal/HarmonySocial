@@ -1,13 +1,15 @@
-import "reflect-metadata";
+// import "reflect-metadata";
 import { SqlAppDataSource } from "../config/con_database";
 import {
   CorePermissionsList,
   DefaultRolePermissionMapping,
   CorePermission,
 } from "../../domain/models/seg/Permission";
-import PermissionEntity from "../entities/PermissionEntity";
-import RoleEntity from "../entities/RoleEntity";
-import RolePermissionEntity from "../entities/RolePermissionEntity";
+import {
+  PermissionEntity,
+  RoleEntity,
+  RolePermissionEntity
+} from "../entities/Sql";
 
 async function seed() {
   if (!SqlAppDataSource.isInitialized) await SqlAppDataSource.initialize();

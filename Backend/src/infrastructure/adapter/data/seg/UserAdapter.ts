@@ -347,7 +347,7 @@ export default class UserAdapter implements UserPort {
   async getUserByEmail(email: string): Promise<ApplicationResponse<User>> {
     try {
       const whereCondition: FindOptionsWhere<UserEntity>[] = [
-        { email: email, status: Not(In(this.negativeStatus)) },
+        { normalized_email: email, status: Not(In(this.negativeStatus)) },
       ];
       const user = await this.userRepository.findOneOrFail({ where: whereCondition });
       return ApplicationResponse.success(this.toDomain(user));
@@ -616,6 +616,7 @@ export default class UserAdapter implements UserPort {
 
       const userExists: UserEntity = await this.userRepository.findOneOrFail({
         where: whereCondition,
+        select: { id: true }
       });
       return ApplicationResponse.success(userExists != null);
     } catch (error: unknown) {
@@ -641,7 +642,7 @@ export default class UserAdapter implements UserPort {
       const whereCondition: FindOptionsWhere<UserEntity>[] = [
         { id: id, status: Not(In(this.negativeStatus)) },
       ];
-      const userExists = await this.userRepository.findOneOrFail({ where: whereCondition });
+      const userExists = await this.userRepository.findOneOrFail({ where: whereCondition, select: { id: true } });
 
       return ApplicationResponse.success(userExists != null);
     } catch (error: unknown) {
@@ -709,7 +710,6 @@ export default class UserAdapter implements UserPort {
       const rowCounts = await queryBuilder.getCount();
 
       if (req.page_number) {
-        console.log(req.page_number);
         queryBuilder.skip(req.page_number);
       }
       queryBuilder.limit(req.page_size ?? 5);
@@ -773,7 +773,6 @@ export default class UserAdapter implements UserPort {
     filters: UserSearchParamsRequest,
     generalFilter?: string,
   ): FindOptionsWhere<UserEntity>[] {
-    console.log({ ...filters, generalFilter });
     const whereOption: FindOptionsWhere<UserEntity>[] = [];
     if (filters.email) {
       whereOption.push({ normalized_email: Like(`${filters.email.toUpperCase()}%`) });

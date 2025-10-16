@@ -19,7 +19,6 @@ export function validatePaginatedRequest<T>(schema: ObjectSchema) {
     const { error: errorFilters, value: valueFilters } = schema.validate(req.parsedQuery?.filters, { abortEarly: false, stripUnknown: true });
 
     if (errorFilters) {
-      console.log('error filters', errorFilters);
       return res.status(400).json({
         message: "Validation error",
         details: errorFilters.details.map((d) => d.message),

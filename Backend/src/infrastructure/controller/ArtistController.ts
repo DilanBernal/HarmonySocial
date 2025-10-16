@@ -76,7 +76,6 @@ export default class ArtistController {
         first_id,
         last_id
       ));
-      console.log(response);
       if (response.success) return res.status(200).json(response.data);
       return this.handleErrorResponse(res, response);
     } catch (e) {

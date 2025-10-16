@@ -36,7 +36,13 @@ export default class RoleAdapter implements RolePort {
   }
 
   async findByName(name: string): Promise<Role | null> {
-    const r = await this.repo.findOne({ where: { name } });
+    const r = await this.repo.findOne({
+      where: { name }, select: {
+        id: true,
+        name: true,
+        created_at: true,
+      }
+    });
     return r
       ? {
         id: r.id,

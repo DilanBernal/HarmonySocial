@@ -191,7 +191,6 @@ export default class FriendshipAdapter implements FriendshipPort {
   async getAllCommonFriendships(
     req: FriendshipUsersIdsRequest,
   ): Promise<ApplicationResponse<FriendshipsResponse>> {
-    console.log(req);
     try {
       // Intentamos delegar la intersección y búsqueda a la BD mediante el stored function
       // La función devuelve filas de la tabla friendships correspondientes a los mutual friends
