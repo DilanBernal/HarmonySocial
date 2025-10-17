@@ -2,7 +2,7 @@ import { In, Repository } from "typeorm";
 import RolePermissionPort from "../../../../domain/ports/data/seg/RolePermissionPort";
 import { ApplicationResponse } from "../../../../application/shared/ApplicationReponse";
 import { SqlAppDataSource } from "../../../config/con_database";
-import { RolePermissionEntity, RoleEntity, PermissionEntity } from "../../../entities/Sql";
+import { RolePermissionEntity, RoleEntity, PermissionEntity } from "../../../entities/Sql/seg";
 import Permission from "../../../../domain/models/seg/Permission";
 
 export default class RolePermissionAdapter implements RolePermissionPort {

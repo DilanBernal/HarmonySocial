@@ -14,7 +14,7 @@ import {
   Brackets,
 } from "typeorm";
 import UserPort from "../../../../domain/ports/data/seg/UserPort";
-import { UserEntity } from "../../../entities/Sql";
+import { UserEntity } from "../../../entities/Sql/seg";
 import { SqlAppDataSource } from "../../../config/con_database";
 import User, { UserStatus } from "../../../../domain/models/seg/User";
 import { ApplicationResponse } from "../../../../application/shared/ApplicationReponse";
@@ -50,23 +50,20 @@ export default class UserAdapter implements UserPort {
   }
 
   private toDomain(user: UserEntity): User {
-    const userDomain: User = {
-      id: user.id,
-      full_name: user.full_name,
-      email: user.email,
-      password: user.password,
-      status: user.status,
-      username: user.username,
-      profile_image: user.profile_image,
-      learning_points: user.learning_points,
-      favorite_instrument: user.favorite_instrument,
-      security_stamp: user.security_stamp,
-      concurrency_stamp: user.concurrency_stamp,
-      created_at: user.created_at,
-      updated_at: user.updated_at,
-      normalized_email: user.normalized_email,
-      normalized_username: user.normalized_username,
-    };
+    const userDomain: User = new User(
+      user.id,
+      user.full_name,
+      user.email,
+      user.password,
+      user.status,
+      user.username,
+      user.profile_image,
+      user.learning_points,
+      user.favorite_instrument,
+      user.security_stamp,
+      user.concurrency_stamp,
+      user.updated_at,
+    );
     return userDomain;
   }
   private toEntity(user: Omit<User, "id">): UserEntity {
@@ -304,7 +301,7 @@ export default class UserAdapter implements UserPort {
       ];
 
       const user = await this.userRepository.findOneOrFail({ where: whereCondition });
-      if (user) return ApplicationResponse.success(user);
+      if (user) return ApplicationResponse.success(this.toDomain(user));
       return ApplicationResponse.failure<User>(
         new ApplicationError("No se encontraron usuarios", ErrorCodes.VALUE_NOT_FOUND),
       );
@@ -404,7 +401,7 @@ export default class UserAdapter implements UserPort {
       ];
 
       const user = await this.userRepository.findOneOrFail({ where: whereCondition });
-      return ApplicationResponse.success(user);
+      return ApplicationResponse.success(this.toDomain(user));
     } catch (error: unknown) {
       if (error instanceof EntityNotFoundError) {
         return ApplicationResponse.failure(

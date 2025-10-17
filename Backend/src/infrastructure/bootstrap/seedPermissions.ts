@@ -9,7 +9,7 @@ import {
   PermissionEntity,
   RoleEntity,
   RolePermissionEntity
-} from "../entities/Sql";
+} from "../entities/Sql/seg";
 
 async function seed() {
   if (!SqlAppDataSource.isInitialized) await SqlAppDataSource.initialize();

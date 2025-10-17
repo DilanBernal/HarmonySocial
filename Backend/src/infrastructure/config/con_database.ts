@@ -1,10 +1,8 @@
 import { Db, MongoClient, ServerApiVersion } from "mongodb";
 import { DataSource } from "typeorm";
-import AlbumEntity from "../entities/Sql/music/AlbumEntity";
-import ArtistEntity from "../entities/Sql/music/ArtistEntity";
-import MusicTheoryEntity from "../entities/Sql/music/MusicTheoryEntity";
-import SongEntity from "../entities/Sql/music/SongEntity";
-import { PermissionEntity, UserEntity, UserRoleEntity, RoleEntity, RolePermissionEntity } from "../entities/Sql";
+import { AlbumEntity, SongEntity, ArtistEntity, MusicTheoryEntity } from "../entities/Sql/music";
+import { PermissionEntity, UserEntity, UserRoleEntity, RoleEntity, RolePermissionEntity } from "../entities/Sql/seg";
+import * as SocialEntities from "../entities/Sql/social"
 import FriendshipEntity from "../entities/Sql/social/FriendshipEntity";
 import UserFollowEntity from "../entities/Sql/social/UserFollowsUserEntity";
 import envs from "./environment-vars";
@@ -35,7 +33,8 @@ export const SqlAppDataSource = new DataSource({
     RolePermissionEntity,
     UserFollowEntity,
     AlbumEntity,
-    MusicTheoryEntity
+    MusicTheoryEntity,
+    SocialEntities.PostEntity,
   ],
 });
 

@@ -1,5 +1,5 @@
 import { SqlAppDataSource } from "../../../config/con_database";
-import { RoleEntity } from "../../../entities/Sql";
+import { RoleEntity } from "../../../entities/Sql/seg";
 import RolePort, { RoleCreateData, RoleUpdateData } from "../../../../domain/ports/data/seg/RolePort";
 import Role from "../../../../domain/models/seg/Role";
 
