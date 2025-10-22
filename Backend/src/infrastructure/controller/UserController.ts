@@ -54,7 +54,8 @@ export default class UserController {
       const userResponse = await this.userService.registerUser(user);
       if (userResponse.success) {
         return res.status(201).json({
-          userId: typeof userResponse.data === "number" ? userResponse.data : Number(userResponse.data),
+          userId:
+            typeof userResponse.data === "number" ? userResponse.data : Number(userResponse.data),
         });
       } else {
         if (userResponse.error) {
@@ -136,21 +137,6 @@ export default class UserController {
       return res.status(200).json(r.data);
     } catch (e: any) {
       this.logger.error("searchUsers error", [e?.message]);
-      return res.status(500).json({ message: "Error interno" });
-    }
-  }
-
-  async listUsers(req: Request, res: Response) {
-    try {
-      const limit = Math.min(Math.max(parseInt(String(req.query.limit ?? "100")) || 100, 1), 1000);
-      const r = await this.userService.listUsers(limit);
-      if (!r.success) {
-        this.logger.appError(r);
-        return res.status(500).json({ message: r.error?.message ?? "Error listando usuarios" });
-      }
-      return res.status(200).json({ rows: r.data ?? [] });
-    } catch (e: any) {
-      this.logger.error("listUsers error", [e?.message]);
       return res.status(500).json({ message: "Error interno" });
     }
   }

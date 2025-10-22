@@ -24,7 +24,7 @@ import { UserSearchRow } from "../dto/responses/seg/user/UserSearchRow";
 import PaginationRequest from "../dto/utils/PaginationRequest";
 import UserSearchParamsRequest from "../dto/requests/User/UserSearchParamsRequest";
 import PaginationResponse from "../dto/utils/PaginationResponse";
-import UserCommandPort from '../../domain/ports/data/seg/command/UserCommandPort';
+import UserCommandPort from "../../domain/ports/data/seg/command/UserCommandPort";
 import UserQueryPort from "../../domain/ports/data/seg/query/UserQueryPort";
 import UserPublicProfileQueryPort from "../../domain/ports/data/seg/query/UserPublicProfileQueryPort";
 
@@ -38,7 +38,7 @@ export default class UserService {
   constructor(
     private readonly userCommandPort: UserCommandPort,
     private readonly userQueryPort: UserQueryPort,
-    private readonly userPublicProfileQueryPort: UserPublicProfileQueryPort;
+    private readonly userPublicProfileQueryPort: UserPublicProfileQueryPort,
     authPort: AuthPort,
     emailPort: EmailPort,
     logger: LoggerPort,
@@ -69,15 +69,16 @@ export default class UserService {
           req.last_id,
         ),
       );
-      if (!resp.success) return resp as any;
+      if (!resp.success) return resp;
 
-      const users = (resp.data?.rows ?? []).map<UserSearchRow>((u: any) => ({
-        id: u.id,
-        username: u.username,
-        full_name: u.full_name,
-        email: u.email,
-        profile_image: u.profile_image ?? null,
-      }));
+      const users = resp;
+      // const users = (resp.data?.rows ?? []).map<UserSearchRow>((u: any) => ({
+      //   id: u.id,
+      //   username: u.username,
+      //   full_name: u.full_name,
+      //   email: u.email,
+      //   profile_image: u.profile_image ?? null,
+      // }));
 
       return ApplicationResponse.success(
         PaginationResponse.create(users, resp.data!.page_size, resp.data!.total_rows),
@@ -101,39 +102,6 @@ export default class UserService {
     }
   }
 
-  async listUsers(limit = 100): Promise<ApplicationResponse<UserSearchRow[]>> {
-    try {
-      const resp = await this.userPort.listUsers(Math.min(limit, 1000));
-      if (!resp.success) return resp as any;
-
-      const rows = (resp.data ?? []).map<UserSearchRow>((u: any) => ({
-        id: u.id,
-        username: u.username,
-        full_name: u.full_name,
-        email: u.email,
-        profile_image: u.profile_image ?? null,
-      }));
-
-      return ApplicationResponse.success(rows);
-    } catch (error: unknown) {
-      if (error instanceof ApplicationResponse) return error;
-      if (error instanceof Error) {
-        this.loggerPort.error("Error en listUsers", [error.name, error.message, error]);
-        return ApplicationResponse.failure(
-          new ApplicationError(
-            "Error interno listando usuarios",
-            ErrorCodes.SERVER_ERROR,
-            [error.name, error.message],
-            error,
-          ),
-        );
-      }
-      return ApplicationResponse.failure(
-        new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR),
-      );
-    }
-  }
-
   async registerUser(user: RegisterRequest): Promise<ApplicationResponse<number>> {
     if (!user) {
       return ApplicationResponse.failure(
@@ -141,12 +109,11 @@ export default class UserService {
       );
     }
     try {
-      const existUserResponse = await this.userQueryPort.existsUserByFilters({
+      const existUserResponse = await this.userQueryPort.existsActiveUserByFilters({
         username: user.username,
         email: user.email,
-        includeFilters: false
-      }
-      );
+        includeFilters: false,
+      });
       Object.freeze(user);
 
       if (existUserResponse.isSuccess && existUserResponse.getValue()) {
@@ -230,7 +197,7 @@ export default class UserService {
             this.loggerPort.error("Fallo enviando el correo", err);
           });
       }
-      return response;
+      return ApplicationResponse.success(response.getValue());
     } catch (error: unknown) {
       if (error instanceof ApplicationResponse) {
         switch (error.error?.code) {
@@ -324,9 +291,9 @@ export default class UserService {
       // Obtener ids de usuarios con rol common_user
       const userIds = await this.userRolePort.listUsersForRole("common_user");
       if (!userIds.length) return ApplicationResponse.success([]);
-      const usersResponse = await this.userPort.getUsersByIds(userIds);
-      if (!usersResponse.success) return usersResponse as any;
-      const users = usersResponse.data || [];
+      const usersResponse = await this.userQueryPort.searchActiveUsersByIds(userIds);
+      if (!usersResponse.isSuccess) return usersResponse as any;
+      const users = usersResponse.getValue() || [];
       const responses: UserResponse[] = users.map((u) => ({
         id: u.id,
         full_name: u.full_name,

@@ -1,23 +1,23 @@
 import FriendshipAdapter from "../adapter/data/social/FrienshipAdapter";
-import UserAdapter from "../adapter/data/seg/UserAdapter";
 import LoggerAdapter from "../adapter/utils/LoggerAdapter";
 import FriendshipService from "../../application/services/FriendshipService";
 import authenticateToken from "../middleware/authMiddleware";
 import FriendshipController from "../controller/FriendshipController";
 import { Router } from "express";
 import EmailNodemailerAdapter from "../adapter/utils/EmailAdapter";
+import UserQueryAdapter from "../adapter/data/seg/queries/UserQueryAdapter";
 
 const friendshipRouter = Router();
 
+const userQueryAdapter = new UserQueryAdapter();
 const friendshipAdapter = new FriendshipAdapter();
-const userAdapter = new UserAdapter();
 const loggerAdapter = new LoggerAdapter();
 const emailAdapter = new EmailNodemailerAdapter(loggerAdapter);
 
 const friendshipService = new FriendshipService(
   friendshipAdapter,
   loggerAdapter,
-  userAdapter,
+  userQueryAdapter,
   emailAdapter,
 );
 
@@ -73,7 +73,7 @@ friendshipRouter.get("/user/:id", authenticateToken, async (req, res) => {
 friendshipRouter.get("/common", authenticateToken, async (req, res) => {
   try {
     await friendshipController.getCommonFriendships(req, res);
-  } catch (error) { }
+  } catch (error) {}
 });
 
 /**

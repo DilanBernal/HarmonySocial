@@ -16,7 +16,7 @@ import { validatePaginatedRequest } from "../middleware/validatePaginatedRequest
 import userSearchParamsSchema from "../validator/seg/user/UserPaginatedValidator";
 import parseNestedQuery from "../middleware/parseNestedQuery";
 import UserCommandPort from "../../domain/ports/data/seg/command/UserCommandPort";
-import UserQueryPort from '../../domain/ports/data/seg/query/UserQueryPort';
+import UserQueryPort from "../../domain/ports/data/seg/query/UserQueryPort";
 import UserPublicProfileQueryPort from "../../domain/ports/data/seg/query/UserPublicProfileQueryPort";
 
 const router = Router();
@@ -187,38 +187,17 @@ router.post("/verify-email", async (req, res) => {
   }
 });
 
-router.get("/paginated", parseNestedQuery, validatePaginatedRequest(userSearchParamsSchema), async (req, res) => {
-  try {
-    await userController.searchPaginatedUsers(req, res);
-  } catch (e: any) {
-    return res.status(500).json({ message: e?.message ?? "Error interno" });
-  }
-});
-
-router.get("/list", async (req, res) => {
-  try {
-    const limit = Math.min(Math.max(parseInt(String(req.query.limit ?? "100")) || 100, 1), 1000);
-    const r = await userApp.listUsers(limit);
-    if (!r.success) {
-      return res.status(500).json({ message: r.error?.message ?? "Error listando usuarios" });
+router.get(
+  "/paginated",
+  parseNestedQuery,
+  validatePaginatedRequest(userSearchParamsSchema),
+  async (req, res) => {
+    try {
+      await userController.searchPaginatedUsers(req, res);
+    } catch (e: any) {
+      return res.status(500).json({ message: e?.message ?? "Error interno" });
     }
-    return res.json({ rows: r.data ?? [] });
-  } catch (e: any) {
-    return res.status(500).json({ message: e?.message ?? "Error interno" });
-  }
-});
-
-router.get("/", async (req, res) => {
-  try {
-    const limit = Math.min(Math.max(parseInt(String(req.query.limit ?? "100")) || 100, 1), 1000);
-    const r = await userApp.listUsers(limit);
-    if (!r.success) {
-      return res.status(500).json({ message: r.error?.message ?? "Error listando usuarios" });
-    }
-    return res.json({ rows: r.data ?? [] });
-  } catch (e: any) {
-    return res.status(500).json({ message: e?.message ?? "Error interno" });
-  }
-});
+  },
+);
 
 export default router;

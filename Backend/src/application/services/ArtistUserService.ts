@@ -1,23 +1,23 @@
 import UserRolePort from "../../domain/ports/data/seg/UserRolePort";
-import UserPort from "../../domain/ports/data/seg/UserPort";
 import { ApplicationResponse } from "../shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes } from "../shared/errors/ApplicationError";
 import LoggerPort from "../../domain/ports/utils/LoggerPort";
+import UserQueryAdapter from "../../infrastructure/adapter/data/seg/queries/UserQueryAdapter";
 
 export default class ArtistUserService {
   constructor(
     private userRolePort: UserRolePort,
-    private userPort: UserPort,
+    private userQueryAdapter: UserQueryAdapter,
     private logger: LoggerPort,
-  ) { }
+  ) {}
 
   async listArtistUsers(): Promise<ApplicationResponse<any[]>> {
     try {
       const userIds = await this.userRolePort.listUsersForRole("artist");
       if (!userIds.length) return ApplicationResponse.success([]);
-      const usersResp = await this.userPort.getUsersByIds(userIds);
-      if (!usersResp.success) return usersResp as any;
-      const data = (usersResp.data || []).map((u) => ({
+      const usersResp = await this.userQueryAdapter.searchUsersByIds(userIds);
+      if (!usersResp.isSuccess) return usersResp as any;
+      const data = (usersResp.getValue() || []).map((u) => ({
         id: u.id,
         full_name: u.full_name,
         username: u.username,

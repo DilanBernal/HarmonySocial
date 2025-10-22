@@ -9,12 +9,12 @@ import {
   ILike,
   Like,
   SelectQueryBuilder,
+  TypeORMError,
 } from "typeorm";
 import DomainEntityNotFoundError from "../../../../../domain/errors/EntityNotFoundError";
 import { UserEntity } from "../../../../entities/Sql/seg";
 import { SqlAppDataSource } from "../../../../config/con_database";
 import User, { UserStatus } from "../../../../../domain/models/seg/User";
-import UserSearchParamsRequest from "../../../../../application/dto/requests/User/UserSearchParamsRequest";
 import UserQueryPort from "../../../../../domain/ports/data/seg/query/UserQueryPort";
 import Response from "../../../../../domain/shared/Result";
 import DomainError from "../../../../../domain/errors/DomainError";
@@ -27,7 +27,6 @@ import envs from "../../../../config/environment-vars";
 
 export default class UserAdapter implements UserQueryPort {
   private userRepository: Repository<UserEntity>;
-  private negativeStatus: Array<UserStatus> = [UserStatus.DELETED];
 
   constructor() {
     this.userRepository = SqlAppDataSource.getRepository(UserEntity);
@@ -35,44 +34,38 @@ export default class UserAdapter implements UserQueryPort {
 
   async getUserByFilters(filters: UserFilters): Promise<Response<User>> {
     try {
-      const queryBuilder: SelectQueryBuilder<UserEntity> =
-        this.userRepository.createQueryBuilder("user");
-
-      if (filters.includeFilters) {
-        if (filters.id) queryBuilder.andWhere("user.id = :id", { id: filters.id });
-
-        if (filters.email) queryBuilder.andWhere("user.email = :email", { email: filters.email });
-
-        if (filters.username)
-          queryBuilder.andWhere("user.username = :username", { username: filters.username });
-
-        if (filters.status)
-          queryBuilder.andWhere("user.status = :status", { status: filters.status });
-      } else {
-        if (filters.id) queryBuilder.orWhere("user.id = :id", { id: filters.id });
-
-        if (filters.email) queryBuilder.orWhere("user.email = :email", { email: filters.email });
-
-        if (filters.username)
-          queryBuilder.orWhere("user.username = :username", { username: filters.username });
-
-        if (filters.status)
-          queryBuilder.orWhere("user.status = :status", { status: filters.status });
-      }
+      const queryBuilder: SelectQueryBuilder<UserEntity> = this.applyFilters(filters);
 
       const result = await queryBuilder.getOne();
 
       if (result) return Response.ok(result.toDomain());
       return Response.fail(new DomainEntityNotFoundError({ entity: "usuario" }));
     } catch (error: unknown) {
-      if (error instanceof QueryFailedError) {
+      if (error instanceof TypeORMError) {
+        if (error instanceof QueryFailedError) {
+          return Response.fail(
+            new ApplicationError(
+              "Ocurrio un error al procesar la solicitud",
+              ErrorCodes.DATABASE_ERROR,
+              [
+                error.name,
+                error.stack,
+                [
+                  error.name,
+                  error.stack,
+                  envs.ENVIRONMENT === "dev" ? error.query : error.driverError,
+                ],
+                error,
+              ],
+              error,
+            ),
+          );
+        }
         return Response.fail(
-          new ApplicationError(
-            "Ocurrio un error al procesar la solicitud",
-            ErrorCodes.SERVER_ERROR,
-            [error.name, error.stack, [error.name, error.stack, envs.ENVIRONMENT === "dev" ? error.query : error.driverError], error],
+          new ApplicationError(error.name, ErrorCodes.DATABASE_ERROR, [
+            [error.name, error.stack, error.message],
             error,
-          ),
+          ]),
         );
       }
       if (error instanceof Error) {
@@ -90,14 +83,24 @@ export default class UserAdapter implements UserQueryPort {
       return Response.ok(mapped);
     } catch (error: unknown) {
       if (error instanceof QueryFailedError) {
-        return Response.fail(new ApplicationError(
-          "Ocurrio un error con la db al obtener los usuarios por ids",
-          ErrorCodes.DATABASE_ERROR,
-          [error.name, error.stack, envs.ENVIRONMENT === "dev" ? error.query : error.driverError],
-          error))
+        return Response.fail(
+          new ApplicationError(
+            "Ocurrio un error con la db al obtener los usuarios por ids",
+            ErrorCodes.DATABASE_ERROR,
+            [error.name, error.stack, envs.ENVIRONMENT === "dev" ? error.query : error.driverError],
+            error,
+          ),
+        );
       }
       if (error instanceof Error) {
-        return Response.fail(new ApplicationError("Ocurrio un error al obtener usuarios por ids", ErrorCodes.DATABASE_ERROR, [error.name], error));
+        return Response.fail(
+          new ApplicationError(
+            "Ocurrio un error al obtener usuarios por ids",
+            ErrorCodes.DATABASE_ERROR,
+            [error.name, error.stack],
+            error,
+          ),
+        );
       }
       return Response.fail(new DomainError("Error desconocido"));
     }
@@ -105,24 +108,45 @@ export default class UserAdapter implements UserQueryPort {
 
   async getUserById(id: number): Promise<Response<User>> {
     try {
-
-      const user = await this.userRepository.findOneOrFail({ where: { id: id } });
+      const user = await this.userRepository.findOneByOrFail({ id: id });
       return Response.ok(UserEntity.toDomain(user));
     } catch (error) {
-      if (error instanceof EntityNotFoundError) {
+      if (error instanceof TypeORMError) {
+        if (error instanceof EntityNotFoundError) {
+          return Response.fail(
+            new DomainEntityNotFoundError({ message: "No se encontraron usuarios" }),
+          );
+        }
+        if (error instanceof QueryFailedError) {
+          return Response.fail(
+            new ApplicationError(
+              "Ocurrio un error en la query",
+              ErrorCodes.DATABASE_ERROR,
+              [
+                error.name,
+                error.stack,
+                envs.ENVIRONMENT === "dev" ? error.query : error.driverError,
+              ],
+              error,
+            ),
+          );
+        }
         return Response.fail(
-          new DomainEntityNotFoundError({ message: "No se encontraron usuarios" }),
+          new ApplicationError(error.name, ErrorCodes.DATABASE_ERROR, [
+            [error.name, error.stack, error.message],
+            error,
+          ]),
         );
       }
-      if (error instanceof QueryFailedError) {
-        return Response.fail(new ApplicationError(
-          "Ocurrio un error en la query",
-          ErrorCodes.DATABASE_ERROR,
-          [[error.name, error.stack, envs.ENVIRONMENT === "dev" ? error.query : error.driverError]],
-          error));
-      }
       if (error instanceof Error) {
-        return Response.fail(new ApplicationError("Ocurrio un error al obtener usuarios por ids", ErrorCodes.DATABASE_ERROR, [error.name], error));
+        return Response.fail(
+          new ApplicationError(
+            "Ocurrio un error al obtener usuarios por ids",
+            ErrorCodes.DATABASE_ERROR,
+            [error.name],
+            error,
+          ),
+        );
       }
       return Response.fail(new DomainError("Error desconocido", error as Error));
     }
@@ -140,7 +164,7 @@ export default class UserAdapter implements UserQueryPort {
       if (error instanceof Error) {
         return Response.fail(
           new ApplicationError(
-            "Ocurrio un error al retornar el usuario",
+            "Ocurrio un error al buscar el usuario",
             ErrorCodes.DATABASE_ERROR,
             { errorName: error.name, errorMessage: error.message },
             error,
@@ -153,33 +177,155 @@ export default class UserAdapter implements UserQueryPort {
     }
   }
 
+  async searchUsersByFilters(filters: UserFilters): Promise<Response<User[]>> {
+    try {
+      const qb: SelectQueryBuilder<UserEntity> = this.applyFilters(filters);
 
-  searchUsersByFilters(filters: UserFilters): Promise<Response<User[]>> {
+      const result = await qb.getMany();
+      return Response.ok(result.map(UserEntity.toDomain));
+    } catch (error: unknown) {
+      if (error instanceof QueryFailedError) {
+        return Response.fail(
+          new ApplicationError(
+            "Ocurrio un error con la db",
+            ErrorCodes.DATABASE_ERROR,
+            [error.name, error.stack, envs.ENVIRONMENT === "dev" ? error.query : error.driverError],
+            error,
+          ),
+        );
+      }
+      if (error instanceof Error) {
+        return Response.fail(
+          new ApplicationError(
+            "Ocurrio un error inesperado",
+            ErrorCodes.SERVER_ERROR,
+            [error.name, error.stack, error.message],
+            error,
+          ),
+        );
+      }
+    }
     throw new Error("Method not implemented.");
   }
-  searchUsersByIds(ids: number[]): Promise<Response<Array<User>>> {
-    throw new Error("Method not implemented.");
+  async searchUsersByIds(ids: number[]): Promise<Response<Array<User>>> {
+    try {
+      const result = await this.userRepository.find({ where: { id: In(ids) } });
+
+      return Response.ok(result.map((u) => u.toDomain()));
+    } catch (error: unknown) {
+      throw error;
+    }
   }
-  existsUserByFilters(filters: UserFilters): Promise<Response<boolean>> {
-    throw new Error("Method not implemented.");
+  async existsUserByFilters(filters: UserFilters): Promise<Response<boolean>> {
+    try {
+      const qb: SelectQueryBuilder<UserEntity> = this.applyFilters(filters);
+      const result = await qb.select("user.id").getOne();
+      return Response.ok(result != null);
+    } catch (error: unknown) {
+      throw error;
+    }
   }
 
-  getActiveUserById(id: number): Promise<Response<User>> {
-    throw new Error("Method not implemented.");
+  async getActiveUserById(id: number): Promise<Response<User>> {
+    try {
+      const result = await this.userRepository.findOneByOrFail({
+        id: id,
+        status: UserStatus.ACTIVE,
+      });
+
+      return Response.ok(result.toDomain());
+    } catch (error: unknown) {
+      throw error;
+    }
   }
-  getActiveUserByFilters(filters: Omit<UserFilters, "status">): Promise<Response<User>> {
-    throw new Error("Method not implemented.");
+  async getActiveUserByFilters(filters: Omit<UserFilters, "status">): Promise<Response<User>> {
+    try {
+      const qb: SelectQueryBuilder<UserEntity> = this.applyFilters({
+        ...filters,
+        status: UserStatus.ACTIVE,
+      });
+
+      const result = await qb.getOneOrFail();
+
+      return Response.ok(result.toDomain());
+    } catch (error: unknown) {
+      throw error;
+    }
   }
-  searchActiveUserByFilters(filters: Omit<UserFilters, "status">): Promise<Response<User[]>> {
-    throw new Error("Method not implemented.");
+  async searchActiveUserByFilters(filters: Omit<UserFilters, "status">): Promise<Response<User[]>> {
+    try {
+      const qb: SelectQueryBuilder<UserEntity> = this.applyFilters({
+        ...filters,
+        status: UserStatus.ACTIVE,
+      });
+
+      const response = await qb.getMany();
+      return Response.ok(response.map((u) => u.toDomain()));
+    } catch (error: unknown) {
+      throw error;
+    }
   }
-  searchActiveUsersByIds(ids: number[]): Promise<Response<Array<User>>> {
-    throw new Error("Method not implemented.");
+
+  async searchActiveUsersByIds(ids: number[]): Promise<Response<Array<User>>> {
+    try {
+      const result = await this.userRepository.findBy({ id: In(ids), status: UserStatus.ACTIVE });
+      return Response.ok(result.map((u) => u.toDomain()));
+    } catch (error: unknown) {
+      throw error;
+    }
   }
-  existsActiveUserById(id: number): Promise<Response<boolean>> {
-    throw new Error("Method not implemented.");
+
+  async existsActiveUserById(id: number): Promise<Response<boolean>> {
+    try {
+      const response = await this.userRepository.existsBy({ id: id, status: UserStatus.ACTIVE });
+
+      return Response.ok(response);
+    } catch (error: unknown) {
+      throw error;
+    }
   }
-  existsActiveUserByFilters(filters: Omit<UserFilters, "status">): Promise<Response<boolean>> {
-    throw new Error("Method not implemented.");
+
+  async existsActiveUserByFilters(
+    filters: Omit<UserFilters, "status">,
+  ): Promise<Response<boolean>> {
+    try {
+      const qb: SelectQueryBuilder<UserEntity> = this.applyFilters({
+        ...filters,
+        status: UserStatus.ACTIVE,
+      });
+
+      const response = await qb.getExists();
+
+      return Response.ok(response);
+    } catch (error: unknown) {
+      throw error;
+    }
+  }
+
+  private applyFilters(filters: UserFilters): SelectQueryBuilder<UserEntity> {
+    const queryBuilder: SelectQueryBuilder<UserEntity> =
+      this.userRepository.createQueryBuilder("user");
+
+    if (filters.includeFilters) {
+      if (filters.id) queryBuilder.andWhere("user.id = :id", { id: filters.id });
+
+      if (filters.email) queryBuilder.andWhere("user.email = :email", { email: filters.email });
+
+      if (filters.username)
+        queryBuilder.andWhere("user.username = :username", { username: filters.username });
+
+      if (filters.status)
+        queryBuilder.andWhere("user.status = :status", { status: filters.status });
+    } else {
+      if (filters.id) queryBuilder.orWhere("user.id = :id", { id: filters.id });
+
+      if (filters.email) queryBuilder.orWhere("user.email = :email", { email: filters.email });
+
+      if (filters.username)
+        queryBuilder.orWhere("user.username = :username", { username: filters.username });
+
+      if (filters.status) queryBuilder.orWhere("user.status = :status", { status: filters.status });
+    }
+    return queryBuilder;
   }
 }
