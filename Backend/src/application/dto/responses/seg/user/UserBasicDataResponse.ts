@@ -2,7 +2,7 @@ import { UserInstrument } from "../../../../../domain/models/seg/User";
 
 type UserBasicDataResponse = {
   id: number;
-  fullName: string;
+  fullName?: string;
   email: string;
   activeFrom: number;
   profileImage: string;

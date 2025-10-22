@@ -24,16 +24,21 @@ import { UserSearchRow } from "../dto/responses/seg/user/UserSearchRow";
 import PaginationRequest from "../dto/utils/PaginationRequest";
 import UserSearchParamsRequest from "../dto/requests/User/UserSearchParamsRequest";
 import PaginationResponse from "../dto/utils/PaginationResponse";
+import UserCommandPort from '../../domain/ports/data/seg/command/UserCommandPort';
+import UserQueryPort from "../../domain/ports/data/seg/query/UserQueryPort";
+import UserPublicProfileQueryPort from "../../domain/ports/data/seg/query/UserPublicProfileQueryPort";
 
 export default class UserService {
-  private userPort: UserPort;
+  private userPort: any;
   private authPort: AuthPort;
   private emailPort: EmailPort;
   private loggerPort: LoggerPort;
   private readonly _paginationMaxLimit: number = 150;
 
   constructor(
-    userPort: UserPort,
+    private readonly userCommandPort: UserCommandPort,
+    private readonly userQueryPort: UserQueryPort,
+    private readonly userPublicProfileQueryPort: UserPublicProfileQueryPort;
     authPort: AuthPort,
     emailPort: EmailPort,
     logger: LoggerPort,
@@ -41,7 +46,6 @@ export default class UserService {
     private rolePort: RolePort,
     private userRolePort: UserRolePort,
   ) {
-    this.userPort = userPort;
     this.authPort = authPort;
     this.emailPort = emailPort;
     this.loggerPort = logger;
@@ -137,13 +141,15 @@ export default class UserService {
       );
     }
     try {
-      const existUserResponse = await this.userPort.existsUserByEmailOrUsername(
-        user.email,
-        user.username,
+      const existUserResponse = await this.userQueryPort.existsUserByFilters({
+        username: user.username,
+        email: user.email,
+        includeFilters: false
+      }
       );
       Object.freeze(user);
 
-      if (existUserResponse.success && existUserResponse.data) {
+      if (existUserResponse.isSuccess && existUserResponse.getValue()) {
         return ApplicationResponse.failure(
           new ApplicationError("Ya existe el usuario", ErrorCodes.USER_ALREADY_EXISTS),
         );
@@ -164,7 +170,7 @@ export default class UserService {
       const securityStamp: string = this.tokenPort.generateStamp();
       const concurrencyStamp: string = this.tokenPort.generateStamp();
 
-      const userDomain: Omit<User, "id"> = {
+      const userDomain: Omit<User, "id" | "updated_at"> = {
         status: UserStatus.SUSPENDED,
         created_at: new Date(Date.now()),
         full_name: user.full_name,
@@ -180,15 +186,15 @@ export default class UserService {
         normalized_username: user.username.toUpperCase(),
       };
 
+      const response = await this.userCommandPort.createUser(userDomain);
 
-      const response = await this.userPort.createUser(userDomain);
-
-
-      if (response.success) {
+      if (response.isSuccess) {
         // Asignar rol por defecto
-        const userId = response.data!;
+        const userId = response.value!;
         try {
-          this.userRolePort.assignRoleToUser(userId, defaultRole.id).then(() => this.loggerPort.debug("Se le asigno el rol al usuario por defecto"));
+          this.userRolePort
+            .assignRoleToUser(userId, defaultRole.id)
+            .then(() => this.loggerPort.debug("Se le asigno el rol al usuario por defecto"));
         } catch (e) {
           this.loggerPort.error("Fallo asignando rol por defecto al usuario", [
             (e as any)?.message,
@@ -215,10 +221,14 @@ export default class UserService {
 
         welcomeEmail.text = `Bienvenido a HarmonyMusical, entra a este link para activar tu cuenta ${envs.FRONTEND_URL}/verify-email?token=${verificationToken}`;
 
-        this.emailPort.sendEmail(welcomeEmail)
-          .then(() => { this.loggerPort.info(`Correo enviado a ${user.email}`) })
-          .catch((err) => { this.loggerPort.error("Fallo enviando el correo", err) });
-
+        this.emailPort
+          .sendEmail(welcomeEmail)
+          .then(() => {
+            this.loggerPort.info(`Correo enviado a ${user.email}`);
+          })
+          .catch((err) => {
+            this.loggerPort.error("Fallo enviando el correo", err);
+          });
       }
       return response;
     } catch (error: unknown) {
@@ -244,7 +254,6 @@ export default class UserService {
         new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR, undefined, undefined),
       );
     }
-
   }
 
   async deleteUser(id: number): Promise<ApplicationResponse> {
@@ -501,7 +510,10 @@ export default class UserService {
         errors.push(["username", "El username no esta en el formato correcto"]);
       }
 
-      if (updateRequest.full_name && !userFindRegex("fullNameRegex").test(updateRequest.full_name)) {
+      if (
+        updateRequest.full_name &&
+        !userFindRegex("fullNameRegex").test(updateRequest.full_name)
+      ) {
         errors.push(["full_name", "El nombre no esta en el formato correcto"]);
       }
 
@@ -679,7 +691,6 @@ export default class UserService {
         );
       }
 
-
       if (!userFindRegex("passwordRegex").test(request.newPassword)) {
         return ApplicationResponse.failure(
           new ApplicationError(
@@ -701,7 +712,6 @@ export default class UserService {
       const hashPassword = await this.authPort.encryptPassword(request.newPassword);
       const newSecurityStamp = this.tokenPort.generateStamp();
       const newConcurrencyStamp = this.tokenPort.generateStamp();
-
 
       return ApplicationResponse.emptySuccess();
     } catch (error: unknown) {

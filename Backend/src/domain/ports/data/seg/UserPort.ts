@@ -6,7 +6,7 @@ import PaginationResponse from "../../../../application/dto/utils/PaginationResp
 
 export default interface UserPort {
   //Sección de creacion
-  createUser(user: Omit<User, "id">): Promise<ApplicationResponse<number>>;
+  createUser(user: Omit<User, "id" | "updated_at">): Promise<ApplicationResponse<number>>;
   //Sección de actualizacion
   updateUser(id: number, user: Partial<User>): Promise<ApplicationResponse>;
   deleteUser(id: number): Promise<ApplicationResponse>;

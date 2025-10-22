@@ -1,23 +1,20 @@
-// import User from "../../../../models/seg/User";
+import User from "../../../../models/seg/User";
+import Response from "../../../../shared/Result";
+import UserFilters from "../../../../valueObjects/UserFilters";
 
-// export default interface UserPort {
-//   getUserById(id: number): Promise<ApplicationResponse<User>>;
-//   getUserBasicDataById(id: number): Promise<ApplicationResponse<UserBasicDataResponse>>;
-//   getUserByEmail(email: string): Promise<ApplicationResponse<User>>;
-//   getUserByLoginRequest(userOrEmail: string): Promise<ApplicationResponse<User>>;
-//   getUserByEmailOrUsername(email: string, username: string): Promise<ApplicationResponse<User>>;
-//   getUserStampsAndUserInfoByUserOrEmail(
-//     userOrEmail: string,
-//   ): Promise<ApplicationResponse<[string, string, number, string, string]>>;
-//   existsUserByLoginRequest(userOrEmail: string): Promise<ApplicationResponse<boolean>>;
-//   searchUsers(req: PaginationRequest<any>): Promise<ApplicationResponse<PaginationResponse<User>>>;
-//   listUsers(limit: number): Promise<ApplicationResponse<User[]>>;
-//   // Batch fetch
-//   getUsersByIds(ids: number[]): Promise<ApplicationResponse<Array<User>>>;
-//   //Seccion de validación
-//   existsUserById(id: number): Promise<ApplicationResponse<boolean>>;
-//   existsUserByEmailOrUsername(
-//     email: string,
-//     username: string,
-//   ): Promise<ApplicationResponse<boolean>>;
-// }
+export default interface UserQueryPort {
+  getUserById(id: number): Promise<Response<User>>;
+  getUserByFilters(filters: UserFilters): Promise<Response<User>>;
+  searchUsersByFilters(filters: UserFilters): Promise<Response<User[]>>;
+  searchUsersByIds(ids: number[]): Promise<Response<Array<User>>>;
+  existsUserById(id: number): Promise<Response<boolean>>;
+  existsUserByFilters(filters: UserFilters): Promise<Response<boolean>>;
+  getActiveUserById(id: number): Promise<Response<User>>;
+  getActiveUserByFilters(filters: Omit<UserFilters, "status">): Promise<Response<User>>;
+  searchActiveUserByFilters(filters: Omit<UserFilters, "status">): Promise<Response<User[]>>;
+  searchActiveUsersByIds(ids: number[]): Promise<Response<Array<User>>>;
+  existsActiveUserById(id: number): Promise<Response<boolean>>;
+  existsActiveUserByFilters(
+    filters: Omit<UserFilters, "status">,
+  ): Promise<Response<boolean>>;
+}

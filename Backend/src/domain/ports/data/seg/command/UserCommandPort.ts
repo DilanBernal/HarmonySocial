@@ -1,8 +1,8 @@
-import { ApplicationResponse } from "../../../../../application/shared/ApplicationReponse";
+import Response from "../../../../shared/Result";
 import User from "../../../../models/seg/User";
 
 export default interface UserCommandPort {
-  createUser(user: Omit<User, "id">): Promise<ApplicationResponse<number>>;
-  updateUser(id: number, user: Partial<User>): Promise<ApplicationResponse>;
-  deleteUser(id: number): Promise<ApplicationResponse>;
+  createUser(user: Omit<User, "id" | "updated_at">): Promise<Response<number, Error>>;
+  updateUser(id: number, user: Partial<User>): Promise<Response>;
+  deleteUser(id: number): Promise<Response>;
 }

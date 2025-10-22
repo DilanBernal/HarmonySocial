@@ -76,23 +76,21 @@ describe('User service correct ', () => {
   let userService: UserService;
 
   // Datos de prueba comunes
-  const mockUser: User = {
-    id: 1,
-    full_name: "John Doe",
-    normalized_email: "john@example.com".toUpperCase(),
-    email: "john@example.com",
-    username: "johndoe",
-    normalized_username: "johndoe".toUpperCase(),
-    password: "hashedPassword",
-    profile_image: "https://example.com/image.jpg",
-    learning_points: 0,
-    status: UserStatus.ACTIVE,
-    favorite_instrument: UserInstrument.GUITAR,
-    concurrency_stamp: "concurrency123",
-    security_stamp: "security123",
-    created_at: new Date("2024-01-01"),
-    updated_at: new Date(),
-  };
+  const mockUser: User = new User(
+    1,
+    "John Doe",
+    "john@example.com",
+    "johndoe",
+    "hashedPassword",
+    "https://example.com/image.jpg",
+    0,
+    UserStatus.ACTIVE,
+    UserInstrument.GUITAR,
+    "concurrency123",
+    "security123",
+    new Date(),
+    new Date("2024-01-01"),
+  );
 
   beforeEach(() => {
     jest.clearAllMocks();

@@ -1,5 +1,4 @@
 import { Request, Response, Router } from "express";
-import UserAdapter from "../adapter/data/seg/UserAdapter";
 import UserService from "../../application/services/UserService";
 import AuthService from "../../application/services/AuthService";
 import UserController from "../controller/UserController";
@@ -16,10 +15,15 @@ import authenticateToken from "../middleware/authMiddleware";
 import { validatePaginatedRequest } from "../middleware/validatePaginatedRequest";
 import userSearchParamsSchema from "../validator/seg/user/UserPaginatedValidator";
 import parseNestedQuery from "../middleware/parseNestedQuery";
+import UserCommandPort from "../../domain/ports/data/seg/command/UserCommandPort";
+import UserQueryPort from '../../domain/ports/data/seg/query/UserQueryPort';
+import UserPublicProfileQueryPort from "../../domain/ports/data/seg/query/UserPublicProfileQueryPort";
 
 const router = Router();
 
-const userAdapter = new UserAdapter();
+const userCommandAdapter: UserCommandPort = {} as any;
+const userQueryAdapter: UserQueryPort = {} as any;
+const userPubliProfileAtapter: UserPublicProfileQueryPort = {} as any;
 const authAdapter = new AuthAdapter();
 const loggerAdapter = new LoggerAdapter();
 const tokenAdapter = new TokenAdapter();
@@ -27,7 +31,9 @@ const emailAdapter = new EmailNodemailerAdapter(loggerAdapter);
 const roleAdapter = new RoleAdapter();
 const userRoleAdapter = new UserRoleAdapter();
 const userApp = new UserService(
-  userAdapter,
+  userCommandAdapter,
+  userQueryAdapter,
+  userPubliProfileAtapter,
   authAdapter,
   emailAdapter,
   loggerAdapter,
@@ -36,7 +42,7 @@ const userApp = new UserService(
   userRoleAdapter,
 );
 const authService = new AuthService(
-  userAdapter,
+  {} as any,
   authAdapter,
   emailAdapter,
   loggerAdapter,

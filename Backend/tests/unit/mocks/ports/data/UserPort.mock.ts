@@ -9,23 +9,21 @@ import UserPort from "../../../../../src/domain/ports/data/seg/UserPort";
 import User, { UserStatus, UserInstrument } from "../../../../../src/domain/models/seg/User";
 
 // Mock data para las pruebas
-const mockUser: User = {
-  id: 1,
-  full_name: "Test User",
-  email: "testuser@example.com",
-  normalized_email: "TESTUSER@EXAMPLE.COM",
-  username: "testuser",
-  normalized_username: "TESTUSER",
-  password: "$2b$10$hashedPassword",
-  profile_image: "default.jpg",
-  learning_points: 100,
-  status: UserStatus.ACTIVE,
-  favorite_instrument: UserInstrument.GUITAR,
-  concurrency_stamp: "mock-concurrency-stamp",
-  security_stamp: "mock-security-stamp",
-  created_at: new Date("2023-01-01"),
-  updated_at: new Date("2023-01-01"),
-};
+const mockUser: User = new User(
+  1,
+  "Test User",
+  "testuser@example.com",
+  "testuser",
+  "$2b$10$hashedPassword",
+  "default.jpg",
+  100,
+  UserStatus.ACTIVE,
+  UserInstrument.GUITAR,
+  "mock-concurrency-stamp",
+  "mock-security-stamp",
+  new Date("2023-01-01"),
+  new Date("2023-01-01"),
+);
 
 const mockUsers: User[] = [
   mockUser,
@@ -225,7 +223,7 @@ const createUserPortMock = (): jest.Mocked<UserPort> => {
         filteredUsers = filteredUsers.filter(u =>
           u.email.toLowerCase().includes(generalQuery) ||
           u.username.toLowerCase().includes(generalQuery) ||
-          u.full_name.toLowerCase().includes(generalQuery)
+          (u.full_name?.toLowerCase() ?? '').includes(generalQuery)
         );
       }
 

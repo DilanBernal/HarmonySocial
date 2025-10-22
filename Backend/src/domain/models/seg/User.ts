@@ -1,6 +1,6 @@
 export default class User {
   private _id!: number
-  private _full_name!: string
+  private _full_name?: string
   private _email!: string
   private _normalized_email!: string
   private _username!: string
@@ -16,7 +16,7 @@ export default class User {
   private _updated_at?: Date
   constructor(
     id: number,
-    full_name: string,
+    full_name: string | undefined,
     email: string,
     username: string,
     password: string,
@@ -27,6 +27,7 @@ export default class User {
     concurrency_stamp: string,
     security_stamp: string,
     updated_at?: Date,
+    createdAt?: Date,
   ) {
     this.id = id;
     this.full_name = full_name;
@@ -41,7 +42,7 @@ export default class User {
     this.favorite_instrument = favorite_instrument;
     this.concurrency_stamp = concurrency_stamp;
     this.security_stamp = security_stamp;
-    this.created_at = new Date();
+    this.created_at = createdAt ?? new Date();
     this.updated_at = updated_at;
   }
 
@@ -50,13 +51,16 @@ export default class User {
     return this._id;
   }
   public set id(value: number) {
+    if (value < 0) {
+      throw new Error("El id no puede ser menor a 0");
+    }
     this._id = value;
   }
 
-  public get full_name(): string {
+  public get full_name(): string | undefined {
     return this._full_name;
   }
-  public set full_name(value: string) {
+  public set full_name(value: string | undefined) {
     this._full_name = value;
   }
 
@@ -64,6 +68,10 @@ export default class User {
     return this._email;
   }
   public set email(value: string) {
+    if (!value.includes("@")) {
+      throw new Error("El email no contiene un arroba");
+
+    }
     this._email = value;
   }
 

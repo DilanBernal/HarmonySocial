@@ -28,7 +28,7 @@ export default class UserPreferencesAdapter implements UserPreferencesPort {
       if (!userActualPreferences) {
         const newUserPreferences: UserPreferences = {
           userId,
-          userPostTags: newLikedTags.map(t => {
+          userPostTags: newLikedTags.map((t) => {
             t.count = this._defaultPositivePoints;
             return t;
           }),
@@ -64,14 +64,21 @@ export default class UserPreferencesAdapter implements UserPreferencesPort {
     }
   }
 
-  async addNegativeUserPostTags(userId: number, liked: Array<UserTag>): Promise<ApplicationResponse> {
+  async addNegativeUserPostTags(
+    userId: number,
+    liked: Array<UserTag>,
+  ): Promise<ApplicationResponse> {
     throw new Error("Method not implemented.");
   }
 
-  async getPositivePreferencesByUserId(userId: number): Promise<ApplicationResponse<Array<UserTag>>> {
+  async getPositivePreferencesByUserId(
+    userId: number,
+  ): Promise<ApplicationResponse<Array<UserTag>>> {
     throw new Error("Method not implemented.");
   }
-  async getNegativePreferencesByUserId(userId: number): Promise<ApplicationResponse<Array<UserTag>>> {
+  async getNegativePreferencesByUserId(
+    userId: number,
+  ): Promise<ApplicationResponse<Array<UserTag>>> {
     throw new Error("Method not implemented.");
   }
   //#endregion

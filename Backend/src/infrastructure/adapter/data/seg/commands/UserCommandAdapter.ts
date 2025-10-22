@@ -5,29 +5,26 @@ import {
   Not,
   Or,
   QueryFailedError,
-  Between,
-  LessThanOrEqual,
-  MoreThanOrEqual,
   Repository,
   ILike,
   Like,
   Brackets,
 } from "typeorm";
-import UserPort from "../../../../domain/ports/data/seg/UserPort";
-import { UserEntity } from "../../../entities/Sql/seg";
-import { SqlAppDataSource } from "../../../config/con_database";
-import User, { UserStatus } from "../../../../domain/models/seg/User";
-import { ApplicationResponse } from "../../../../application/shared/ApplicationReponse";
+import UserPort from "../../../../../domain/ports/data/seg/UserPort";
+import { UserEntity } from "../../../../entities/Sql/seg";
+import { SqlAppDataSource } from "../../../../config/con_database";
+import User, { UserStatus } from "../../../../../domain/models/seg/User";
+import { ApplicationResponse } from "../../../../../application/shared/ApplicationReponse";
 import {
   ApplicationError,
   ErrorCodes,
   ErrorResponse,
-} from "../../../../application/shared/errors/ApplicationError";
-import UserBasicDataResponse from "../../../../application/dto/responses/seg/user/UserBasicDataResponse";
-import NotFoundResponse from "../../../../application/shared/responses/NotFoundResponse";
-import PaginationRequest from "../../../../application/dto/utils/PaginationRequest";
-import PaginationResponse from "../../../../application/dto/utils/PaginationResponse";
-import UserSearchParamsRequest from "../../../../application/dto/requests/User/UserSearchParamsRequest";
+} from "../../../../../application/shared/errors/ApplicationError";
+import UserBasicDataResponse from "../../../../../application/dto/responses/seg/user/UserBasicDataResponse";
+import NotFoundResponse from "../../../../../application/shared/responses/NotFoundResponse";
+import PaginationRequest from "../../../../../application/dto/utils/PaginationRequest";
+import PaginationResponse from "../../../../../application/dto/utils/PaginationResponse";
+import UserSearchParamsRequest from "../../../../../application/dto/requests/User/UserSearchParamsRequest";
 
 export default class UserAdapter implements UserPort {
   private userRepository: Repository<UserEntity>;
@@ -49,23 +46,6 @@ export default class UserAdapter implements UserPort {
     this.userRepository = SqlAppDataSource.getRepository(UserEntity);
   }
 
-  private toDomain(user: UserEntity): User {
-    const userDomain: User = new User(
-      user.id,
-      user.full_name,
-      user.email,
-      user.password,
-      user.status,
-      user.username,
-      user.profile_image,
-      user.learning_points,
-      user.favorite_instrument,
-      user.security_stamp,
-      user.concurrency_stamp,
-      user.updated_at,
-    );
-    return userDomain;
-  }
   private toEntity(user: Omit<User, "id">): UserEntity {
     const userEntity: UserEntity = new UserEntity();
     userEntity.full_name = user.full_name;
@@ -122,7 +102,7 @@ export default class UserAdapter implements UserPort {
     try {
       if (!ids.length) return ApplicationResponse.success([]);
       const rows = await this.userRepository.find({ where: { id: In(ids) } });
-      const mapped = rows.map((r) => this.toDomain(r));
+      const mapped = rows.map((r) => r.toDomain());
       return ApplicationResponse.success(mapped);
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -283,7 +263,7 @@ export default class UserAdapter implements UserPort {
       ];
 
       const users = await this.userRepository.find({ where: whereCondition });
-      return ApplicationResponse.success(users.map(this.toDomain));
+      return ApplicationResponse.success(users.map((x) => x.toDomain()));
     } catch (error) {
       console.error(error);
       throw new Error("No se pudo crear el ususario");
@@ -301,7 +281,7 @@ export default class UserAdapter implements UserPort {
       ];
 
       const user = await this.userRepository.findOneOrFail({ where: whereCondition });
-      if (user) return ApplicationResponse.success(this.toDomain(user));
+      if (user) return ApplicationResponse.success(UserEntity.toDomain(user));
       return ApplicationResponse.failure<User>(
         new ApplicationError("No se encontraron usuarios", ErrorCodes.VALUE_NOT_FOUND),
       );
@@ -347,7 +327,7 @@ export default class UserAdapter implements UserPort {
         { normalized_email: email, status: Not(In(this.negativeStatus)) },
       ];
       const user = await this.userRepository.findOneOrFail({ where: whereCondition });
-      return ApplicationResponse.success(this.toDomain(user));
+      return ApplicationResponse.success(user.toDomain());
     } catch (error: unknown) {
       if (error instanceof EntityNotFoundError) {
         return ApplicationResponse.failure(
@@ -401,7 +381,7 @@ export default class UserAdapter implements UserPort {
       ];
 
       const user = await this.userRepository.findOneOrFail({ where: whereCondition });
-      return ApplicationResponse.success(this.toDomain(user));
+      return ApplicationResponse.success(user.toDomain());
     } catch (error: unknown) {
       if (error instanceof EntityNotFoundError) {
         return ApplicationResponse.failure(
@@ -454,7 +434,7 @@ export default class UserAdapter implements UserPort {
         .andWhere("u.status <> :deleted", { deleted: UserStatus.DELETED })
         .getOneOrFail();
 
-      return ApplicationResponse.success(this.toDomain(user));
+      return ApplicationResponse.success(user.toDomain());
     } catch (error: unknown) {
       if (error instanceof EntityNotFoundError) {
         return ApplicationResponse.failure(
@@ -574,7 +554,6 @@ export default class UserAdapter implements UserPort {
 
       const count = await this.userRepository.count({ where: whereOptions });
 
-
       return ApplicationResponse.success(count > 0);
     } catch (error: unknown) {
       if (error instanceof QueryFailedError) {
@@ -613,7 +592,7 @@ export default class UserAdapter implements UserPort {
 
       const userExists: UserEntity = await this.userRepository.findOneOrFail({
         where: whereCondition,
-        select: { id: true }
+        select: { id: true },
       });
       return ApplicationResponse.success(userExists != null);
     } catch (error: unknown) {
@@ -621,7 +600,9 @@ export default class UserAdapter implements UserPort {
         return ApplicationResponse.success(false);
       }
       if (error instanceof QueryFailedError) {
-        return ApplicationResponse.failure(new ApplicationError("", ErrorCodes.DATABASE_ERROR, error.message, error));
+        return ApplicationResponse.failure(
+          new ApplicationError("", ErrorCodes.DATABASE_ERROR, error.message, error),
+        );
       } else {
         return ApplicationResponse.failure(
           new ApplicationError("Error desconocido", ErrorCodes.SERVER_ERROR, undefined, undefined),
@@ -639,7 +620,10 @@ export default class UserAdapter implements UserPort {
       const whereCondition: FindOptionsWhere<UserEntity>[] = [
         { id: id, status: Not(In(this.negativeStatus)) },
       ];
-      const userExists = await this.userRepository.findOneOrFail({ where: whereCondition, select: { id: true } });
+      const userExists = await this.userRepository.findOneOrFail({
+        where: whereCondition,
+        select: { id: true },
+      });
 
       return ApplicationResponse.success(userExists != null);
     } catch (error: unknown) {
@@ -676,7 +660,7 @@ export default class UserAdapter implements UserPort {
           new Brackets((qb) => {
             if (req.filters?.email) {
               qb.orWhere("app_user.normalized_email LIKE :email", {
-                email: req.filters.email.toUpperCase() + '%',
+                email: req.filters.email.toUpperCase() + "%",
               });
             }
             if (req.filters?.username) {
@@ -758,7 +742,7 @@ export default class UserAdapter implements UserPort {
         ],
       });
 
-      return ApplicationResponse.success(rows.map((r) => this.toDomain(r)));
+      return ApplicationResponse.success(rows.map((r) => r.toDomain()));
     } catch (e: any) {
       return ApplicationResponse.failure(
         new ApplicationError("DB error en listUsers", ErrorCodes.DATABASE_ERROR, e?.message, e),
