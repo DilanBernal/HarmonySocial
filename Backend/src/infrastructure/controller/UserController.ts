@@ -1,4 +1,4 @@
-import UserService from "../../application/services/UserService";
+import UserService from "../../application/services/seg/user/UserService";
 import AuthService from "../../application/services/AuthService";
 import { Request, Response } from "express";
 import User from "../../domain/models/seg/User";

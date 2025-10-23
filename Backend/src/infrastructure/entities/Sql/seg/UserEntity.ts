@@ -1,5 +1,6 @@
 import { BeforeInsert, BeforeUpdate, Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
 import User, { UserInstrument, UserStatus } from "../../../../domain/models/seg/User";
+import UserPublicProfile from "../../../../domain/valueObjects/UserPublicProfile";
 
 @Entity({ name: "app_user", schema: "seg" })
 @Index("IDX_user_email_status", ["email", "status"], { unique: true })
@@ -120,5 +121,50 @@ export default class UserEntity {
     );
 
     return userDomain;
+  }
+
+  public static fromDomain(userDomain: User): UserEntity {
+    const userEntity: UserEntity = new UserEntity();
+
+    userEntity.id = userDomain.id;
+    userEntity.username = userDomain.username;
+    userEntity.full_name = userDomain.full_name;
+    userEntity.email = userDomain.email;
+    userEntity.password = userDomain.password;
+    userEntity.profile_image = userDomain.profile_image;
+    userEntity.status = userDomain.status;
+    userEntity.favorite_instrument = userDomain.favorite_instrument;
+    userEntity.learning_points = userDomain.learning_points;
+    userEntity.concurrency_stamp = userDomain.concurrency_stamp;
+    userEntity.security_stamp = userDomain.security_stamp;
+    userEntity.updated_at = userDomain.updated_at;
+    userEntity.created_at = userDomain.created_at;
+
+    return userEntity;
+  }
+  public static toUserPublicProfile(userEntity: UserEntity): UserPublicProfile {
+    const userPublicProfile: UserPublicProfile = new UserPublicProfile(
+      userEntity.id,
+      userEntity.username,
+      userEntity.profile_image,
+      userEntity.created_at.getFullYear(),
+      userEntity.learning_points,
+      userEntity.favorite_instrument,
+    );
+
+    return userPublicProfile;
+  }
+
+  public toUserPublicProfile(): UserPublicProfile {
+    const userPublicProfile: UserPublicProfile = new UserPublicProfile(
+      this.id,
+      this.username,
+      this.profile_image,
+      this.created_at.getFullYear(),
+      this.learning_points,
+      this.favorite_instrument,
+    );
+
+    return userPublicProfile;
   }
 }
