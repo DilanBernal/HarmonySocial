@@ -1,4 +1,5 @@
-import UserService from "../../application/services/seg/user/UserService";
+import UserCommandService from "../../application/services/seg/user/UserCommandService";
+import UserQueryService from "../../application/services/seg/user/UserQueryService";
 import AuthService from "../../application/services/AuthService";
 import { Request, Response } from "express";
 import User from "../../domain/models/seg/User";
@@ -16,15 +17,18 @@ import PaginationRequest from "../../application/dto/utils/PaginationRequest";
 import UserSearchParamsRequest from "../../application/dto/requests/User/UserSearchParamsRequest";
 
 export default class UserController {
-  private userService: UserService;
+  private userCommandService: UserCommandService;
+  private userQueryService: UserQueryService;
   private authService: AuthService;
 
   constructor(
-    userService: UserService,
+    userCommandService: UserCommandService,
+    userQueryService: UserQueryService,
     authService: AuthService,
     private logger: LoggerPort,
   ) {
-    this.userService = userService;
+    this.userCommandService = userCommandService;
+    this.userQueryService = userQueryService;
     this.authService = authService;
   }
 
@@ -51,7 +55,7 @@ export default class UserController {
         favorite_instrument: regRequest.favorite_instrument,
       };
 
-      const userResponse = await this.userService.registerUser(user);
+      const userResponse = await this.userCommandService.registerUser(user);
       if (userResponse.success) {
         return res.status(201).json({
           userId:
@@ -115,7 +119,7 @@ export default class UserController {
       const { full_name, username, email } = req.parsedQuery?.filters ?? {};
       const { page_size, page_number, last_id, first_id, q } = req.parsedQuery!;
 
-      const r = await this.userService.searchUsers(
+      const r = await this.userQueryService.searchUsers(
         PaginationRequest.create<UserSearchParamsRequest>(
           {
             full_name: String(full_name ?? ""),
@@ -199,7 +203,7 @@ export default class UserController {
 
   async getAllUsers(req: Request, res: Response) {
     try {
-      const usersResponse = await this.userService.getAllUsers();
+      const usersResponse = await this.userQueryService.getAllUsers();
 
       if (usersResponse.success) {
         return res.status(200).json(usersResponse.data);
@@ -228,7 +232,7 @@ export default class UserController {
   async getUserById(req: Request, res: Response) {
     const { id } = req.params;
     try {
-      const userResponse = await this.userService.getUserById(Number(id));
+      const userResponse = await this.userQueryService.getUserById(Number(id));
 
       if (userResponse.success) {
         return res.status(200).json({
@@ -264,7 +268,7 @@ export default class UserController {
   async getUserByEmail(req: Request, res: Response) {
     const { email } = req.params;
     try {
-      const userResponse = await this.userService.getUserByEmail(email);
+      const userResponse = await this.userQueryService.getUserByEmail(email);
 
       if (userResponse.success) {
         return res.status(200).json({
@@ -309,7 +313,7 @@ export default class UserController {
   async getBasicUserData(req: Request, res: Response) {
     const { id } = req.query;
     try {
-      const response = await this.userService.getUserData(Number(id));
+      const response = await this.userQueryService.getUserData(Number(id));
       if (response.success) {
         res.status(200).json(response.data);
       } else {
@@ -369,7 +373,7 @@ export default class UserController {
     const updateRequest: UpdateUserRequest = req.body;
 
     try {
-      const updateResponse = await this.userService.updateUser(Number(id), updateRequest);
+      const updateResponse = await this.userCommandService.updateUser(Number(id), updateRequest);
 
       if (updateResponse.success) {
         return res.status(200).json({
@@ -410,7 +414,7 @@ export default class UserController {
     const forgotRequest: ForgotPasswordRequest = req.body;
 
     try {
-      const response = await this.userService.forgotPassword(forgotRequest);
+      const response = await this.authService.forgotPassword(forgotRequest);
 
       if (response.success) {
         return res.status(200).json({
@@ -447,7 +451,7 @@ export default class UserController {
     const resetRequest: ResetPasswordRequest = req.body;
 
     try {
-      const response = await this.userService.resetPassword(resetRequest);
+      const response = await this.authService.resetPassword(resetRequest);
 
       if (response.success) {
         return res.status(200).json({
@@ -482,7 +486,7 @@ export default class UserController {
     const verifyRequest: VerifyEmailRequest = req.body;
 
     try {
-      const response = await this.userService.verifyEmail(verifyRequest);
+      const response = await this.authService.verifyEmail(verifyRequest);
 
       if (response.success) {
         return res.status(200).json({
@@ -516,7 +520,7 @@ export default class UserController {
   async logicalDeleteUser(req: Request, res: Response) {
     const { id } = req.params;
     try {
-      const response = await this.userService.deleteUser(Number(id));
+      const response = await this.userCommandService.deleteUser(Number(id));
       if (response.success) {
         return res.status(204).json({ message: "Se eliminó correctamente al usuario" });
       } else {

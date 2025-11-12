@@ -36,17 +36,48 @@ export default class UserPublicProfileQueryAdapter implements UserPublicProfileQ
 
       return Result.ok(userPublicProfile);
     } catch (error: unknown) {
-      console.error(error);
+      if (error instanceof Error) {
+        return Result.fail(error);
+      }
     }
     throw new Error("Method not implemented.");
   }
   async getUserPublicProfileByFilters(filters: UserFilters): Promise<Result<UserPublicProfile>> {
-    throw new Error("Method not implemented.");
+    try {
+      const qb = this.applyFilters(filters)
+        .select([
+          "user.id",
+          "user.username",
+          "user.profile_image",
+          "user.learning_points",
+          "user.favorite_instrument",
+          "user.created_at",
+        ]);
+      const entity = await qb.getOne();
+      if (!entity) return Result.fail(new DomainEntityNotFoundError({ entity: "usuario" }));
+      return Result.ok(entity.toUserPublicProfile());
+    } catch (error: unknown) {
+      return Result.fail(error as Error);
+    }
   }
   async searchUsersPublicProfileByFilters(
     filters: UserFilters,
   ): Promise<Result<UserPublicProfile[]>> {
-    throw new Error("Method not implemented.");
+    try {
+      const qb = this.applyFilters(filters)
+        .select([
+          "user.id",
+          "user.username",
+          "user.profile_image",
+          "user.learning_points",
+          "user.favorite_instrument",
+          "user.created_at",
+        ]);
+      const rows = await qb.getMany();
+      return Result.ok(rows.map((u) => u.toUserPublicProfile()));
+    } catch (error: unknown) {
+      return Result.fail(error as Error);
+    }
   }
 
   private applyFilters(filters: UserFilters): SelectQueryBuilder<UserEntity> {

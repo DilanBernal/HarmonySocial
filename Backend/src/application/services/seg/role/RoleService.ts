@@ -1,11 +1,11 @@
-import RolePort from "../../domain/ports/data/seg/RolePort";
-import UserRolePort from "../../domain/ports/data/seg/UserRolePort";
-import RoleCreateRequest from "../dto/requests/Role/RoleCreateRequest";
-import RoleUpdateRequest from "../dto/requests/Role/RoleUpdateRequest";
-import RoleResponse from "../dto/responses/RoleResponse";
-import { ApplicationResponse } from "../shared/ApplicationReponse";
-import { ApplicationError, ErrorCodes } from "../shared/errors/ApplicationError";
-import LoggerPort from "../../domain/ports/utils/LoggerPort";
+import RolePort from "../../../../domain/ports/data/seg/RolePort";
+import UserRolePort from "../../../../domain/ports/data/seg/UserRolePort";
+import LoggerPort from "../../../../domain/ports/utils/LoggerPort";
+import RoleCreateRequest from "../../../dto/requests/Role/RoleCreateRequest";
+import RoleUpdateRequest from "../../../dto/requests/Role/RoleUpdateRequest";
+import RoleResponse from "../../../dto/responses/RoleResponse";
+import { ApplicationResponse } from "../../../shared/ApplicationReponse";
+import { ApplicationError, ErrorCodes } from "../../../shared/errors/ApplicationError";
 
 export default class RoleService {
   constructor(

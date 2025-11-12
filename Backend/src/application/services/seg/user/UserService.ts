@@ -72,13 +72,6 @@ export default class UserService {
       if (!resp.success) return resp;
 
       const users = resp;
-      // const users = (resp.data?.rows ?? []).map<UserSearchRow>((u: any) => ({
-      //   id: u.id,
-      //   username: u.username,
-      //   full_name: u.full_name,
-      //   email: u.email,
-      //   profile_image: u.profile_image ?? null,
-      // }));
 
       return ApplicationResponse.success(
         PaginationResponse.create(users, resp.data!.page_size, resp.data!.total_rows),

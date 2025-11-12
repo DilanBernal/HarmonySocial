@@ -1,8 +1,7 @@
-import PermissionPort from "../../domain/ports/data/seg/PermissionPort";
-import RolePermissionPort from "../../domain/ports/data/seg/RolePermissionPort";
-import { ApplicationResponse } from "../shared/ApplicationReponse";
-import { ApplicationError, ErrorCodes } from "../shared/errors/ApplicationError";
-import Permission, { CorePermission } from "../../domain/models/seg/Permission";
+import Permission from "../../../../domain/models/seg/Permission";
+import PermissionPort from "../../../../domain/ports/data/seg/PermissionPort";
+import { ApplicationResponse } from "../../../shared/ApplicationReponse";
+import { ApplicationError, ErrorCodes } from "../../../shared/errors/ApplicationError";
 
 export default class PermissionService {
   constructor(private permissionPort: PermissionPort) { }

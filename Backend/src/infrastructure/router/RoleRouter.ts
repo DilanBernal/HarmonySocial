@@ -1,14 +1,13 @@
 import { Router } from "express";
 import RoleAdapter from "../adapter/data/seg/RoleAdapter";
 import UserRoleAdapter from "../adapter/data/seg/UserRoleAdapter";
-import RoleService from "../../application/services/RoleService";
-import UserRoleService from "../../application/services/UserRoleService";
 import LoggerAdapter from "../adapter/utils/LoggerAdapter";
 import RoleController from "../controller/RoleController";
 import { validateRequest } from "../middleware/validateRequest";
 import roleCreateSchema from "../validator/seg/role/RoleCreateValidator";
 import roleUpdateSchema from "../validator/seg/role/RoleUpdateValidator";
 import authenticateToken from "../middleware/authMiddleware";
+import RoleService from "../../application/services/seg/role/RoleService";
 
 const router = Router();
 const roleAdapter = new RoleAdapter();

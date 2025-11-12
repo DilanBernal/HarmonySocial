@@ -1,7 +1,7 @@
 import { Router } from "express";
 import PermissionAdapter from "../adapter/data/seg/PermissionAdapter";
-import PermissionService from "../../application/services/PermissionService";
 import PermissionController from "../controller/PermissionController";
+import PermissionService from "../../application/services/seg/permission/PermissionService";
 
 const adapter = new PermissionAdapter();
 const service = new PermissionService(adapter);

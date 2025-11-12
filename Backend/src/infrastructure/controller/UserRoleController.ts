@@ -1,14 +1,14 @@
 import { Request, Response } from "express";
-import UserRoleService from "../../application/services/UserRoleService";
 import LoggerPort from "../../domain/ports/utils/LoggerPort";
 import { ErrorCodes } from "../../application/shared/errors/ApplicationError";
 import { ApplicationResponse } from "../../application/shared/ApplicationReponse";
+import UserRoleService from "../../application/services/seg/userRole/UserRoleService";
 
 export default class UserRoleController {
   constructor(
     private service: UserRoleService,
     private logger: LoggerPort,
-  ) {}
+  ) { }
 
   async assign(req: Request, res: Response) {
     const { userId, roleId } = req.body;

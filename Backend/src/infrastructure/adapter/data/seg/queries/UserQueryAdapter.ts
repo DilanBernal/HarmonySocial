@@ -242,8 +242,9 @@ export default class UserAdapter implements UserQueryPort {
     try {
       const qb: SelectQueryBuilder<UserEntity> = this.applyFilters({
         ...filters,
-        status: UserStatus.ACTIVE,
       });
+
+      qb.andWhere("status = :status", { status: UserStatus.ACTIVE });
 
       const result = await qb.getOneOrFail();
 
@@ -256,8 +257,9 @@ export default class UserAdapter implements UserQueryPort {
     try {
       const qb: SelectQueryBuilder<UserEntity> = this.applyFilters({
         ...filters,
-        status: UserStatus.ACTIVE,
       });
+
+      qb.andWhere("status = :status", { status: UserStatus.ACTIVE });
 
       const response = await qb.getMany();
       return Response.ok(response.map((u) => u.toDomain()));
@@ -291,8 +293,9 @@ export default class UserAdapter implements UserQueryPort {
     try {
       const qb: SelectQueryBuilder<UserEntity> = this.applyFilters({
         ...filters,
-        status: UserStatus.ACTIVE,
       });
+
+      qb.andWhere("status = :status", { status: UserStatus.ACTIVE });
 
       const response = await qb.getExists();
 
@@ -319,10 +322,13 @@ export default class UserAdapter implements UserQueryPort {
     } else {
       if (filters.id) queryBuilder.orWhere("user.id = :id", { id: filters.id });
 
-      if (filters.email) queryBuilder.orWhere("user.email = :email", { email: filters.email });
+      if (filters.email)
+        queryBuilder.orWhere("user.normalized_email = :email", { email: filters.email });
 
       if (filters.username)
-        queryBuilder.orWhere("user.username = :username", { username: filters.username });
+        queryBuilder.orWhere("user.normalized_username = :username", {
+          username: filters.username,
+        });
 
       if (filters.status) queryBuilder.orWhere("user.status = :status", { status: filters.status });
     }
