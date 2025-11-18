@@ -127,14 +127,10 @@ export default class AuthService {
         concurrency_stamp: newConcurrencyStamp,
       } as any);
       const payload = { id: userId, roles: roleNames, permissions };
-      const authResponse: AuthResponse = await this.authPort.loginUser(
-        requests,
-        payload,
-        {
-          profile_image: userInfo.profile_image,
-          id: userId,
-        },
-      );
+      const authResponse: AuthResponse = await this.authPort.loginUser(requests, payload, {
+        profile_image: userInfo.profileImage,
+        id: userId,
+      });
       authResponse.id = userId;
       authResponse.roles = roleNames;
       (authResponse as any).permissions = permissions;
@@ -181,11 +177,11 @@ export default class AuthService {
         includeFilters: true,
       } as any);
       if (!user.value || !user.isSuccess) {
-        return new NotFoundResponse({ message: "No se pudo encontrar un usuario con el email dado" })
+        return new NotFoundResponse({
+          message: "No se pudo encontrar un usuario con el email dado",
+        });
       }
-    } catch (error) {
-
-    }
+    } catch (error) {}
     return ApplicationResponse.success(true);
   }
 
@@ -205,14 +201,14 @@ export default class AuthService {
       }
       const user = userResp.value;
       const recoveryToken = this.tokenPort.generateRecoverPasswordToken(
-        user.security_stamp,
-        user.concurrency_stamp,
+        user.securityStamp,
+        user.concurrencyStamp,
       );
       await this.emailPort.sendEmail({
         to: [user.email],
         from: process.env.EMAIL_FROM as string,
         subject: "Recuperación de contraseña - HarmonyMusical",
-        text: `Hola ${user.full_name},\n\nHas solicitado recuperar tu contraseña. Haz clic en el siguiente enlace para restablecerla:\n\n${process.env.FRONTEND_URL}/reset-password?token=${recoveryToken}`,
+        text: `Hola ${user.fullName},\n\nHas solicitado recuperar tu contraseña. Haz clic en el siguiente enlace para restablecerla:\n\n${process.env.FRONTEND_URL}/reset-password?token=${recoveryToken}`,
       });
       return ApplicationResponse.emptySuccess();
     } catch (e: any) {
@@ -250,7 +246,12 @@ export default class AuthService {
       return ApplicationResponse.emptySuccess();
     } catch (e: any) {
       return ApplicationResponse.failure(
-        new ApplicationError("Error al restablecer contraseña", ErrorCodes.SERVER_ERROR, e?.message, e),
+        new ApplicationError(
+          "Error al restablecer contraseña",
+          ErrorCodes.SERVER_ERROR,
+          e?.message,
+          e,
+        ),
       );
     }
   }

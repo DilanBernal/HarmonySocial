@@ -19,15 +19,15 @@ export default class ArtistUserService {
       if (!usersResp.isSuccess) return usersResp as any;
       const data = (usersResp.getValue() || []).map((u) => ({
         id: u.id,
-        full_name: u.full_name,
+        full_name: u.fullName,
         username: u.username,
         email: u.email,
-        profile_image: u.profile_image,
+        profile_image: u.profileImage,
         status: u.status,
-        favorite_instrument: u.favorite_instrument,
-        learning_points: u.learning_points,
-        created_at: u.created_at,
-        updated_at: u.updated_at,
+        favorite_instrument: u.favoriteInstrument,
+        learning_points: u.learningPoints,
+        created_at: u.createdAt,
+        updated_at: u.updatedAt,
       }));
       return ApplicationResponse.success(data);
     } catch (e) {

@@ -15,20 +15,20 @@ export default class UserCommandPortAdapter implements UserCommandPort {
 
   private toEntity(user: Omit<User, "id">): UserEntity {
     const entity = new UserEntity();
-    entity.full_name = user.full_name;
+    entity.full_name = user.fullName;
     entity.email = user.email;
     entity.password = user.password;
     entity.status = user.status;
-    entity.created_at = user.created_at;
-    entity.updated_at = user.updated_at;
+    entity.created_at = user.createdAt;
+    entity.updated_at = user.updatedAt;
     entity.username = user.username;
-    entity.profile_image = user.profile_image;
-    entity.learning_points = user.learning_points;
-    entity.favorite_instrument = user.favorite_instrument;
-    entity.concurrency_stamp = user.concurrency_stamp;
-    entity.security_stamp = user.security_stamp;
-    entity.normalized_email = user.normalized_email;
-    entity.normalized_username = user.normalized_username;
+    entity.profile_image = user.profileImage;
+    entity.learning_points = user.learningPoints;
+    entity.favorite_instrument = user.favoriteInstrument;
+    entity.concurrency_stamp = user.concurrencyStamp;
+    entity.security_stamp = user.securityStamp;
+    entity.normalized_email = user.normalizedEmail;
+    entity.normalized_username = user.normalizedUsername;
     return entity;
   }
 
@@ -53,17 +53,17 @@ export default class UserCommandPortAdapter implements UserCommandPort {
         status: Not(In(negativeStatus as unknown as any[])) as any,
       });
       Object.assign(existing, {
-        full_name: user.full_name ?? existing.full_name,
+        full_name: user.fullName ?? existing.full_name,
         email: user.email ?? existing.email,
         password: user.password ?? existing.password,
         status: (user as any).status ?? existing.status,
         username: user.username ?? existing.username,
-        profile_image: user.profile_image ?? existing.profile_image,
-        learning_points: user.learning_points ?? existing.learning_points,
+        profile_image: user.profileImage ?? existing.profile_image,
+        learning_points: user.learningPoints ?? existing.learning_points,
         favorite_instrument: (user as any).favorite_instrument ?? existing.favorite_instrument,
-        updated_at: user.updated_at ?? new Date(),
-        security_stamp: user.security_stamp ?? existing.security_stamp,
-        concurrency_stamp: user.concurrency_stamp ?? existing.concurrency_stamp,
+        updated_at: user.updatedAt ?? new Date(),
+        security_stamp: user.securityStamp ?? existing.security_stamp,
+        concurrency_stamp: user.concurrencyStamp ?? existing.concurrency_stamp,
         normalized_email: user.email ? user.email.toUpperCase() : existing.normalized_email,
         normalized_username: user.username
           ? user.username.toUpperCase()

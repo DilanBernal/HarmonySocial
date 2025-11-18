@@ -5,13 +5,13 @@ export default interface RegisterRequest
     User,
     | "id"
     | "status"
-    | "learning_points"
-    | "created_at"
-    | "updated_at"
-    | "concurrency_stamp"
-    | "security_stamp"
-    | "normalized_username"
-    | "normalized_email"
+    | "learningPoints"
+    | "createdAt"
+    | "updatedAt"
+    | "concurrencyStamp"
+    | "securityStamp"
+    | "normalizedUsername"
+    | "normalizedEmail"
   > {
   usesDefaultImage?: boolean;
 }

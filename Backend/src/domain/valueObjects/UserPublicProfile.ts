@@ -1,6 +1,6 @@
-import { UserInstrument } from "../models/seg/User";
+import User, { UserInstrument } from "../models/seg/User";
 
-export default class UserPublicProfile {
+export default class UserPublicProfile extends Pick<User, "id" | "username"> {
   constructor(
     public readonly id: number,
     public readonly username: string,

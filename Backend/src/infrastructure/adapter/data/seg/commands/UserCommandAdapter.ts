@@ -48,18 +48,18 @@ export default class UserAdapter implements UserPort {
 
   private toEntity(user: Omit<User, "id">): UserEntity {
     const userEntity: UserEntity = new UserEntity();
-    userEntity.full_name = user.full_name;
+    userEntity.full_name = user.fullName;
     userEntity.email = user.email;
     userEntity.password = user.password;
     userEntity.status = user.status;
-    userEntity.created_at = user.created_at;
-    userEntity.updated_at = user.updated_at;
+    userEntity.created_at = user.createdAt;
+    userEntity.updated_at = user.updatedAt;
     userEntity.username = user.username;
-    userEntity.profile_image = user.profile_image;
-    userEntity.learning_points = user.learning_points;
-    userEntity.favorite_instrument = user.favorite_instrument;
-    userEntity.concurrency_stamp = user.concurrency_stamp;
-    userEntity.security_stamp = user.security_stamp;
+    userEntity.profile_image = user.profileImage;
+    userEntity.learning_points = user.learningPoints;
+    userEntity.favorite_instrument = user.favoriteInstrument;
+    userEntity.concurrency_stamp = user.concurrencyStamp;
+    userEntity.security_stamp = user.securityStamp;
     return userEntity;
   }
 
@@ -139,18 +139,18 @@ export default class UserAdapter implements UserPort {
         );
       }
       Object.assign(existingUser, {
-        full_name: user.full_name ?? existingUser.full_name,
+        full_name: user.fullName ?? existingUser.full_name,
         email: user.email ?? existingUser.email,
         password: user.password ?? existingUser.password,
         status: user.status ?? existingUser.status,
         username: user.username ?? existingUser.username,
-        profile_image: user.profile_image ?? existingUser.profile_image,
-        learning_points: user.learning_points ?? existingUser.learning_points,
-        favorite_instrument: user.favorite_instrument ?? existingUser.favorite_instrument,
+        profile_image: user.profileImage ?? existingUser.profile_image,
+        learning_points: user.learningPoints ?? existingUser.learning_points,
+        favorite_instrument: user.favoriteInstrument ?? existingUser.favorite_instrument,
         created_at: existingUser.created_at,
-        updated_at: user.updated_at ?? new Date(Date.now()),
-        security_stamp: user.concurrency_stamp ?? existingUser.security_stamp,
-        concurrency_stamp: user.security_stamp ?? existingUser.concurrency_stamp,
+        updated_at: user.updatedAt ?? new Date(Date.now()),
+        security_stamp: user.concurrencyStamp ?? existingUser.security_stamp,
+        concurrency_stamp: user.securityStamp ?? existingUser.concurrency_stamp,
       });
       await this.userRepository.save(existingUser);
       return ApplicationResponse.emptySuccess();

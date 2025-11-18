@@ -47,12 +47,12 @@ export default class UserController {
         | "normalized_email"
         | "security_stamp"
       > = {
-        full_name: regRequest.full_name,
+        fullName: regRequest.fullName,
         email: regRequest.email,
         username: regRequest.username,
         password: regRequest.password,
-        profile_image: regRequest.profile_image,
-        favorite_instrument: regRequest.favorite_instrument,
+        profileImage: regRequest.profileImage,
+        favoriteInstrument: regRequest.favoriteInstrument,
       };
 
       const userResponse = await this.userCommandService.registerUser(user);

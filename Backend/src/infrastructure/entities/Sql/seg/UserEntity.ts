@@ -67,16 +67,16 @@ export default class UserEntity {
 
     userEntity.id = userDomain.id;
     userEntity.username = userDomain.username;
-    userEntity.full_name = userDomain.full_name;
+    userEntity.full_name = userDomain.fullName;
     userEntity.email = userDomain.email;
     userEntity.password = userDomain.password;
-    userEntity.profile_image = userDomain.profile_image;
+    userEntity.profile_image = userDomain.profileImage;
     userEntity.status = userDomain.status;
-    userEntity.favorite_instrument = userDomain.favorite_instrument;
-    userEntity.learning_points = userDomain.learning_points;
-    userEntity.concurrency_stamp = userDomain.concurrency_stamp;
-    userEntity.created_at = userDomain.created_at;
-    userEntity.updated_at = userDomain.updated_at;
+    userEntity.favorite_instrument = userDomain.favoriteInstrument;
+    userEntity.learning_points = userDomain.learningPoints;
+    userEntity.concurrency_stamp = userDomain.concurrencyStamp;
+    userEntity.created_at = userDomain.createdAt;
+    userEntity.updated_at = userDomain.updatedAt;
 
     userEntity.normalizeFields();
 
@@ -128,17 +128,17 @@ export default class UserEntity {
 
     userEntity.id = userDomain.id;
     userEntity.username = userDomain.username;
-    userEntity.full_name = userDomain.full_name;
+    userEntity.full_name = userDomain.fullName;
     userEntity.email = userDomain.email;
     userEntity.password = userDomain.password;
-    userEntity.profile_image = userDomain.profile_image;
+    userEntity.profile_image = userDomain.profileImage;
     userEntity.status = userDomain.status;
-    userEntity.favorite_instrument = userDomain.favorite_instrument;
-    userEntity.learning_points = userDomain.learning_points;
-    userEntity.concurrency_stamp = userDomain.concurrency_stamp;
-    userEntity.security_stamp = userDomain.security_stamp;
-    userEntity.updated_at = userDomain.updated_at;
-    userEntity.created_at = userDomain.created_at;
+    userEntity.favorite_instrument = userDomain.favoriteInstrument;
+    userEntity.learning_points = userDomain.learningPoints;
+    userEntity.concurrency_stamp = userDomain.concurrencyStamp;
+    userEntity.security_stamp = userDomain.securityStamp;
+    userEntity.updated_at = userDomain.updatedAt;
+    userEntity.created_at = userDomain.createdAt;
 
     return userEntity;
   }

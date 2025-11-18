@@ -1,19 +1,19 @@
 export default class User {
-  private _id!: number
-  private _full_name?: string
-  private _email!: string
-  private _normalized_email!: string
-  private _username!: string
-  private _normalized_username!: string
-  private _password!: string
-  private _profile_image!: string
-  private _learning_points!: number
-  private _status!: UserStatus
-  private _favorite_instrument!: UserInstrument
-  private _concurrency_stamp!: string
-  private _security_stamp!: string
-  private _created_at!: Date
-  private _updated_at?: Date
+  private _id!: number;
+  private _fullName?: string;
+  private _email!: string;
+  private _normalizedEmail!: string;
+  private _username!: string;
+  private _normalizedUsername!: string;
+  private _password!: string;
+  private _profileImage!: string;
+  private _learningPoints!: number;
+  private _status!: UserStatus;
+  private _favoriteInstrument!: UserInstrument;
+  private _concurrency_stamp!: string;
+  private _securityStamp!: string;
+  private _createdAt!: Date;
+  private _updatedAt?: Date;
   constructor(
     id: number,
     full_name: string | undefined,
@@ -30,22 +30,21 @@ export default class User {
     createdAt?: Date,
   ) {
     this.id = id;
-    this.full_name = full_name;
+    this.fullName = full_name;
     this.email = email;
-    this.normalized_email = email.toUpperCase();
+    this.normalizedEmail = email.toUpperCase();
     this.username = username;
-    this.normalized_username = username.toUpperCase();
+    this.normalizedUsername = username.toUpperCase();
     this.password = password;
-    this.profile_image = profile_image;
-    this.learning_points = learning_points;
+    this.profileImage = profile_image;
+    this.learningPoints = learning_points;
     this.status = status;
-    this.favorite_instrument = favorite_instrument;
-    this.concurrency_stamp = concurrency_stamp;
-    this.security_stamp = security_stamp;
-    this.created_at = createdAt ?? new Date();
-    this.updated_at = updated_at;
+    this.favoriteInstrument = favorite_instrument;
+    this.concurrencyStamp = concurrency_stamp;
+    this.securityStamp = security_stamp;
+    this.createdAt = createdAt ?? new Date();
+    this.updatedAt = updated_at;
   }
-
 
   public get id(): number {
     return this._id;
@@ -57,11 +56,11 @@ export default class User {
     this._id = value;
   }
 
-  public get full_name(): string | undefined {
-    return this._full_name;
+  public get fullName(): string | undefined {
+    return this._fullName;
   }
-  public set full_name(value: string | undefined) {
-    this._full_name = value;
+  public set fullName(value: string | undefined) {
+    this._fullName = value;
   }
 
   public get email(): string {
@@ -70,16 +69,15 @@ export default class User {
   public set email(value: string) {
     if (!value.includes("@")) {
       throw new Error("El email no contiene un arroba");
-
     }
     this._email = value;
   }
 
-  public get normalized_email(): string {
-    return this._normalized_email;
+  public get normalizedEmail(): string {
+    return this._normalizedEmail;
   }
-  public set normalized_email(value: string) {
-    this._normalized_email = value;
+  public set normalizedEmail(value: string) {
+    this._normalizedEmail = value;
   }
 
   public get username(): string {
@@ -89,11 +87,11 @@ export default class User {
     this._username = value;
   }
 
-  public get normalized_username(): string {
-    return this._normalized_username;
+  public get normalizedUsername(): string {
+    return this._normalizedUsername;
   }
-  public set normalized_username(value: string) {
-    this._normalized_username = value;
+  public set normalizedUsername(value: string) {
+    this._normalizedUsername = value;
   }
 
   public get password(): string {
@@ -103,18 +101,18 @@ export default class User {
     this._password = value;
   }
 
-  public get profile_image(): string {
-    return this._profile_image;
+  public get profileImage(): string {
+    return this._profileImage;
   }
-  public set profile_image(value: string) {
-    this._profile_image = value;
+  public set profileImage(value: string) {
+    this._profileImage = value;
   }
 
-  public get learning_points(): number {
-    return this._learning_points;
+  public get learningPoints(): number {
+    return this._learningPoints;
   }
-  public set learning_points(value: number) {
-    this._learning_points = value;
+  public set learningPoints(value: number) {
+    this._learningPoints = value;
   }
 
   public get status(): UserStatus {
@@ -124,47 +122,46 @@ export default class User {
     this._status = value;
   }
 
-  public get favorite_instrument(): UserInstrument {
-    return this._favorite_instrument;
+  public get favoriteInstrument(): UserInstrument {
+    return this._favoriteInstrument;
   }
-  public set favorite_instrument(value: UserInstrument) {
-    this._favorite_instrument = value;
+  public set favoriteInstrument(value: UserInstrument) {
+    this._favoriteInstrument = value;
   }
 
-  public get concurrency_stamp(): string {
+  public get concurrencyStamp(): string {
     return this._concurrency_stamp;
   }
-  public set concurrency_stamp(value: string) {
+  public set concurrencyStamp(value: string) {
     this._concurrency_stamp = value;
   }
 
-  public get security_stamp(): string {
-    return this._security_stamp;
+  public get securityStamp(): string {
+    return this._securityStamp;
   }
-  public set security_stamp(value: string) {
-    this._security_stamp = value;
+  public set securityStamp(value: string) {
+    this._securityStamp = value;
   }
 
-  public get created_at(): Date {
-    return this._created_at;
+  public get createdAt(): Date {
+    return this._createdAt;
   }
-  public set created_at(value: Date) {
+  public set createdAt(value: Date) {
     if (!this.id || this.id < 0) {
       throw new Error("No se puede asignar la fecha de creacion si ya tiene un id");
     }
-    if (!this.created_at) {
+    if (!this.createdAt) {
       throw new Error("La fecha ya esta seteada");
     }
-    this._created_at = value;
+    this._createdAt = value;
   }
 
-  public get updated_at(): Date | undefined {
-    return this._updated_at;
+  public get updatedAt(): Date | undefined {
+    return this._updatedAt;
   }
-  public set updated_at(value: Date | undefined) {
-    this._updated_at = value;
+  public set updatedAt(value: Date | undefined) {
+    this._updatedAt = value;
   }
-
 }
 
 export enum UserStatus {

@@ -25,7 +25,7 @@ export default class UserCommandService {
     private readonly emailPort: EmailPort,
     private readonly tokenPort: TokenPort,
     private readonly logger: LoggerPort,
-  ) { }
+  ) {}
 
   async registerUser(user: RegisterRequest): Promise<ApplicationResponse<number>> {
     if (!user) {
@@ -63,13 +63,13 @@ export default class UserCommandService {
       const userDomain: Omit<User, "id" | "updated_at"> = {
         status: UserStatus.SUSPENDED,
         created_at: new Date(Date.now()),
-        full_name: user.full_name,
+        full_name: user.fullName,
         email: user.email,
         username: user.username,
         password: hashPassword,
-        profile_image: user.profile_image,
+        profile_image: user.profileImage,
         learning_points: 0,
-        favorite_instrument: user.favorite_instrument,
+        favorite_instrument: user.favoriteInstrument,
         concurrency_stamp: concurrencyStamp,
         security_stamp: securityStamp,
         normalized_email: user.email.toUpperCase(),
@@ -111,7 +111,7 @@ export default class UserCommandService {
       const welcomeEmail: Email = {
         to: [user.email],
         from: envs.EMAIL_FROM,
-        subject: `Bienvenido ${user.full_name}`,
+        subject: `Bienvenido ${user.fullName}`,
         text: `Bienvenido a HarmonyMusical, entra a este link para activar tu cuenta ${envs.FRONTEND_URL}/verify-email?token=${verificationToken}`,
       };
 
@@ -184,17 +184,17 @@ export default class UserCommandService {
       const updateData: Partial<User> = {
         updated_at: new Date(Date.now()),
       } as any;
-      if (updateRequest.full_name) updateData.full_name = updateRequest.full_name.trim();
+      if (updateRequest.fullName) updateData.fullName = updateRequest.fullName.trim();
       if (updateRequest.email) updateData.email = updateRequest.email.trim();
       if (updateRequest.username) updateData.username = updateRequest.username.trim();
-      if (updateRequest.profile_image) updateData.profile_image = updateRequest.profile_image.trim();
-      if (updateRequest.favorite_instrument !== undefined)
-        (updateData as any).favorite_instrument = updateRequest.favorite_instrument;
+      if (updateRequest.profileImage) updateData.profileImage = updateRequest.profileImage.trim();
+      if (updateRequest.favoriteInstrument !== undefined)
+        (updateData as any).favoriteInstrument = updateRequest.favoriteInstrument;
 
       if (updateRequest.new_password && updateRequest.current_password) {
         const hashPassword = await this.authPort.encryptPassword(updateRequest.new_password);
         updateData.password = hashPassword;
-        updateData.security_stamp = this.tokenPort.generateStamp();
+        updateData.securityStamp = this.tokenPort.generateStamp();
       }
 
       const resp = await this.userCommandPort.updateUser(id, updateData);

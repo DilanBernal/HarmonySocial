@@ -15,26 +15,26 @@ export default class UserQueryService {
     private readonly userQueryPort: UserQueryPort,
     private readonly userRolePort: UserRolePort,
     private readonly logger: LoggerPort,
-  ) { }
+  ) {}
 
   async getAllUsers(): Promise<ApplicationResponse<UserResponse[]>> {
     try {
       const userIds = await this.userRolePort.listUsersForRole("common_user");
       if (!userIds.length) return ApplicationResponse.success([]);
       const usersResponse = await this.userQueryPort.searchActiveUsersByIds(userIds);
-      if (!usersResponse.isSuccess) return (usersResponse as any) as ApplicationResponse<any>;
+      if (!usersResponse.isSuccess) return usersResponse as any as ApplicationResponse<any>;
       const users = usersResponse.getValue() || [];
       const responses: UserResponse[] = users.map((u) => ({
         id: u.id,
-        full_name: u.full_name,
+        fullName: u.fullName,
         email: u.email,
         username: u.username,
-        profile_image: u.profile_image,
-        learning_points: u.learning_points,
+        profileImage: u.profileImage,
+        learningPoints: u.learningPoints,
         status: u.status,
-        favorite_instrument: u.favorite_instrument,
-        created_at: u.created_at,
-        updated_at: u.updated_at,
+        favoriteInstrument: u.favoriteInstrument,
+        createdAt: u.createdAt,
+        updatedAt: u.updatedAt,
       }));
       return ApplicationResponse.success(responses);
     } catch (error: unknown) {
@@ -72,15 +72,15 @@ export default class UserQueryService {
       const u = userResp.getValue();
       return ApplicationResponse.success({
         id: u.id,
-        full_name: u.full_name,
+        fullName: u.fullName,
         email: u.email,
         username: u.username,
-        profile_image: u.profile_image,
-        learning_points: u.learning_points,
+        profileImage: u.profileImage,
+        learningPoints: u.learningPoints,
         status: u.status,
-        favorite_instrument: u.favorite_instrument,
-        created_at: u.created_at,
-        updated_at: u.updated_at,
+        favoriteInstrument: u.favoriteInstrument,
+        createdAt: u.createdAt,
+        updatedAt: u.updatedAt,
       });
     } catch (error: unknown) {
       if (error instanceof ApplicationResponse) return error;
@@ -120,15 +120,15 @@ export default class UserQueryService {
       const u = userResp.getValue();
       return ApplicationResponse.success({
         id: u.id,
-        full_name: u.full_name,
+        fullName: u.fullName,
         email: u.email,
         username: u.username,
-        profile_image: u.profile_image,
-        learning_points: u.learning_points,
+        profileImage: u.profileImage,
+        learningPoints: u.learningPoints,
         status: u.status,
-        favorite_instrument: u.favorite_instrument,
-        created_at: u.created_at,
-        updated_at: u.updated_at,
+        favoriteInstrument: u.favoriteInstrument,
+        createdAt: u.createdAt,
+        updatedAt: u.updatedAt,
       });
     } catch (error: unknown) {
       if (error instanceof ApplicationResponse) return error;
@@ -166,13 +166,13 @@ export default class UserQueryService {
       const u = uResp.getValue();
       return ApplicationResponse.success({
         id: u.id,
-        fullName: u.full_name!,
+        fullName: u.fullName!,
         email: u.email,
-        activeFrom: u.created_at.getFullYear(),
-        profileImage: u.profile_image,
+        activeFrom: u.createdAt.getFullYear(),
+        profileImage: u.profileImage,
         username: u.username,
-        learningPoints: u.learning_points,
-        favoriteInstrument: u.favorite_instrument,
+        learningPoints: u.learningPoints,
+        favoriteInstrument: u.favoriteInstrument,
       });
     } catch (e: any) {
       this.logger.error("Error en getUserData", [e?.message]);
@@ -196,7 +196,7 @@ export default class UserQueryService {
 
       // Using domain port to fetch active users matching filters
       const resp = await this.userQueryPort.searchActiveUserByFilters(filters);
-      if (!resp.isSuccess) return (resp as any) as ApplicationResponse<any>;
+      if (!resp.isSuccess) return resp as any as ApplicationResponse<any>;
       const rows = resp.value || [];
 
       // Apply simple pagination in-memory (can be optimized later)
@@ -207,9 +207,9 @@ export default class UserQueryService {
       const mapped = data.map((u) => ({
         id: u.id,
         username: u.username,
-        full_name: u.full_name,
+        full_name: u.fullName,
         email: u.email,
-        profile_image: u.profile_image ?? null,
+        profile_image: u.profileImage ?? null,
       }));
       return ApplicationResponse.success(
         PaginationResponse.create(mapped, mapped.length, rows.length),

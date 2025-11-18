@@ -71,8 +71,7 @@ const mockUserRolePort: jest.Mocked<UserRolePort> = {
   userHasRole: jest.fn(),
 } as any;
 
-describe('User service correct ', () => {
-
+describe("User service correct ", () => {
   let userService: UserService;
 
   // Datos de prueba comunes
@@ -105,15 +104,14 @@ describe('User service correct ', () => {
     );
   });
 
-
   describe("registerUser", () => {
     const validRegisterRequest: RegisterRequest = {
-      full_name: "John Doe",
+      fullName: "John Doe",
       email: "john@example.com",
       username: "johndoe",
       password: "Password123!",
-      profile_image: "https://example.com/image.jpg",
-      favorite_instrument: UserInstrument.GUITAR,
+      profileImage: "https://example.com/image.jpg",
+      favoriteInstrument: UserInstrument.GUITAR,
     };
 
     it("debe registrar un usuario exitosamente", async () => {
@@ -185,5 +183,4 @@ describe('User service correct ', () => {
       expect(result.error?.code).toBe(ErrorCodes.SERVER_ERROR);
     });
   });
-
 });

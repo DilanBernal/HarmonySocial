@@ -132,18 +132,18 @@ export default class UserService {
 
       const userDomain: Omit<User, "id" | "updated_at"> = {
         status: UserStatus.SUSPENDED,
-        created_at: new Date(Date.now()),
-        full_name: user.full_name,
+        createdAt: new Date(Date.now()),
+        fullName: user.fullName,
         email: user.email,
         username: user.username,
         password: hashPassword,
-        profile_image: user.profile_image,
-        learning_points: 0,
-        favorite_instrument: user.favorite_instrument,
-        concurrency_stamp: concurrencyStamp,
-        security_stamp: securityStamp,
-        normalized_email: user.email.toUpperCase(),
-        normalized_username: user.username.toUpperCase(),
+        profileImage: user.profileImage,
+        learningPoints: 0,
+        favoriteInstrument: user.favoriteInstrument,
+        concurrencyStamp: concurrencyStamp,
+        securityStamp: securityStamp,
+        normalizedEmail: user.email.toUpperCase(),
+        normalizedUsername: user.username.toUpperCase(),
       };
 
       const response = await this.userCommandPort.createUser(userDomain);
@@ -171,7 +171,7 @@ export default class UserService {
         let welcomeEmail: Email = {
           to: [user.email],
           from: envs.EMAIL_FROM,
-          subject: `Bienvenido ${user.full_name}`,
+          subject: `Bienvenido ${user.fullName}`,
         };
 
         const verificationToken = this.tokenPort.generateConfirmAccountToken(
@@ -289,15 +289,15 @@ export default class UserService {
       const users = usersResponse.getValue() || [];
       const responses: UserResponse[] = users.map((u) => ({
         id: u.id,
-        full_name: u.full_name,
+        full_name: u.fullName,
         email: u.email,
         username: u.username,
-        profile_image: u.profile_image,
-        learning_points: u.learning_points,
+        profile_image: u.profileImage,
+        learning_points: u.learningPoints,
         status: u.status,
-        favorite_instrument: u.favorite_instrument,
-        created_at: u.created_at,
-        updated_at: u.updated_at,
+        favorite_instrument: u.favoriteInstrument,
+        created_at: u.createdAt,
+        updated_at: u.updatedAt,
       }));
       return ApplicationResponse.success(responses);
     } catch (error: unknown) {
@@ -344,15 +344,15 @@ export default class UserService {
       const user = userResponse.data;
       const userResponseDto: UserResponse = {
         id: user.id,
-        full_name: user.full_name,
+        fullName: user.full_name,
         email: user.email,
         username: user.username,
-        profile_image: user.profile_image,
-        learning_points: user.learning_points,
+        profileImage: user.profile_image,
+        learningPoints: user.learning_points,
         status: user.status,
-        favorite_instrument: user.favorite_instrument,
-        created_at: user.created_at,
-        updated_at: user.updated_at,
+        favoriteInstrument: user.favorite_instrument,
+        createdAt: user.created_at,
+        updatedAt: user.updated_at,
       };
 
       return ApplicationResponse.success(userResponseDto);
@@ -404,15 +404,15 @@ export default class UserService {
       const user = userResponse.data;
       const userResponseDto: UserResponse = {
         id: user.id,
-        full_name: user.full_name,
+        fullName: user.full_name,
         email: user.email,
         username: user.username,
-        profile_image: user.profile_image,
-        learning_points: user.learning_points,
+        profileImage: user.profile_image,
+        learningPoints: user.learning_points,
         status: user.status,
-        favorite_instrument: user.favorite_instrument,
-        created_at: user.created_at,
-        updated_at: user.updated_at,
+        favoriteInstrument: user.favorite_instrument,
+        createdAt: user.created_at,
+        updatedAt: user.updated_at,
       };
 
       return ApplicationResponse.success(userResponseDto);
@@ -470,10 +470,7 @@ export default class UserService {
         errors.push(["username", "El username no esta en el formato correcto"]);
       }
 
-      if (
-        updateRequest.full_name &&
-        !userFindRegex("fullNameRegex").test(updateRequest.full_name)
-      ) {
+      if (updateRequest.fullName && !userFindRegex("fullNameRegex").test(updateRequest.fullName)) {
         errors.push(["full_name", "El nombre no esta en el formato correcto"]);
       }
 
@@ -482,8 +479,8 @@ export default class UserService {
       }
 
       if (
-        updateRequest.profile_image &&
-        !userFindRegex("profileImageRegex").test(updateRequest.profile_image)
+        updateRequest.profileImage &&
+        !userFindRegex("profileImageRegex").test(updateRequest.profileImage)
       ) {
         errors.push(["profile_image", "La imagen de usuario no esta en el formato correcto"]);
       }
@@ -528,16 +525,15 @@ export default class UserService {
 
       // Preparar datos para actualización
       const updateData: Partial<User> = {
-        updated_at: new Date(Date.now()),
+        updatedAt: new Date(Date.now()),
       };
 
-      if (updateRequest.full_name) updateData.full_name = updateRequest.full_name.trim();
+      if (updateRequest.fullName) updateData.fullName = updateRequest.fullName.trim();
       if (updateRequest.email) updateData.email = updateRequest.email.trim();
       if (updateRequest.username) updateData.username = updateRequest.username.trim();
-      if (updateRequest.profile_image)
-        updateData.profile_image = updateRequest.profile_image.trim();
-      if (updateRequest.favorite_instrument !== undefined)
-        updateData.favorite_instrument = updateRequest.favorite_instrument;
+      if (updateRequest.profileImage) updateData.profileImage = updateRequest.profileImage.trim();
+      if (updateRequest.favoriteInstrument !== undefined)
+        updateData.favoriteInstrument = updateRequest.favoriteInstrument;
 
       // Si se está actualizando la contraseña
       if (updateRequest.new_password && updateRequest.current_password) {
@@ -546,7 +542,7 @@ export default class UserService {
         updateData.password = hashPassword;
 
         // Regenerar security stamp al cambiar contraseña
-        updateData.security_stamp = this.tokenPort.generateStamp();
+        updateData.securityStamp = this.tokenPort.generateStamp();
       }
 
       const updateResponse = await this.userPort.updateUser(id, updateData);
@@ -724,9 +720,9 @@ export default class UserService {
       // Activar cuenta
       const updateData: Partial<User> = {
         status: UserStatus.ACTIVE,
-        updated_at: new Date(Date.now()),
-        concurrency_stamp: this.tokenPort.generateStamp(),
-        security_stamp: this.tokenPort.generateStamp(),
+        updatedAt: new Date(Date.now()),
+        concurrencyStamp: this.tokenPort.generateStamp(),
+        securityStamp: this.tokenPort.generateStamp(),
       };
 
       await this.userPort.updateUser(user.data!.id, updateData);
