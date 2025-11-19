@@ -35,17 +35,7 @@ export default class UserController {
   async registerUser(req: Request, res: Response) {
     const regRequest: RegisterRequest = req.body;
     try {
-      const user: Omit<
-        User,
-        | "id"
-        | "status"
-        | "created_at"
-        | "updated_at"
-        | "learning_points"
-        | "concurrency_stamp"
-        | "normalized_username"
-        | "normalized_email"
-        | "security_stamp"
+      const user: Pick<User, "fullName" | "email" | "username" | "password" | "profileImage" | "favoriteInstrument"
       > = {
         fullName: regRequest.fullName,
         email: regRequest.email,

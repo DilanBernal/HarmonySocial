@@ -18,7 +18,6 @@ class App {
   private middlewares(): void {
     this.app.use((req, _res, next) => {
       this.logger.warn(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
-      console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
       next();
     });
 
