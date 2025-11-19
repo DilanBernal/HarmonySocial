@@ -15,6 +15,8 @@ import RolePermissionAdapter from "../../infrastructure/adapter/data/seg/RolePer
 import EmptyRequestResponse from "../shared/responses/EmptyRequestResponse";
 import NotFoundResponse from "../shared/responses/NotFoundResponse";
 import areAllValuesEmpty from "../shared/utils/functions/areAllValuesEmpty";
+import { UserStatus } from "../../domain/models/seg/User";
+import DomainError from "../../domain/errors/DomainError";
 
 export default class AuthService {
   private userQueryPort: UserQueryPort;
@@ -181,7 +183,7 @@ export default class AuthService {
           message: "No se pudo encontrar un usuario con el email dado",
         });
       }
-    } catch (error) {}
+    } catch (error) { }
     return ApplicationResponse.success(true);
   }
 
@@ -272,7 +274,11 @@ export default class AuthService {
       const uResp = await this.userQueryPort.getUserByFilters({
         email: req.email,
         includeFilters: true,
-      } as any);
+      });
+
+      if (uResp.getValue().status == UserStatus.ACTIVE) {
+        return ApplicationResponse.failure(new ApplicationError("El usuario ya se activo", ErrorCodes.BUSINESS_RULE_VIOLATION));
+      }
       if (!uResp.isSuccess || !uResp.value) {
         return ApplicationResponse.failure(
           new ApplicationError("No se encontro el usuario", ErrorCodes.INVALID_EMAIL),

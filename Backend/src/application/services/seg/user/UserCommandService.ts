@@ -25,7 +25,7 @@ export default class UserCommandService {
     private readonly emailPort: EmailPort,
     private readonly tokenPort: TokenPort,
     private readonly logger: LoggerPort,
-  ) {}
+  ) { }
 
   async registerUser(user: RegisterRequest): Promise<ApplicationResponse<number>> {
     if (!user) {
@@ -60,21 +60,21 @@ export default class UserCommandService {
       const securityStamp: string = this.tokenPort.generateStamp();
       const concurrencyStamp: string = this.tokenPort.generateStamp();
 
-      const userDomain: Omit<User, "id" | "updated_at"> = {
+      const userDomain: Omit<User, "id" | "updatedAt"> = {
         status: UserStatus.SUSPENDED,
-        created_at: new Date(Date.now()),
-        full_name: user.fullName,
+        createdAt: new Date(),
+        fullName: user.fullName,
         email: user.email,
         username: user.username,
         password: hashPassword,
-        profile_image: user.profileImage,
-        learning_points: 0,
-        favorite_instrument: user.favoriteInstrument,
-        concurrency_stamp: concurrencyStamp,
-        security_stamp: securityStamp,
-        normalized_email: user.email.toUpperCase(),
-        normalized_username: user.username.toUpperCase(),
-      } as any;
+        profileImage: user.profileImage,
+        learningPoints: 0,
+        favoriteInstrument: user.favoriteInstrument,
+        concurrencyStamp: concurrencyStamp,
+        securityStamp: securityStamp,
+        normalizedEmail: user.email.toUpperCase(),
+        normalizedUsername: user.username.toUpperCase(),
+      };
 
       const response: Result<number, Error> = await this.userCommandPort.createUser(userDomain);
       if (!response.isSuccess) {

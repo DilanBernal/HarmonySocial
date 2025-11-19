@@ -1,17 +1,8 @@
 import User from "../../../../domain/models/seg/User";
 
 export default interface RegisterRequest
-  extends Omit<
-    User,
-    | "id"
-    | "status"
-    | "learningPoints"
-    | "createdAt"
-    | "updatedAt"
-    | "concurrencyStamp"
-    | "securityStamp"
-    | "normalizedUsername"
-    | "normalizedEmail"
+  extends
+  Pick<User, "fullName" | "email" | "username" | "password" | "profileImage" | "favoriteInstrument"
   > {
   usesDefaultImage?: boolean;
 }

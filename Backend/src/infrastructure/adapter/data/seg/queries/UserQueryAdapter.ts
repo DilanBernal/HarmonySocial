@@ -307,10 +307,10 @@ export default class UserAdapter implements UserQueryPort {
     if (filters.includeFilters) {
       if (filters.id) queryBuilder.andWhere("user.id = :id", { id: filters.id });
 
-      if (filters.email) queryBuilder.andWhere("user.email = :email", { email: filters.email });
+      if (filters.email) queryBuilder.andWhere("user.normalized_email = :email", { email: filters.email.toUpperCase() });
 
       if (filters.username)
-        queryBuilder.andWhere("user.username = :username", { username: filters.username });
+        queryBuilder.andWhere("user.normalized_username = :username", { username: filters.username.toUpperCase() });
 
       if (filters.status)
         queryBuilder.andWhere("user.status = :status", { status: filters.status });

@@ -5,7 +5,7 @@ import { UserInstrument } from "../../../../domain/models/seg/User";
 const instrumentValues = Object.values(UserInstrument);
 
 const registerSchema = joi.object({
-  full_name: joi.string().required().trim().min(3).max(150).pattern(userFindRegex("fullNameRegex")).messages({
+  fullName: joi.string().required().trim().min(3).max(150).pattern(userFindRegex("fullNameRegex")).messages({
     "string.empty": "El nombre completo es obligatorio",
     "any.required": "Debes ingresar el nombre completo",
     "string.pattern.base": "El nombre completo contiene caracteres no permitidos",
@@ -33,7 +33,7 @@ const registerSchema = joi.object({
     "string.min": "La contraseña debe tener al menos {#limit} caracteres",
     "string.max": "La contraseña debe tener como máximo {#limit} caracteres"
   }),
-  profile_image: joi
+  profileImage: joi
     .string()
     .optional()
     .trim()
@@ -43,7 +43,7 @@ const registerSchema = joi.object({
       "string.pattern.base": "La imagen de perfil no tiene un formato válido",
       "string.max": "La imagen de perfil debe tener como máximo {#limit} caracteres"
     }),
-  favorite_instrument: joi
+  favoriteInstrument: joi
     .any()
     .valid(...instrumentValues)
     .optional()

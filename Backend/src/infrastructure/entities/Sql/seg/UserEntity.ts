@@ -27,7 +27,7 @@ export default class UserEntity {
   @Column({ type: "varchar", length: 255 })
   password!: string;
 
-  @Column({ type: "varchar", length: 255 })
+  @Column({ type: "varchar", length: 255, default: "avatar1" })
   profile_image!: string;
 
   @Column({ type: "enum", enum: UserStatus, default: UserStatus.FROZEN })

@@ -150,7 +150,7 @@ export default class User {
     if (!this.id || this.id < 0) {
       throw new Error("No se puede asignar la fecha de creacion si ya tiene un id");
     }
-    if (!this.createdAt) {
+    if (this.createdAt) {
       throw new Error("La fecha ya esta seteada");
     }
     this._createdAt = value;

@@ -3,7 +3,7 @@ import UserQueryService from "../../application/services/seg/user/UserQueryServi
 import AuthService from "../../application/services/AuthService";
 import { Request, Response } from "express";
 import User from "../../domain/models/seg/User";
-import { ErrorCodes } from "../../application/shared/errors/ApplicationError";
+import { ApplicationError, ErrorCodes } from "../../application/shared/errors/ApplicationError";
 import { ApplicationResponse } from "../../application/shared/ApplicationReponse";
 import RegisterRequest from "../../application/dto/requests/User/RegisterRequest";
 import LoginRequest from "../../application/dto/requests/User/LoginRequest";
@@ -15,6 +15,7 @@ import NotFoundResponse from "../../application/shared/responses/NotFoundRespons
 import LoggerPort from "../../domain/ports/utils/LoggerPort";
 import PaginationRequest from "../../application/dto/utils/PaginationRequest";
 import UserSearchParamsRequest from "../../application/dto/requests/User/UserSearchParamsRequest";
+import DomainError from "../../domain/errors/DomainError";
 
 export default class UserController {
   private userCommandService: UserCommandService;
@@ -492,6 +493,8 @@ export default class UserController {
               });
             case ErrorCodes.SERVER_ERROR:
               return res.status(500).json({ message: "Error interno del servidor" });
+            case ErrorCodes.BUSINESS_RULE_VIOLATION:
+              return res.status(400).json({ message: "El usuario ya esta activo" })
             default:
               return res.status(500).json({ message: "Error desconocido" });
           }
