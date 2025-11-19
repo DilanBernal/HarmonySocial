@@ -8,6 +8,7 @@ import PaginationRequest from "../../../dto/utils/PaginationRequest";
 import PaginationResponse from "../../../dto/utils/PaginationResponse";
 import UserSearchParamsRequest from "../../../dto/requests/User/UserSearchParamsRequest";
 import UserBasicDataResponse from "../../../dto/responses/seg/user/UserBasicDataResponse";
+import NotFoundResponse from "../../../shared/responses/NotFoundResponse";
 
 export default class UserQueryService {
   private readonly _paginationMaxLimit = 150;
@@ -15,7 +16,7 @@ export default class UserQueryService {
     private readonly userQueryPort: UserQueryPort,
     private readonly userRolePort: UserRolePort,
     private readonly logger: LoggerPort,
-  ) {}
+  ) { }
 
   async getAllUsers(): Promise<ApplicationResponse<UserResponse[]>> {
     try {
@@ -151,11 +152,9 @@ export default class UserQueryService {
 
   async getUserData(id: number): Promise<ApplicationResponse<UserBasicDataResponse>> {
     try {
-      const existsResp = await this.userQueryPort.existsUserById(id);
+      const existsResp = await this.userQueryPort.existsActiveUserById(id);
       if (!existsResp.isSuccess || !existsResp.getValue()) {
-        return ApplicationResponse.failure(
-          new ApplicationError("El usuario no existe", ErrorCodes.VALUE_NOT_FOUND),
-        );
+        return new NotFoundResponse({ entity: "usuario" });
       }
       const uResp = await this.userQueryPort.getUserById(id);
       if (!uResp.isSuccess || !uResp.value) {

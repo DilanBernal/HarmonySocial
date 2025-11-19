@@ -139,7 +139,6 @@ router.get(
   "/basic-info",
   authenticateToken,
   enrichPermissionsFromToken,
-  requirePermissions(CorePermission.USER_READ),
   async (req, res) => {
     try {
       await userController.getBasicUserData(req, res);

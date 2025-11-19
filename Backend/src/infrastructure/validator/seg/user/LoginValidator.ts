@@ -2,7 +2,7 @@ import * as joi from "joi";
 import { findRegex, userFindRegex, userValidations } from "../../../../application/shared/utils/regexIndex";
 
 const loginSchema = joi.object({
-  userOrEmail: joi.string().required().trim().min(3).max(50).pattern(userFindRegex("userOrEmailRegex")).messages({
+  userOrEmail: joi.string().required().uppercase().trim().min(3).max(50).pattern(userFindRegex("userOrEmailRegex")).messages({
     'any.required': 'El nombre de usuario o email es obligatorio',
     'string.base': 'El nombre de usuario o email debe ser una cadena de texto',
     'string.min': 'El nombre de usuario o email debe tener al menos {#limit} caracteres',
