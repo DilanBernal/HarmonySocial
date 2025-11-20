@@ -1,11 +1,11 @@
 import SongAdapter, {
   CreateSongDTO,
   UpdateSongDTO,
-} from "../../infrastructure/adapter/data/SongAdapter";
-import SongEntity from "../../infrastructure/entities/SongEntity";
+} from "../../infrastructure/adapter/data/music/SongAdapter";
+import SongEntity from "../../infrastructure/entities/Sql/music/SongEntity";
 
 export default class SongService {
-  constructor(private readonly songs: SongAdapter) {}
+  constructor(private readonly songs: SongAdapter) { }
 
   async create(dto: CreateSongDTO): Promise<SongEntity> {
     if (!dto?.title?.trim()) throw new Error("title es requerido");

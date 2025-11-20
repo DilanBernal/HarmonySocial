@@ -1,12 +1,12 @@
-import FriendshipPort from "../../domain/ports/data/FriendshipPort";
+import FriendshipPort from "../../domain/ports/data/social/FriendshipPort";
 import LoggerPort from "../../domain/ports/utils/LoggerPort";
-import UserPort from "../../domain/ports/data/UserPort";
-import { FrienshipStatus } from "../../domain/models/Friendship";
+import { FrienshipStatus } from "../../domain/models/social/Friendship";
 import FriendshipUsersIdsRequest from "../dto/requests/Friendship/FriendshipUsersIdsRequest";
 import FriendshipsResponse from "../dto/responses/FriendshipsResponse";
 import { ApplicationResponse } from "../shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes } from "../shared/errors/ApplicationError";
 import EmailPort from "../../domain/ports/utils/EmailPort";
+import UserQueryPort from "../../domain/ports/data/seg/query/UserQueryPort";
 
 /**
  * Servicio para la gestión de amistades entre usuarios
@@ -15,7 +15,7 @@ import EmailPort from "../../domain/ports/utils/EmailPort";
 export default class FriendshipService {
   private friendshipPort: FriendshipPort;
   private loggerPort: LoggerPort;
-  private userPort: UserPort;
+  private userPort: UserQueryPort;
   private emailPort: EmailPort;
 
   /**
@@ -27,7 +27,7 @@ export default class FriendshipService {
   constructor(
     friendshipPort: FriendshipPort,
     logger: LoggerPort,
-    userPort: UserPort,
+    userPort: UserQueryPort,
     emailPort: EmailPort,
   ) {
     this.friendshipPort = friendshipPort;
@@ -48,14 +48,14 @@ export default class FriendshipService {
     try {
       // Verificamos que ambos usuarios existan
       const userExists = await this.userPort.existsUserById(friendRequest.user_id);
-      if (!userExists.success || !userExists.data) {
+      if (!userExists.isSuccess || !userExists.getValue()) {
         return ApplicationResponse.failure<string>(
           new ApplicationError("El usuario remitente no existe", ErrorCodes.VALUE_NOT_FOUND),
         );
       }
 
       const friendExists = await this.userPort.existsUserById(friendRequest.friend_id);
-      if (!friendExists.success || !friendExists.data) {
+      if (!friendExists.isSuccess || !friendExists.getValue()) {
         return ApplicationResponse.failure<string>(
           new ApplicationError("El usuario destinatario no existe", ErrorCodes.VALUE_NOT_FOUND),
         );
@@ -279,8 +279,7 @@ export default class FriendshipService {
         user_id: reqId,
         friend_id: objId,
       });
-
-      console.log(response.error);
+      this.loggerPort.appDebug(response);
 
       return response;
     } catch (error) {

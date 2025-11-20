@@ -1,19 +1,21 @@
-import "reflect-metadata";
-import { AppDataSource } from "../config/con_database";
+// import "reflect-metadata";
+import { SqlAppDataSource } from "../config/con_database";
 import {
   CorePermissionsList,
   DefaultRolePermissionMapping,
   CorePermission,
-} from "../../domain/models/Permission";
-import PermissionEntity from "../entities/PermissionEntity";
-import RoleEntity from "../entities/RoleEntity";
-import RolePermissionEntity from "../entities/RolePermissionEntity";
+} from "../../domain/models/seg/Permission";
+import {
+  PermissionEntity,
+  RoleEntity,
+  RolePermissionEntity
+} from "../entities/Sql/seg";
 
 async function seed() {
-  if (!AppDataSource.isInitialized) await AppDataSource.initialize();
-  const permRepo = AppDataSource.getRepository(PermissionEntity);
-  const roleRepo = AppDataSource.getRepository(RoleEntity);
-  const rpRepo = AppDataSource.getRepository(RolePermissionEntity);
+  if (!SqlAppDataSource.isInitialized) await SqlAppDataSource.initialize();
+  const permRepo = SqlAppDataSource.getRepository(PermissionEntity);
+  const roleRepo = SqlAppDataSource.getRepository(RoleEntity);
+  const rpRepo = SqlAppDataSource.getRepository(RolePermissionEntity);
 
   console.log("Seeding permissions...");
   // Insert permissions if not exist
@@ -47,7 +49,7 @@ async function seed() {
   }
 
   console.log("Seeding completed.");
-  await AppDataSource.destroy();
+  await SqlAppDataSource.destroy();
 }
 
 seed().catch((err) => {

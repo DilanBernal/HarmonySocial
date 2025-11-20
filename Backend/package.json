@@ -1,6 +1,6 @@
 {
   "name": "harmony-social-web",
-  "version": "1.0.51",
+  "version": "1.1.51",
   "main": "./src/index.ts",
   "scripts": {
     "test": "jest",
@@ -20,14 +20,15 @@
     "express": "5.1.0",
     "joi": "18.0.0",
     "jsonwebtoken": "9.0.2",
+    "mongodb": "^6.20.0",
     "multer": "2.0.2",
-    "mysql2": "3.14.3",
     "nodemailer": "7.0.6",
     "pg": "^8.16.3",
     "pino": "9.9.0",
     "pino-prettier": "3.0.1-dev",
     "typeorm": "0.3.26",
-    "uuid": "11.1.0"
+    "uuid": "11.1.0",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",

@@ -18,7 +18,6 @@ class App {
   private middlewares(): void {
     this.app.use((req, _res, next) => {
       this.logger.warn(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
-      console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
       next();
     });
 
@@ -36,12 +35,21 @@ class App {
       }),
     );
 
+
     this.app.use(express.json({ limit: "10mb" }));
     this.app.use(express.urlencoded({ extended: true }));
   }
 
   private routes(): void {
     this.app.use("/api", mainRouter);
+
+    this.app.use(/.*/, (req, res) => {
+      res.status(404).json({
+        error: 'Endpoint no encontrado',
+        message: `La ruta ${req.originalUrl} no existe`,
+        method: req.method
+      });
+    });
   }
 
   getApp() {

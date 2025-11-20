@@ -27,7 +27,6 @@ fileRouter.post("/song", authenticateToken, upload.single("file"), (req, res) =>
 );
 
 fileRouter.get("/song", async (req, res) => {
-  console.log("heloooo");
   filesController.getSongStream(req, res);
 });
 

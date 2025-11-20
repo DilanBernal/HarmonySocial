@@ -1,14 +1,14 @@
 import { Request, Response } from "express";
-import RoleService from "../../application/services/RoleService";
 import LoggerPort from "../../domain/ports/utils/LoggerPort";
 import { ErrorCodes } from "../../application/shared/errors/ApplicationError";
 import { ApplicationResponse } from "../../application/shared/ApplicationReponse";
+import RoleService from "../../application/services/seg/role/RoleService";
 
 export default class RoleController {
   constructor(
     private service: RoleService,
     private logger: LoggerPort,
-  ) {}
+  ) { }
 
   async create(req: Request, res: Response) {
     try {

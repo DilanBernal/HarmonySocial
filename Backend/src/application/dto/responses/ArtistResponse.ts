@@ -1,4 +1,4 @@
-import { ArtistStatus } from "../../../domain/models/Artist";
+import { ArtistStatus } from "../../../domain/models/music/Artist";
 
 export default interface ArtistResponse {
   id: number;

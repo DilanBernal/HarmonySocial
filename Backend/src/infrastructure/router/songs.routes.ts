@@ -1,5 +1,5 @@
 import { Router } from "express";
-import SongAdapter from "../adapter/data/SongAdapter";
+import SongAdapter from "../adapter/data/music/SongAdapter";
 import SongService from "../../application/services/SongService";
 import authenticateToken from "../middleware/authMiddleware";
 import SongController from "../controller/SongController";
