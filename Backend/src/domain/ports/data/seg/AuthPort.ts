@@ -1,0 +1,13 @@
+import LoginRequest from "../../../../application/dto/requests/User/LoginRequest";
+import AuthResponse from "../../../../application/dto/responses/seg/user/AuthResponse";
+
+export default interface AuthPort {
+  loginUser(
+    credentials: LoginRequest,
+    payload: object,
+    imageAndId: Pick<AuthResponse, "profile_image" | "id">,
+  ): Promise<AuthResponse>;
+  recoverAccount(email: string): Promise<boolean>;
+  comparePasswords(password: string, hashPassword: string): Promise<boolean>;
+  encryptPassword(password: string): Promise<string>;
+}

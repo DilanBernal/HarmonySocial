@@ -88,7 +88,6 @@ export default class FileService {
   async getFileStramSong(id: string): Promise<ApplicationResponse<FileStream>> {
     try {
       const response = await this.filePort.getSongFileStream(id);
-      console.log(response);
 
       if (!response.success) {
         this.logger.appWarn(response);

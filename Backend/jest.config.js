@@ -2,13 +2,13 @@ module.exports = {
   preset: "ts-jest",
   testEnvironment: "node",
   testMatch: [
-    "**/tests/**/*.spec.ts", 
-    "**/tests/**/*.test.ts", 
-    "**/?(*.)+(spec|test|specs).[tj]s", 
-    "**/tests/**/*.specs.ts"
+    "**/tests/unit/**/*.spec.ts", 
+    "**/tests/unit/**/*.test.ts", 
+    // "**/?(*.)+(spec|test|specs).[tj]s", 
+    "**/tests/unit/**/*.specs.ts"
   ],
   moduleFileExtensions: ["ts", "js", "json", "node"],
-  roots: ["<rootDir>/src", "<rootDir>/tests"],
+  roots: ["<rootDir>/src", "<rootDir>/tests/unit"],
   clearMocks: true,
   
   // ✅ AÑADE ESTAS CONFIGURACIONES:
@@ -24,5 +24,5 @@ module.exports = {
     '!src/index.ts',
     '!src/**/bootstrap/**'
   ],
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts']
+  setupFilesAfterEnv: ['<rootDir>/tests/unit/setup.ts']
 };

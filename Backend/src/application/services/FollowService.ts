@@ -1,6 +1,6 @@
 // src/application/services/UserFollowService.ts
-import { UserFollowRepository } from "../../domain/ports/data/FollowPort";
-import UserFollow from "../../infrastructure/entities/FollowEntity";
+import { UserFollowRepository } from "../../domain/ports/data/social/UserFollowsUserPort";
+import UserFollow from "../../infrastructure/entities/Sql/seg/UserFollowsUserEntity";
 
 export class UserFollowService {
   constructor(private userFollowRepo: UserFollowRepository) { }

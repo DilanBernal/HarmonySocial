@@ -1,8 +1,8 @@
-import User from "../../../../domain/models/User";
+import User from "../../../../domain/models/seg/User";
 
 export default interface UpdateUserRequest
   extends Partial<
-    Pick<User, "full_name" | "email" | "username" | "profile_image" | "favorite_instrument">
+    Pick<User, "fullName" | "email" | "username" | "profileImage" | "favoriteInstrument">
   > {
   current_password?: string;
   new_password?: string;

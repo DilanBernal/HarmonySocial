@@ -48,10 +48,45 @@ services:
       - pgdata:/var/lib/postgresql/data
     networks:
       - harmony-network
+
+  mongo_db:
+    image: mongo:7
+    container_name: harmony-mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    ports:
+      - "27069:27017"
+    volumes:
+      - mongodata:/data/db
+    networks:
+      - harmony-network
+
+  mongo-express:
+    image: mongo-express:1.0
+    container_name: harmony-mongo-express
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo_db # ← Nombre del servicio de MongoDB
+      ME_CONFIG_MONGODB_PORT: 27017
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_BASICAUTH_ENABLED: "true"
+      ME_CONFIG_BASICAUTH_USERNAME: mongoexrootpressuser
+      ME_CONFIG_BASICAUTH_PASSWORD: mongoexpresspass
+    networks:
+      - harmony-network
+    depends_on:
+      - mongo_db
+
 volumes:
   pgadmin_data:
   azurite_data:
   pgdata:
+  mongodata:
 
 networks:
   harmony-network:

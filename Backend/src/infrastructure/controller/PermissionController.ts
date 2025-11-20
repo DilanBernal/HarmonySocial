@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import PermissionService from "../../application/services/PermissionService";
+import PermissionService from "../../application/services/seg/permission/PermissionService";
 
 export default class PermissionController {
-  constructor(private service: PermissionService) {}
+  constructor(private service: PermissionService) { }
 
   create = async (req: Request, res: Response) => {
     const { name, description } = req.body || {};

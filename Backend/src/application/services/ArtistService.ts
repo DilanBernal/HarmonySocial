@@ -1,15 +1,16 @@
 import { ApplicationResponse } from "../shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes } from "../shared/errors/ApplicationError";
-import Artist, { ArtistStatus } from "../../domain/models/Artist";
-import ArtistPort from "../../domain/ports/data/ArtistPort";
+import Artist, { ArtistStatus } from "../../domain/models/music/Artist";
+import ArtistPort from "../../domain/ports/data/music/ArtistPort";
 import { ArtistSearchFilters } from "../dto/requests/Artist/ArtistSearchFilters";
 import ArtistCreateRequest from "../dto/requests/Artist/ArtistCreateRequest";
 import ArtistUpdateRequest from "../dto/requests/Artist/ArtistUpdateRequest";
 import ArtistResponse from "../dto/responses/ArtistResponse";
 import LoggerPort from "../../domain/ports/utils/LoggerPort";
-import RolePort from "../../domain/ports/data/RolePort";
-import UserRolePort from "../../domain/ports/data/UserRolePort";
+import RolePort from "../../domain/ports/data/seg/RolePort";
+import UserRolePort from "../../domain/ports/data/seg/UserRolePort";
 import PaginationRequest from "../dto/utils/PaginationRequest";
+import PaginationResponse from "../dto/utils/PaginationResponse";
 
 export default class ArtistService {
   constructor(
@@ -17,7 +18,7 @@ export default class ArtistService {
     private logger: LoggerPort,
     private rolePort: RolePort,
     private userRolePort: UserRolePort,
-  ) {}
+  ) { }
 
   async create(
     request: ArtistCreateRequest,
@@ -123,12 +124,11 @@ export default class ArtistService {
     }
   }
 
-  async search(filters: ArtistSearchFilters): Promise<ApplicationResponse<ArtistResponse[]>> {
+  async search(filters: PaginationRequest<ArtistSearchFilters>): Promise<ApplicationResponse<PaginationResponse<ArtistResponse>>> {
     try {
-      const result = await this.port.searchPaginated(PaginationRequest.create(filters, 5));
+      const result = await this.port.searchPaginated(filters);
       if (!result.success) return result as any;
-      const data = (result.data || []).map(this.mapToResponse);
-      return ApplicationResponse.success(data);
+      return ApplicationResponse.success(result.data!);
     } catch (error) {
       return this.handleUnexpected(error, "buscar artistas");
     }

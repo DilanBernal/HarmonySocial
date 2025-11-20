@@ -7,12 +7,14 @@ export type ReturnEnvironmentVars = {
   PORT: number;
   ENVIRONMENT: string;
   DB_HOST: string;
-  DB_PORT: number;
-  DB_USER: string;
-  DB_PASSWORD: string;
-  DB_NAME: string;
-  DB_SCHEMA: string;
-  DB_SYNC: boolean;
+  DB_PG_PORT: number;
+  DB_PG_USER: string;
+  DB_PG_PASSWORD: string;
+  DB_PG_NAME: string;
+  DB_PG_SCHEMA: string;
+  DB_PG_SYNC: boolean;
+  DB_MONGO_CON_STRING: string;
+  DB_MONGO_NAME: string;
   PASSWORD_SALT: number;
   JWT_SECRET: string;
   SMTP_HOST: string;
@@ -35,13 +37,15 @@ function validateEnvVars(vars: NodeJS.ProcessEnv): ValidationEnvironmentVars {
     .object({
       PORT: joi.number().default(4666).required(),
       ENVIRONMENT: joi.string().default("dev").required(),
-      DB_HOST: joi.string().required(),
-      DB_PORT: joi.number().required(),
-      DB_USER: joi.string().required(),
-      DB_PASSWORD: joi.string().allow("").optional(),
-      DB_NAME: joi.string().required(),
-      DB_SCHEMA: joi.string().required(),
-      DB_SYNC: joi.boolean().default(false).required(),
+      DB_PG_HOST: joi.string().required(),
+      DB_PG_PORT: joi.number().required(),
+      DB_PG_USER: joi.string().required(),
+      DB_PG_PASSWORD: joi.string().allow("").optional(),
+      DB_PG_NAME: joi.string().required(),
+      DB_PG_SCHEMA: joi.string().required(),
+      DB_PG_SYNC: joi.boolean().default(false).required(),
+      DB_MONGO_CON_STRING: joi.string().required(),
+      DB_MONGO_NAME: joi.string().required(),
       PASSWORD_SALT: joi.number().default(4).required(),
       JWT_SECRET: joi.string().min(32).required(),
       SMTP_HOST: joi.string().required(),
@@ -59,7 +63,7 @@ function validateEnvVars(vars: NodeJS.ProcessEnv): ValidationEnvironmentVars {
   return { error, value };
 }
 
-const loadEnvVars = (): ReturnEnvironmentVars => {
+function loadEnvVars(): ReturnEnvironmentVars {
   const result = validateEnvVars(process.env);
   if (result.error) {
     throw new Error(`Error validating environment variables: ${result.error.message}`);
@@ -69,12 +73,14 @@ const loadEnvVars = (): ReturnEnvironmentVars => {
     PORT: value.PORT,
     ENVIRONMENT: value.ENVIRONMENT,
     DB_HOST: value.DB_HOST,
-    DB_PORT: value.DB_PORT,
-    DB_USER: value.DB_USER,
-    DB_NAME: value.DB_NAME,
-    DB_SCHEMA: value.DB_SCHEMA,
-    DB_PASSWORD: value.DB_PASSWORD,
-    DB_SYNC: value.DB_SYNC,
+    DB_PG_PORT: value.DB_PG_PORT,
+    DB_PG_USER: value.DB_PG_USER,
+    DB_PG_NAME: value.DB_PG_NAME,
+    DB_PG_SCHEMA: value.DB_PG_SCHEMA,
+    DB_PG_PASSWORD: value.DB_PG_PASSWORD,
+    DB_PG_SYNC: value.DB_PG_SYNC,
+    DB_MONGO_CON_STRING: value.DB_MONGO_CON_STRING,
+    DB_MONGO_NAME: value.DB_MONGO_NAME,
     PASSWORD_SALT: value.PASSWORD_SALT,
     JWT_SECRET: value.JWT_SECRET,
     SMTP_HOST: value.SMTP_HOST,

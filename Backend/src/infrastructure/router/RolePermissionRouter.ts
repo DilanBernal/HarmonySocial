@@ -1,5 +1,5 @@
 import { Router } from "express";
-import RolePermissionAdapter from "../adapter/data/RolePermissionAdapter";
+import RolePermissionAdapter from "../adapter/data/seg/RolePermissionAdapter";
 import RolePermissionService from "../../application/services/RolePermissionService";
 import RolePermissionController from "../controller/RolePermissionController";
 

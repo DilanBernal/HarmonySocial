@@ -2,7 +2,7 @@ import SongService from "../../application/services/SongService";
 import { Request, Response } from "express";
 
 export default class SongController {
-  constructor(private songService: SongService) {}
+  constructor(private songService: SongService) { }
 
   async getPagedSongs(req: Request, res: Response) {
     try {
@@ -23,7 +23,6 @@ export default class SongController {
 
   async getUserSongList(req: Request, res: Response) {
     try {
-      console.log("[songs] mine/list userId=", (req as any).userId, "query=", req.query);
       const userId = Number((req as any).userId);
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
