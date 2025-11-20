@@ -1,7 +1,6 @@
 import AuthPort from "../../domain/ports/data/seg/AuthPort";
 import UserQueryPort from "../../domain/ports/data/seg/query/UserQueryPort";
 import UserCommandPort from "../../domain/ports/data/seg/command/UserCommandPort";
-import type UserPort from "../../domain/ports/data/seg/UserPort";
 import EmailPort from "../../domain/ports/utils/EmailPort";
 import LoggerPort from "../../domain/ports/utils/LoggerPort";
 import LoginRequest from "../dto/requests/User/LoginRequest";
@@ -17,6 +16,7 @@ import NotFoundResponse from "../shared/responses/NotFoundResponse";
 import areAllValuesEmpty from "../shared/utils/functions/areAllValuesEmpty";
 import { UserStatus } from "../../domain/models/seg/User";
 import DomainError from "../../domain/errors/DomainError";
+import RolePermissionPort from "../../domain/ports/data/seg/RolePermissionPort";
 
 export default class AuthService {
   private userQueryPort: UserQueryPort;
@@ -26,39 +26,26 @@ export default class AuthService {
   private loggerPort: LoggerPort;
   private tokenPort: TokenPort;
   private userRolePort: UserRolePort;
-  private rolePermissionAdapter: RolePermissionAdapter;
+  private rolePermissionPort: RolePermissionPort;
 
   constructor(
-    userQueryOrLegacyPort: UserQueryPort | UserPort,
-    authOrCommandOrAuth: UserCommandPort | AuthPort,
-    emailOrEmail: EmailPort,
-    logger: LoggerPort,
-    token: TokenPort,
+    userQueryPort: UserQueryPort,
+    userCommandPort: UserCommandPort,
+    authPort: AuthPort,
+    emailPort: EmailPort,
+    loggerPort: LoggerPort,
+    tokenPort: TokenPort,
     userRolePort: UserRolePort,
-    maybeCommandPort?: UserCommandPort,
+    rolePermissionPort: RolePermissionPort
   ) {
-    // Backwards compatibility: old signature was (userPort, authPort, emailPort, logger, token, userRolePort)
-    if (maybeCommandPort) {
-      // New signature used from routers
-      this.userQueryPort = userQueryOrLegacyPort as UserQueryPort;
-      this.userCommandPort = maybeCommandPort;
-      this.authPort = authOrCommandOrAuth as AuthPort;
-      this.emailPort = emailOrEmail;
-      this.loggerPort = logger;
-      this.tokenPort = token;
-      this.userRolePort = userRolePort;
-    } else {
-      // Legacy tests path
-      const legacy = userQueryOrLegacyPort as unknown as UserPort;
-      this.userQueryPort = legacy as unknown as UserQueryPort;
-      this.userCommandPort = legacy as unknown as UserCommandPort;
-      this.authPort = authOrCommandOrAuth as AuthPort;
-      this.emailPort = emailOrEmail;
-      this.loggerPort = logger;
-      this.tokenPort = token;
-      this.userRolePort = userRolePort;
-    }
-    this.rolePermissionAdapter = new RolePermissionAdapter();
+    this.userQueryPort = userQueryPort;
+    this.userCommandPort = userCommandPort;
+    this.authPort = authPort;
+    this.emailPort = emailPort;
+    this.loggerPort = loggerPort;
+    this.tokenPort = tokenPort;
+    this.userRolePort = userRolePort;
+    this.rolePermissionPort = rolePermissionPort;
   }
 
   async login(requests: LoginRequest): Promise<ApplicationResponse<AuthResponse>> {
@@ -114,7 +101,7 @@ export default class AuthService {
         const roles = await this.userRolePort.listRolesForUser(userId);
         roleNames = roles.map((r) => r.name);
         if (roleNames.length) {
-          const permsResp = await this.rolePermissionAdapter.getPermissionsByRoleNames(roleNames);
+          const permsResp = await this.rolePermissionPort.getPermissionsByRoleNames(roleNames);
           if (permsResp.success && permsResp.data) {
             permissions = permsResp.data.map((p) => p.name);
           }

@@ -24,6 +24,7 @@ import UserQueryAdapter from "../adapter/data/seg/queries/UserQueryAdapter";
 import UserPublicProfileQueryAdapter from "../adapter/data/seg/queries/UserPublicProfileQueryAdapter";
 import { enrichPermissionsFromToken, requirePermissions } from "../middleware/authorizationMiddleware";
 import { CorePermission } from "../../domain/models/seg/Permission";
+import RolePermissionAdapter from "../adapter/data/seg/RolePermissionAdapter";
 
 const router = Router();
 
@@ -46,15 +47,17 @@ const userCommandService = new UserCommandService(
   tokenAdapter,
   loggerAdapter,
 );
+const rolePermissionAdapter: RolePermissionAdapter = new RolePermissionAdapter();
 const userQueryService = new UserQueryService(userQueryAdapter, userRoleAdapter, loggerAdapter);
 const authService = new AuthService(
   userQueryAdapter,
+  userCommandAdapter,
   authAdapter,
   emailAdapter,
   loggerAdapter,
   tokenAdapter,
   userRoleAdapter,
-  userCommandAdapter,
+  rolePermissionAdapter,
 );
 const userController = new UserController(
   userCommandService,

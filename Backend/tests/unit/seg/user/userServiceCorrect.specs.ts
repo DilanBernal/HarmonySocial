@@ -1,5 +1,4 @@
 import RegisterRequest from "../../../../src/application/dto/requests/User/RegisterRequest";
-import UserService from "../../../../src/application/services/UserService";
 import { ApplicationResponse } from "../../../../src/application/shared/ApplicationReponse";
 import { ErrorCodes } from "../../../../src/application/shared/errors/ApplicationError";
 import User, { UserStatus, UserInstrument } from "../../../../src/domain/models/seg/User";

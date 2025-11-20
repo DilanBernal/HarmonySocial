@@ -15,7 +15,7 @@ import UserRolePort from "../../../../src/domain/ports/data/seg/UserRolePort";
 import { createMockTokenPort } from "../../mocks/ports/utils/TokenPort.mock";
 import createEmailPortMock from "../../mocks/ports/utils/EmailPort.mock";
 import createLoggerPort from "../../mocks/ports/extra/LoggerPort.mock";
-import createUserPortMock from "../../mocks/ports/data/UserPort.mock";
+import createUserCommandPortMock from "../../mocks/ports/data/UserCommandPort.mock";
 import createUserRolePortMock from "../../mocks/ports/data/UserRolePort.mock";
 
 /**
@@ -32,7 +32,7 @@ describe("AuthService", () => {
   let authService: AuthService;
 
   // Mocks de todas las dependencias
-  const mockUserPort: jest.Mocked<UserPort> = createUserPortMock();
+  const mockUserPort: jest.Mocked<UserPort> = createUserCommandPortMock();
 
   const mockAuthPort: jest.Mocked<AuthPort> = {
     comparePasswords: jest.fn(),
