@@ -1,4 +1,4 @@
-import UserRoleService from "../../../../src/application/services/UserRoleService";
+import UserRoleService from "../../../../src/application/services/seg/userRole/UserRoleService";
 import { ApplicationError, ErrorCodes } from "../../../../src/application/shared/errors/ApplicationError";
 
 const mockUserRolePort = {

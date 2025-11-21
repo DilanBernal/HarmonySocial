@@ -1,12 +1,12 @@
 // src/infrastructure/adapters/PostgresUserFollowRepository.ts
 import { Pool } from "pg";
-import UserFollow from "../../entities/Sql/seg/UserFollowsUserEntity";
+import { UserFollowsUser } from "../../../../domain/models/social/UserFollowsUser";
 import { UserFollowRepository } from "../../../../domain/ports/data/social/UserFollowsUserPort";
 
 export class PostgresUserFollowRepository implements UserFollowRepository {
   constructor(private pool: Pool) { }
 
-  async follow(followerId: number, followedId: number): Promise<UserFollow> {
+  async follow(followerId: number, followedId: number): Promise<UserFollowsUser> {
     const result = await this.pool.query(
       `INSERT INTO user_follows_user (follower_id, followed_id)
        VALUES ($1, $2) ON CONFLICT (follower_id, followed_id) DO NOTHING
@@ -17,7 +17,12 @@ export class PostgresUserFollowRepository implements UserFollowRepository {
     if (!result.rows[0]) throw new Error("Already following");
 
     const row = result.rows[0];
-    return new UserFollow();
+    return {
+      id: row.id,
+      userIdFollower: row.follower_id,
+      userIdFollowed: row.followed_id,
+      createdAt: new Date(row.created_at).getTime()
+    };
   }
 
   async unfollow(followerId: number, followedId: number): Promise<void> {
@@ -27,23 +32,28 @@ export class PostgresUserFollowRepository implements UserFollowRepository {
     );
   }
 
-  async getFollowers(userId: number): Promise<UserFollow[]> {
+  async getFollowers(userId: number): Promise<UserFollowsUser[]> {
     const result = await this.pool.query(`SELECT * FROM user_follows_user WHERE followed_id = $1`, [
       userId,
     ]);
-    return result.rows.map(
-      (row) => new UserFollow(),
-      //row.id, { id: row.follower_id }, { id: row.followed_id }, row.created_at
-    );
+    return result.rows.map((row) => ({
+      id: row.id,
+      userIdFollower: row.follower_id,
+      userIdFollowed: row.followed_id,
+      createdAt: new Date(row.created_at).getTime()
+    }));
   }
 
-  async getFollowing(userId: number): Promise<UserFollow[]> {
+  async getFollowing(userId: number): Promise<UserFollowsUser[]> {
     const result = await this.pool.query(`SELECT * FROM user_follows_user WHERE follower_id = $1`, [
       userId,
     ]);
-    return result.rows.map(
-      (row) => new UserFollow(),
-    );
+    return result.rows.map((row) => ({
+      id: row.id,
+      userIdFollower: row.follower_id,
+      userIdFollowed: row.followed_id,
+      createdAt: new Date(row.created_at).getTime()
+    }));
   }
 
   async exists(followerId: number, followedId: number): Promise<boolean> {

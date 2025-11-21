@@ -1,4 +1,4 @@
-type UserFollowsUser = {
+export type UserFollowsUser = {
   id: number;
   userIdFollower: number;
   userIdFollowed: number;

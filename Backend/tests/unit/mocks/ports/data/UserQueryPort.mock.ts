@@ -55,32 +55,22 @@ const mockUsers: User[] = [
 
 
 function applyFilters(filters: UserFilters): boolean {
-  const response: boolean = false;
+  let response: boolean = false;
 
   if (filters.includeFilters) {
     if (filters.id) response = filters.id === 2;
-
-    if (filters.email) queryBuilder.andWhere("user.normalized_email = :email", { email: filters.email.toUpperCase() });
-
-    if (filters.username)
-      queryBuilder.andWhere("user.normalized_username = :username", { username: filters.username.toUpperCase() });
-
-    if (filters.status)
-      queryBuilder.andWhere("user.status = :status", { status: filters.status });
+    // For mock purposes, we simulate filtering logic without actual query builder
+    if (filters.email) response = filters.email.toLowerCase() === "testuser@example.com";
+    if (filters.username) response = filters.username.toLowerCase() === "testuser";
+    if (filters.status) response = filters.status === UserStatus.ACTIVE;
   } else {
-    if (filters.id) queryBuilder.orWhere("user.id = :id", { id: filters.id });
-
-    if (filters.email)
-      queryBuilder.orWhere("user.normalized_email = :email", { email: filters.email });
-
-    if (filters.username)
-      queryBuilder.orWhere("user.normalized_username = :username", {
-        username: filters.username,
-      });
-
-    if (filters.status) queryBuilder.orWhere("user.status = :status", { status: filters.status });
+    // OR logic for exclude filters
+    if (filters.id) response = filters.id === 1;
+    if (filters.email) response = filters.email.toLowerCase() === "testuser@example.com";
+    if (filters.username) response = filters.username.toLowerCase() === "testuser";
+    if (filters.status) response = filters.status === UserStatus.ACTIVE;
   }
-  return queryBuilder;
+  return response;
 }
 
 const createUserQueryPortMock = (): jest.Mocked<UserQueryPort> => {

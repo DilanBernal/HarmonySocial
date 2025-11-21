@@ -749,3 +749,15 @@
 //     }
 //   }
 // }
+
+// Temporary minimal export to fix build errors
+export default class UserService {
+  constructor(...args: any[]) {
+    // TODO: Uncomment and implement the full UserService above
+  }
+  
+  async registerUser(request: any): Promise<any> {
+    // TODO: Implement this method when uncommenting the full service
+    throw new Error("Method not implemented - UserService is commented out");
+  }
+}

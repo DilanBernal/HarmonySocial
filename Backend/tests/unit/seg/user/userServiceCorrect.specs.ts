@@ -2,6 +2,7 @@ import RegisterRequest from "../../../../src/application/dto/requests/User/Regis
 import { ApplicationResponse } from "../../../../src/application/shared/ApplicationReponse";
 import { ErrorCodes } from "../../../../src/application/shared/errors/ApplicationError";
 import User, { UserStatus, UserInstrument } from "../../../../src/domain/models/seg/User";
+import UserService from "../../../../src/application/services/seg/user/UserService";
 import AuthPort from "../../../../src/domain/ports/data/seg/AuthPort";
 import RolePort from "../../../../src/domain/ports/data/seg/RolePort";
 import UserPort from "../../../../src/domain/ports/data/seg/UserPort";

@@ -6,15 +6,18 @@ import { ApplicationResponse } from "../../../../src/application/shared/Applicat
 import { ApplicationError, ErrorCodes } from "../../../../src/application/shared/errors/ApplicationError";
 
 // Importar los puertos para tiparlos correctamente
-import UserPort from "../../../../src/domain/ports/data/seg/UserPort";
+import UserQueryPort from "../../../../src/domain/ports/data/seg/query/UserQueryPort";
+import UserCommandPort from "../../../../src/domain/ports/data/seg/command/UserCommandPort";
 import AuthPort from "../../../../src/domain/ports/data/seg/AuthPort";
 import EmailPort from "../../../../src/domain/ports/utils/EmailPort";
 import LoggerPort from "../../../../src/domain/ports/utils/LoggerPort";
 import TokenPort from "../../../../src/domain/ports/utils/TokenPort";
 import UserRolePort from "../../../../src/domain/ports/data/seg/UserRolePort";
+import RolePermissionPort from "../../../../src/domain/ports/data/seg/RolePermissionPort";
 import { createMockTokenPort } from "../../mocks/ports/utils/TokenPort.mock";
 import createEmailPortMock from "../../mocks/ports/utils/EmailPort.mock";
 import createLoggerPort from "../../mocks/ports/extra/LoggerPort.mock";
+import Result from "../../../../src/domain/shared/Result";
 import createUserCommandPortMock from "../../mocks/ports/data/UserCommandPort.mock";
 import createUserRolePortMock from "../../mocks/ports/data/UserRolePort.mock";
 
@@ -32,7 +35,22 @@ describe("AuthService", () => {
   let authService: AuthService;
 
   // Mocks de todas las dependencias
-  const mockUserPort: jest.Mocked<UserPort> = createUserCommandPortMock();
+  const mockUserQueryPort: jest.Mocked<UserQueryPort> = {
+    getUserById: jest.fn(),
+    getUserByFilters: jest.fn(),
+    searchUsersByFilters: jest.fn(),
+    searchUsersByIds: jest.fn(),
+    existsUserById: jest.fn(),
+    existsUserByFilters: jest.fn(),
+    getActiveUserById: jest.fn(),
+    getActiveUserByFilters: jest.fn(),
+    searchActiveUserByFilters: jest.fn(),
+    searchActiveUsersByIds: jest.fn(),
+    existsActiveUserById: jest.fn(),
+    existsActiveUserByFilters: jest.fn(),
+  } as any;
+  
+  const mockUserCommandPort: jest.Mocked<UserCommandPort> = createUserCommandPortMock();
 
   const mockAuthPort: jest.Mocked<AuthPort> = {
     comparePasswords: jest.fn(),
@@ -49,19 +67,33 @@ describe("AuthService", () => {
 
   const mockUserRolePort: jest.Mocked<UserRolePort> = createUserRolePortMock();
 
+  const mockRolePermissionPort: jest.Mocked<RolePermissionPort> = {
+    getRolePermissionsByRoleId: jest.fn(),
+  } as any;
+
   // Datos de prueba reutilizables
   const validLoginRequest: LoginRequest = {
     userOrEmail: "testuser@example.com",
     password: "password123",
   };
 
-  const mockUserInfo: [string, string, number, string, string] = [
-    "concurrency_stamp_123", // concurrency_stamp
-    "security_stamp_123",    // security_stamp  
-    1,                       // user_id
+  const mockUser = new User(
+    1,                              // id
+    "Test User",                    // full_name  
+    "testuser@example.com",         // email
+    "TESTUSER@EXAMPLE.COM",         // normalized_email
+    "testuser",                     // username
+    "TESTUSER",                     // normalized_username
+    "hashed_password_123",          // password
     "https://example.com/profile.jpg", // profile_image
-    "hashed_password_123",   // password
-  ];
+    100,                            // learning_points
+    UserStatus.ACTIVE,              // status
+    UserInstrument.GUITAR,          // favorite_instrument
+    "concurrency_stamp_123",        // concurrency_stamp
+    "security_stamp_123",           // security_stamp
+    new Date(),                     // created_at
+    new Date()                      // updated_at
+  );
 
   const mockAuthResponse: AuthResponse = {
     id: 1,
@@ -96,12 +128,14 @@ describe("AuthService", () => {
     jest.clearAllMocks();
 
     authService = new AuthService(
-      mockUserPort,
+      mockUserQueryPort,
+      mockUserCommandPort,
       mockAuthPort,
       mockEmailPort,
       mockLoggerPort,
       mockTokenPort,
       mockUserRolePort,
+      mockRolePermissionPort,
     );
   });
 
@@ -109,11 +143,11 @@ describe("AuthService", () => {
     describe("Casos Exitosos", () => {
       it("debe realizar login exitoso con credenciales válidas", async () => {
         // Configurar mocks para caso exitoso
-        mockUserPort.existsUserByLoginRequest.mockResolvedValue(
-          ApplicationResponse.success(true)
+        mockUserQueryPort.existsUserByFilters.mockResolvedValue(
+          Result.ok(true)
         );
-        mockUserPort.getUserStampsAndUserInfoByUserOrEmail.mockResolvedValue(
-          ApplicationResponse.success(mockUserInfo)
+        mockUserQueryPort.getUserByFilters.mockResolvedValue(
+          Result.ok(mockUserInfo)
         );
         mockAuthPort.comparePasswords.mockResolvedValue(true);
         mockUserRolePort.listRolesForUser.mockResolvedValue(mockRoles);
@@ -130,10 +164,10 @@ describe("AuthService", () => {
         expect(result.data?.roles).toContain("user");
 
         // Verificar llamadas a dependencias
-        expect(mockUserPort.existsUserByLoginRequest).toHaveBeenCalledWith(
+        expect(mockUserQueryPort.existsUserByFilters).toHaveBeenCalledWith(
           validLoginRequest.userOrEmail
         );
-        expect(mockUserPort.getUserStampsAndUserInfoByUserOrEmail).toHaveBeenCalledWith(
+        expect(mockUserQueryPort.getUserByFilters).toHaveBeenCalledWith(
           validLoginRequest.userOrEmail
         );
         expect(mockAuthPort.comparePasswords).toHaveBeenCalledWith(
@@ -141,18 +175,18 @@ describe("AuthService", () => {
           mockUserInfo[4]
         );
         expect(mockUserRolePort.listRolesForUser).toHaveBeenCalledWith(1);
-        expect(mockUserPort.updateUser).toHaveBeenCalledWith(1, {
+        expect(mockUserCommandPort.updateUser).toHaveBeenCalledWith(1, {
           concurrency_stamp: "new_concurrency_stamp"
         });
       });
 
       it("debe realizar login exitoso sin roles asignados", async () => {
         // Configurar para usuario sin roles
-        mockUserPort.existsUserByLoginRequest.mockResolvedValue(
-          ApplicationResponse.success(true)
+        mockUserQueryPort.existsUserByFilters.mockResolvedValue(
+          Result.ok(true)
         );
-        mockUserPort.getUserStampsAndUserInfoByUserOrEmail.mockResolvedValue(
-          ApplicationResponse.success(mockUserInfo)
+        mockUserQueryPort.getUserByFilters.mockResolvedValue(
+          Result.ok(mockUserInfo)
         );
         mockAuthPort.comparePasswords.mockResolvedValue(true);
         mockUserRolePort.listRolesForUser.mockResolvedValue([]);
@@ -172,11 +206,11 @@ describe("AuthService", () => {
 
       it("debe manejar correctamente cuando no se pueden obtener permisos", async () => {
         // Configurar mocks
-        mockUserPort.existsUserByLoginRequest.mockResolvedValue(
-          ApplicationResponse.success(true)
+        mockUserQueryPort.existsUserByFilters.mockResolvedValue(
+          Result.ok(true)
         );
-        mockUserPort.getUserStampsAndUserInfoByUserOrEmail.mockResolvedValue(
-          ApplicationResponse.success(mockUserInfo)
+        mockUserQueryPort.getUserByFilters.mockResolvedValue(
+          Result.ok(mockUserInfo)
         );
         mockAuthPort.comparePasswords.mockResolvedValue(true);
         mockUserRolePort.listRolesForUser.mockResolvedValue(mockRoles);
@@ -222,8 +256,8 @@ describe("AuthService", () => {
     describe("Casos de Error - Credenciales", () => {
       it("debe fallar cuando el usuario no existe", async () => {
         // Configurar mock para usuario inexistente
-        mockUserPort.existsUserByLoginRequest.mockResolvedValue(
-          ApplicationResponse.success(false)
+        mockUserQueryPort.existsUserByFilters.mockResolvedValue(
+          Result.ok(false)
         );
 
         // Ejecutar
@@ -235,9 +269,9 @@ describe("AuthService", () => {
         expect(result.error?.code).toBe(ErrorCodes.INVALID_CREDENTIALS);
       });
 
-      it("debe fallar cuando existsUserByLoginRequest retorna error", async () => {
+      it("debe fallar cuando existsUserByFilters retorna error", async () => {
         // Configurar mock para retornar error
-        mockUserPort.existsUserByLoginRequest.mockResolvedValue(
+        mockUserQueryPort.existsUserByFilters.mockResolvedValue(
           ApplicationResponse.failure(
             new ApplicationError("DB Error", ErrorCodes.SERVER_ERROR)
           )
@@ -253,11 +287,11 @@ describe("AuthService", () => {
 
       it("debe fallar cuando no se puede obtener información del usuario", async () => {
         // Configurar mocks
-        mockUserPort.existsUserByLoginRequest.mockResolvedValue(
-          ApplicationResponse.success(true)
+        mockUserQueryPort.existsUserByFilters.mockResolvedValue(
+          Result.ok(true)
         );
-        mockUserPort.getUserStampsAndUserInfoByUserOrEmail.mockResolvedValue(
-          ApplicationResponse.success(null as any)
+        mockUserQueryPort.getUserByFilters.mockResolvedValue(
+          Result.ok(null as any)
         );
 
         // Ejecutar
@@ -271,11 +305,11 @@ describe("AuthService", () => {
 
       it("debe fallar con contraseña incorrecta", async () => {
         // Configurar mocks
-        mockUserPort.existsUserByLoginRequest.mockResolvedValue(
-          ApplicationResponse.success(true)
+        mockUserQueryPort.existsUserByFilters.mockResolvedValue(
+          Result.ok(true)
         );
-        mockUserPort.getUserStampsAndUserInfoByUserOrEmail.mockResolvedValue(
-          ApplicationResponse.success(mockUserInfo)
+        mockUserQueryPort.getUserByFilters.mockResolvedValue(
+          Result.ok(mockUserInfo)
         );
         mockAuthPort.comparePasswords.mockResolvedValue(false);
 
@@ -292,11 +326,11 @@ describe("AuthService", () => {
     describe("Casos de Error - Proceso de Login", () => {
       it("debe fallar cuando loginUser retorna null", async () => {
         // Configurar mocks hasta loginUser
-        mockUserPort.existsUserByLoginRequest.mockResolvedValue(
-          ApplicationResponse.success(true)
+        mockUserQueryPort.existsUserByFilters.mockResolvedValue(
+          Result.ok(true)
         );
-        mockUserPort.getUserStampsAndUserInfoByUserOrEmail.mockResolvedValue(
-          ApplicationResponse.success(mockUserInfo)
+        mockUserQueryPort.getUserByFilters.mockResolvedValue(
+          Result.ok(mockUserInfo)
         );
         mockAuthPort.comparePasswords.mockResolvedValue(true);
         mockUserRolePort.listRolesForUser.mockResolvedValue([]);
@@ -321,7 +355,7 @@ describe("AuthService", () => {
         const errorResponse = ApplicationResponse.failure(
           new ApplicationError("Custom error", ErrorCodes.VALIDATION_ERROR)
         );
-        mockUserPort.existsUserByLoginRequest.mockRejectedValue(errorResponse);
+        mockUserQueryPort.existsUserByFilters.mockRejectedValue(errorResponse);
 
         // Ejecutar
         const result = await authService.login(validLoginRequest);
@@ -337,7 +371,7 @@ describe("AuthService", () => {
       it("debe manejar Error estándar", async () => {
         // Configurar mock para lanzar Error
         const error = new Error("Database connection failed");
-        mockUserPort.existsUserByLoginRequest.mockRejectedValue(error);
+        mockUserQueryPort.existsUserByFilters.mockRejectedValue(error);
 
         // Ejecutar
         const result = await authService.login(validLoginRequest);
@@ -356,7 +390,7 @@ describe("AuthService", () => {
 
       it("debe manejar error desconocido", async () => {
         // Configurar mock para lanzar objeto no-Error
-        mockUserPort.existsUserByLoginRequest.mockRejectedValue("Unknown error");
+        mockUserQueryPort.existsUserByFilters.mockRejectedValue("Unknown error");
 
         // Ejecutar
         const result = await authService.login(validLoginRequest);
@@ -431,7 +465,7 @@ describe("AuthService", () => {
   describe("Integración de Mocks", () => {
     it("debe verificar que todos los mocks están correctamente configurados", () => {
       // Verificar que todos los mocks están disponibles
-      expect(mockUserPort).toBeDefined();
+      expect(mockUserQueryPort).toBeDefined();
       expect(mockAuthPort).toBeDefined();
       expect(mockEmailPort).toBeDefined();
       expect(mockLoggerPort).toBeDefined();
@@ -446,16 +480,16 @@ describe("AuthService", () => {
 
     it("debe limpiar mocks entre tests", () => {
       // Configurar un mock
-      mockUserPort.existsUserByLoginRequest.mockResolvedValue(
-        ApplicationResponse.success(true)
+      mockUserQueryPort.existsUserByFilters.mockResolvedValue(
+        Result.ok(true)
       );
 
       // Verificar que está configurado
-      expect(mockUserPort.existsUserByLoginRequest).toHaveBeenCalledTimes(0);
+      expect(mockUserQueryPort.existsUserByFilters).toHaveBeenCalledTimes(0);
 
       // Llamar al mock
-      mockUserPort.existsUserByLoginRequest("test");
-      expect(mockUserPort.existsUserByLoginRequest).toHaveBeenCalledTimes(1);
+      mockUserQueryPort.existsUserByFilters({ username: "test" });
+      expect(mockUserQueryPort.existsUserByFilters).toHaveBeenCalledTimes(1);
 
       // En el siguiente test, debería estar limpio por beforeEach
     });

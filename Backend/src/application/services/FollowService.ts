@@ -1,11 +1,10 @@
-// src/application/services/UserFollowService.ts
 import { UserFollowRepository } from "../../domain/ports/data/social/UserFollowsUserPort";
-import UserFollow from "../../infrastructure/entities/Sql/seg/UserFollowsUserEntity";
+import { UserFollowsUser } from "../../domain/models/social/UserFollowsUser";
 
 export class UserFollowService {
   constructor(private userFollowRepo: UserFollowRepository) { }
 
-  async follow(followerId: number, followedId: number): Promise<UserFollow> {
+  async follow(followerId: number, followedId: number): Promise<UserFollowsUser> {
     if (followerId === followedId) throw new Error("Cannot follow yourself");
     const exists = await this.userFollowRepo.exists(followerId, followedId);
     if (exists) throw new Error("Already following");
@@ -16,11 +15,11 @@ export class UserFollowService {
     return this.userFollowRepo.unfollow(followerId, followedId);
   }
 
-  async getFollowers(userId: number): Promise<UserFollow[]> {
+  async getFollowers(userId: number): Promise<UserFollowsUser[]> {
     return this.userFollowRepo.getFollowers(userId);
   }
 
-  async getFollowing(userId: number): Promise<UserFollow[]> {
+  async getFollowing(userId: number): Promise<UserFollowsUser[]> {
     return this.userFollowRepo.getFollowing(userId);
   }
 }
