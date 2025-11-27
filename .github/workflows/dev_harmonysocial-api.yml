@@ -11,7 +11,7 @@ on:
 
 jobs:
   unit-tests:
-    runs-on: ubunto-latest
+    runs-on: ubuntu-latest
     permissions:
       contents: read
 
@@ -75,3 +75,4 @@ jobs:
   #         package: .
 
   #         publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_9F668B43980F4E7B9EADCE48CAA4C80B }}
+
