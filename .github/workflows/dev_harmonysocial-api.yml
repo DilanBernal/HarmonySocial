@@ -22,14 +22,20 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "24.x"
+          cache: 'pnpm'
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10
 
       - name: install dependencies
         run: |
-          npm install
+          pnpm install
 
       - name: execute unit test
         run: |
-          npm test
+          pnpm test
 
   build:
     runs-on: ubuntu-latest
@@ -43,11 +49,12 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "24.x"
+          cache: 'pnpm'
 
-      - name: npm install, build
+      - name: and build
         run: |
-          npm install
-          npm run build
+          pnpm install
+          pnpm run build
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -75,4 +82,5 @@ jobs:
   #         package: .
 
   #         publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_9F668B43980F4E7B9EADCE48CAA4C80B }}
+
 
