@@ -1,9 +1,9 @@
 import express from "express";
 import cors from "cors";
 import mainRouter from "../router/mainRouter";
-import envs from "../config/environment-vars";
-import LoggerAdapter from "../adapter/utils/LoggerAdapter";
-import LoggerPort from "../../domain/ports/utils/LoggerPort";
+import envs from "../../config/environment-vars";
+import LoggerAdapter from "../../adapter/utils/LoggerAdapter";
+import LoggerPort from "../../../domain/ports/utils/LoggerPort";
 
 class App {
   private app = express();

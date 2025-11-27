@@ -1,4 +1,4 @@
-import app from "./infrastructure/web/app";
+import app from "./infrastructure/http/web/app";
 import ServerBootstrap from "./infrastructure/bootstrap/server_bootstrap";
 import { connectSqlDB, connectMongoDB, closeMongoDB, getMongoDB } from "./infrastructure/config/con_database";
 
