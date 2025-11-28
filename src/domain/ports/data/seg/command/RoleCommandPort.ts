@@ -1,14 +1,6 @@
 import Result from "../../../../shared/Result";
-
-export interface RoleCreateData {
-  name: string;
-  description?: string;
-}
-
-export interface RoleUpdateData {
-  name?: string;
-  description?: string;
-}
+import RoleCreateData from "./RoleCreateData";
+import RoleUpdateData from "./RoleUpdateData";
 
 export default interface RoleCommandPort {
   create(data: RoleCreateData): Promise<Result<number>>;
