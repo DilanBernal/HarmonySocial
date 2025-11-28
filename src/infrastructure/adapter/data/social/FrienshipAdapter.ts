@@ -177,9 +177,9 @@ export default class FriendshipAdapter implements FriendshipPort {
       const whereCondition: FindOptionsWhere<FriendshipEntity>[] = [
         { user_id: id, status: FrienshipStatus.ACCEPTED },
       ];
-      const friendships = await this.frienshipRepository.find({ where: whereCondition });
+      const entities = await this.frienshipRepository.find({ where: whereCondition });
 
-      const response = this.toFriendshipsResponse(friendships);
+      const response = this.toFriendshipsResponse(entities.map(e => this.toDomain(e)));
       return ApplicationResponse.success(response);
     } catch (error) {
       return ApplicationResponse.failure(new ApplicationError("", ErrorCodes.SERVER_ERROR));
@@ -199,15 +199,14 @@ export default class FriendshipAdapter implements FriendshipPort {
       }
 
       // Mapear filas a modelos de dominio (Friendship)
-      const domainList: Friendship[] = rows.map((r: Friendship) => ({
-        id: Number(r.id),
-        user_id: Number(r.user_id),
-        friend_id: Number(r.friend_id),
-        // conservar el valor tal cual, el enum en TS puede aceptar la string si coincide
-        status: (r.status as FrienshipStatus) ?? FrienshipStatus.ACCEPTED,
-        created_at: new Date(r.created_at),
-        updated_at: r.updated_at ? new Date(r.updated_at) : new Date(r.created_at),
-      }));
+      const domainList: Friendship[] = rows.map((r: any) => new Friendship(
+        Number(r.id),
+        Number(r.user_id),
+        Number(r.friend_id),
+        (r.status as FrienshipStatus) ?? FrienshipStatus.ACCEPTED,
+        new Date(r.created_at),
+        r.updated_at ? new Date(r.updated_at) : undefined,
+      ));
 
       const response = this.toFriendshipsResponse(domainList);
       return ApplicationResponse.success(response);
@@ -225,9 +224,9 @@ export default class FriendshipAdapter implements FriendshipPort {
       const whereCondition: FindOptionsWhere<FriendshipEntity>[] = [
         { user_id: id, status: FrienshipStatus.ACCEPTED },
       ];
-      const friendships = await this.frienshipRepository.find({ where: whereCondition });
+      const entities = await this.frienshipRepository.find({ where: whereCondition });
 
-      const response = this.toFriendshipsResponse(friendships);
+      const response = this.toFriendshipsResponse(entities.map(e => this.toDomain(e)));
       return ApplicationResponse.success(response);
     } catch (error) {
       return ApplicationResponse.failure(new ApplicationError("", ErrorCodes.SERVER_ERROR));

@@ -1,5 +1,5 @@
 import { UserFollowRepository } from "../../domain/ports/data/social/UserFollowsUserPort";
-import { UserFollowsUser } from "../../domain/models/social/UserFollowsUser";
+import UserFollowsUser from "../../domain/models/social/UserFollowsUser";
 
 export class UserFollowService {
   constructor(private userFollowRepo: UserFollowRepository) { }

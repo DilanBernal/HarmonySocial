@@ -7,6 +7,16 @@ export default class UserRoleAdapter implements UserRolePort {
   private repo = SqlAppDataSource.getRepository(UserRoleEntity);
   private roleRepo = SqlAppDataSource.getRepository(RoleEntity);
 
+  private toDomain(r: RoleEntity): Role {
+    return new Role(
+      r.id,
+      r.name,
+      r.description ?? undefined,
+      r.created_at,
+      r.updated_at ?? undefined,
+    );
+  }
+
   async assignRoleToUser(userId: number, roleId: number): Promise<boolean> {
     const role = await this.roleRepo.findOne({ where: { id: roleId } });
     if (!role) return false;
@@ -30,13 +40,7 @@ export default class UserRoleAdapter implements UserRolePort {
 
   async listRolesForUser(userId: number): Promise<Role[]> {
     const rows = await this.repo.find({ where: { user: { id: userId } } });
-    return rows.map((r) => ({
-      id: r.role.id,
-      name: r.role.name,
-      description: r.role.description ?? undefined,
-      created_at: r.role.created_at,
-      updated_at: r.role.updated_at ?? undefined,
-    }));
+    return rows.map((r) => this.toDomain(r.role));
   }
 
   async listUsersForRole(roleName: string): Promise<number[]> {

@@ -1,8 +1,18 @@
 import { UserFollowService } from "../../../../src/application/services/FollowService";
 import { UserFollowRepository } from "../../../../src/domain/ports/data/social/UserFollowsUserPort";
-import { UserFollowsUser } from "../../../../src/domain/models/social/UserFollowsUser";
+import UserFollowsUser from "../../../../src/domain/models/social/UserFollowsUser";
 
 import createUserFollowRepositoryMock from "../../mocks/ports/data/social/UserFollowRepository.mock";
+
+// Helper function to create test UserFollowsUser instances
+const createTestFollow = (
+  id: number,
+  followerId: number,
+  followedId: number,
+  createdAt?: Date
+): UserFollowsUser => {
+  return new UserFollowsUser(id, followerId, followedId, createdAt ?? new Date());
+};
 
 describe("UserFollowService", () => {
   let userFollowService: UserFollowService;
@@ -19,12 +29,7 @@ describe("UserFollowService", () => {
   describe("follow", () => {
     describe("Casos Exitosos", () => {
       it("debe crear un follow exitosamente", async () => {
-        const newFollow: UserFollowsUser = {
-          id: 4,
-          userIdFollower: 3,
-          userIdFollowed: 4,
-          createdAt: Date.now(),
-        };
+        const newFollow = createTestFollow(4, 3, 4);
 
         mockUserFollowRepo.exists.mockResolvedValue(false);
         mockUserFollowRepo.follow.mockResolvedValue(newFollow);
@@ -93,12 +98,7 @@ describe("UserFollowService", () => {
     describe("Casos Exitosos", () => {
       it("debe obtener los seguidores de un usuario", async () => {
         const mockFollowers: UserFollowsUser[] = [
-          {
-            id: 3,
-            userIdFollower: 2,
-            userIdFollowed: 1,
-            createdAt: Date.now(),
-          },
+          createTestFollow(3, 2, 1),
         ];
 
         mockUserFollowRepo.getFollowers.mockResolvedValue(mockFollowers);
@@ -133,18 +133,8 @@ describe("UserFollowService", () => {
     describe("Casos Exitosos", () => {
       it("debe obtener los usuarios que sigue", async () => {
         const mockFollowing: UserFollowsUser[] = [
-          {
-            id: 1,
-            userIdFollower: 1,
-            userIdFollowed: 2,
-            createdAt: Date.now(),
-          },
-          {
-            id: 2,
-            userIdFollower: 1,
-            userIdFollowed: 3,
-            createdAt: Date.now(),
-          },
+          createTestFollow(1, 1, 2),
+          createTestFollow(2, 1, 3),
         ];
 
         mockUserFollowRepo.getFollowing.mockResolvedValue(mockFollowing);

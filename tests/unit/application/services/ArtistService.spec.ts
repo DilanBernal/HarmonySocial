@@ -84,13 +84,13 @@ describe("ArtistService", () => {
         expect(result.data).toBe(4);
         expect(mockArtistPort.create).toHaveBeenCalledWith(
           expect.objectContaining({
-            artist_name: "New Artist",
+            artistName: "New Artist",
             biography: "A new artist biography",
-            formation_year: 2022,
-            country_code: "US",
+            formationYear: 2022,
+            countryCode: "US",
             verified: false,
             status: ArtistStatus.PENDING,
-            artist_user_id: 1,
+            artistUserId: 1,
           })
         );
       });
@@ -110,7 +110,7 @@ describe("ArtistService", () => {
         expect(result.success).toBe(true);
         expect(mockArtistPort.create).toHaveBeenCalledWith(
           expect.objectContaining({
-            artist_user_id: undefined,
+            artistUserId: undefined,
           })
         );
       });
@@ -129,9 +129,9 @@ describe("ArtistService", () => {
 
         expect(mockArtistPort.create).toHaveBeenCalledWith(
           expect.objectContaining({
-            artist_name: "Spaced Artist",
+            artistName: "Spaced Artist",
             biography: "Biography with spaces",
-            country_code: "CO",
+            countryCode: "CO",
           })
         );
       });
@@ -205,7 +205,7 @@ describe("ArtistService", () => {
           expect.objectContaining({
             verified: true,
             status: ArtistStatus.ACTIVE,
-            artist_user_id: undefined,
+            artistUserId: undefined,
           })
         );
       });
@@ -238,7 +238,7 @@ describe("ArtistService", () => {
         expect(mockArtistPort.update).toHaveBeenCalledWith(
           1,
           expect.objectContaining({
-            artist_name: "Updated Artist Name",
+            artistName: "Updated Artist Name",
             biography: "Updated biography",
           })
         );
@@ -258,7 +258,7 @@ describe("ArtistService", () => {
           1,
           expect.objectContaining({
             biography: "Only biography updated",
-            updated_at: expect.any(Date),
+            updatedAt: expect.any(Date),
           })
         );
       });
