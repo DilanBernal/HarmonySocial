@@ -18,8 +18,10 @@ import { createMockTokenPort } from "../../mocks/ports/utils/TokenPort.mock";
 import createEmailPortMock from "../../mocks/ports/utils/EmailPort.mock";
 import createLoggerPort from "../../mocks/ports/extra/LoggerPort.mock";
 import Result from "../../../../src/domain/shared/Result";
-import createUserCommandPortMock from "../../mocks/ports/data/UserCommandPort.mock";
-import createUserRolePortMock from "../../mocks/ports/data/UserRolePort.mock";
+import createUserCommandPortMock from "../../mocks/ports/data/seg/UserCommandPort.mock";
+import createUserRolePortMock from "../../mocks/ports/data/seg/UserRolePort.mock";
+import User, { UserInstrument, UserStatus } from "../../../../src/domain/models/seg/User";
+import createUserQueryPortMock from "../../mocks/ports/data/seg/UserQueryPort.mock";
 
 /**
  * Pruebas unitarias para AuthService
@@ -35,21 +37,8 @@ describe("AuthService", () => {
   let authService: AuthService;
 
   // Mocks de todas las dependencias
-  const mockUserQueryPort: jest.Mocked<UserQueryPort> = {
-    getUserById: jest.fn(),
-    getUserByFilters: jest.fn(),
-    searchUsersByFilters: jest.fn(),
-    searchUsersByIds: jest.fn(),
-    existsUserById: jest.fn(),
-    existsUserByFilters: jest.fn(),
-    getActiveUserById: jest.fn(),
-    getActiveUserByFilters: jest.fn(),
-    searchActiveUserByFilters: jest.fn(),
-    searchActiveUsersByIds: jest.fn(),
-    existsActiveUserById: jest.fn(),
-    existsActiveUserByFilters: jest.fn(),
-  } as any;
-  
+  const mockUserQueryPort: jest.Mocked<UserQueryPort> = createUserQueryPortMock();
+
   const mockUserCommandPort: jest.Mocked<UserCommandPort> = createUserCommandPortMock();
 
   const mockAuthPort: jest.Mocked<AuthPort> = {
@@ -77,23 +66,6 @@ describe("AuthService", () => {
     password: "password123",
   };
 
-  const mockUser = new User(
-    1,                              // id
-    "Test User",                    // full_name  
-    "testuser@example.com",         // email
-    "TESTUSER@EXAMPLE.COM",         // normalized_email
-    "testuser",                     // username
-    "TESTUSER",                     // normalized_username
-    "hashed_password_123",          // password
-    "https://example.com/profile.jpg", // profile_image
-    100,                            // learning_points
-    UserStatus.ACTIVE,              // status
-    UserInstrument.GUITAR,          // favorite_instrument
-    "concurrency_stamp_123",        // concurrency_stamp
-    "security_stamp_123",           // security_stamp
-    new Date(),                     // created_at
-    new Date()                      // updated_at
-  );
 
   const mockAuthResponse: AuthResponse = {
     id: 1,
@@ -117,11 +89,6 @@ describe("AuthService", () => {
       description: "Administrator user",
       created_at: new Date("2024-01-01")
     }
-  ];
-
-  const mockPermissions = [
-    { name: "read_posts" },
-    { name: "write_posts" }
   ];
 
   beforeEach(() => {

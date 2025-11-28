@@ -1,16 +1,16 @@
-import { ApplicationResponse } from "../../../../../src/application/shared/ApplicationReponse";
+import { ApplicationResponse } from "../../../../../../src/application/shared/ApplicationReponse";
 import {
   ApplicationError,
   ErrorCodes,
-} from "../../../../../src/application/shared/errors/ApplicationError";
-import NotFoundResponse from "../../../../../src/application/shared/responses/NotFoundResponse";
-import UserBasicDataResponse from "../../../../../src/application/dto/responses/seg/user/UserBasicDataResponse";
-import PaginationRequest from "../../../../../src/application/dto/utils/PaginationRequest";
-import PaginationResponse from "../../../../../src/application/dto/utils/PaginationResponse";
-import UserSearchParamsRequest from "../../../../../src/application/dto/requests/User/UserSearchParamsRequest";
-import User, { UserStatus, UserInstrument } from "../../../../../src/domain/models/seg/User";
-import UserQueryPort from "../../../../../src/domain/ports/data/seg/query/UserQueryPort";
-import UserFilters from "../../../../../src/domain/valueObjects/UserFilters";
+} from "../../../../../../src/application/shared/errors/ApplicationError";
+import NotFoundResponse from "../../../../../../src/application/shared/responses/NotFoundResponse";
+import UserBasicDataResponse from "../../../../../../src/application/dto/responses/seg/user/UserBasicDataResponse";
+import PaginationRequest from "../../../../../../src/application/dto/utils/PaginationRequest";
+import PaginationResponse from "../../../../../../src/application/dto/utils/PaginationResponse";
+import UserSearchParamsRequest from "../../../../../../src/application/dto/requests/User/UserSearchParamsRequest";
+import User, { UserStatus, UserInstrument } from "../../../../../../src/domain/models/seg/User";
+import UserQueryPort from "../../../../../../src/domain/ports/data/seg/query/UserQueryPort";
+import UserFilters from '../../../../../../src/domain/valueObjects/UserFilters';
 
 // Mock data para las pruebas
 const mockUser: User = new User(
@@ -51,8 +51,6 @@ const mockUsers: User[] = [
   },
 ] as User[];
 
-// const applyFilters
-
 
 function applyFilters(filters: UserFilters): boolean {
   let response: boolean = false;
@@ -72,6 +70,13 @@ function applyFilters(filters: UserFilters): boolean {
   }
   return response;
 }
+
+function applyUserSearchParams(params: UserSearchParamsRequest): boolean {
+  let response: boolean = false;
+
+  return response;
+}
+
 
 const createUserQueryPortMock = (): jest.Mocked<UserQueryPort> => {
   return {
@@ -94,7 +99,7 @@ const createUserQueryPortMock = (): jest.Mocked<UserQueryPort> => {
     getActiveUserById: jest.fn().mockImplementation(),
     getActiveUserByFilters: jest.fn().mockImplementation(),
     searchActiveUserByFilters: jest.fn().mockImplementation((req: PaginationRequest<UserSearchParamsRequest>) => {
-      const users = mockUsers.find((u) => u.email.toUpperCase() === req.filters?.email?.toUpperCase());
+      const users = mockUsers.find((u) => true);
       return Promise.resolve(ApplicationResponse.success(users));
     }),
     searchActiveUsersByIds: jest.fn().mockImplementation(),

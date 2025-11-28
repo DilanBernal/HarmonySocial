@@ -1,16 +1,11 @@
-import { ApplicationResponse } from "../../../../../src/application/shared/ApplicationReponse";
+import { ApplicationResponse } from "../../../../../../src/application/shared/ApplicationReponse";
 import {
   ApplicationError,
   ErrorCodes,
-} from "../../../../../src/application/shared/errors/ApplicationError";
-import NotFoundResponse from "../../../../../src/application/shared/responses/NotFoundResponse";
-import UserBasicDataResponse from "../../../../../src/application/dto/responses/seg/user/UserBasicDataResponse";
-import PaginationRequest from "../../../../../src/application/dto/utils/PaginationRequest";
-import PaginationResponse from "../../../../../src/application/dto/utils/PaginationResponse";
-import UserSearchParamsRequest from "../../../../../src/application/dto/requests/User/UserSearchParamsRequest";
-import User, { UserStatus, UserInstrument } from "../../../../../src/domain/models/seg/User";
-import UserQueryPort from "../../../../../src/domain/ports/data/seg/query/UserQueryPort";
-import UserCommandPort from "../../../../../src/domain/ports/data/seg/command/UserCommandPort";
+} from "../../../../../../src/application/shared/errors/ApplicationError";
+import User, { UserStatus, UserInstrument } from "../../../../../../src/domain/models/seg/User";
+import UserQueryPort from "../../../../../../src/domain/ports/data/seg/query/UserQueryPort";
+import UserCommandPort from "../../../../../../src/domain/ports/data/seg/command/UserCommandPort";
 
 // Mock data para las pruebas
 const mockUser: User = new User(
