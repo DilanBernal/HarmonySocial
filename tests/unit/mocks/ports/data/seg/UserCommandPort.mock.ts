@@ -1,11 +1,6 @@
-import { ApplicationResponse } from "../../../../../../src/application/shared/ApplicationReponse";
-import {
-  ApplicationError,
-  ErrorCodes,
-} from "../../../../../../src/application/shared/errors/ApplicationError";
 import User, { UserStatus, UserInstrument } from "../../../../../../src/domain/models/seg/User";
-import UserQueryPort from "../../../../../../src/domain/ports/data/seg/query/UserQueryPort";
 import UserCommandPort from "../../../../../../src/domain/ports/data/seg/command/UserCommandPort";
+import Result from "../../../../../../src/domain/shared/Result";
 
 // Mock data para las pruebas
 const mockUser: User = new User(
@@ -26,65 +21,75 @@ const mockUser: User = new User(
 
 const mockUsers: User[] = [
   mockUser,
-  {
-    ...mockUser,
-    id: 2,
-    email: "user2@example.com",
-    normalizedEmail: "USER2@EXAMPLE.COM",
-    username: "user2",
-    normalizedUsername: "USER2",
-    fullName: "User Two",
-  },
-  {
-    ...mockUser,
-    id: 3,
-    email: "user3@example.com",
-    normalizedEmail: "USER3@EXAMPLE.COM",
-    username: "user3",
-    normalizedUsername: "USER3",
-    fullName: "User Three",
-  },
-] as User[];
+  new User(
+    2,
+    "User Two",
+    "user2@example.com",
+    "user2",
+    "$2b$10$hashedPassword2",
+    "default2.jpg",
+    50,
+    UserStatus.ACTIVE,
+    UserInstrument.PIANO,
+    "mock-concurrency-stamp-2",
+    "mock-security-stamp-2",
+    new Date("2023-01-02"),
+    new Date("2023-01-02"),
+  ),
+  new User(
+    3,
+    "User Three",
+    "user3@example.com",
+    "user3",
+    "$2b$10$hashedPassword3",
+    "default3.jpg",
+    75,
+    UserStatus.ACTIVE,
+    UserInstrument.BASS,
+    "mock-concurrency-stamp-3",
+    "mock-security-stamp-3",
+    new Date("2023-01-03"),
+    new Date("2023-01-03"),
+  ),
+];
+
+let nextId = 4;
 
 const createUserCommandPortMock = (): jest.Mocked<UserCommandPort> => {
   return {
     createUser: jest.fn().mockImplementation((user: Omit<User, "id">) => {
       // Simular éxito en la creación
       if (user.email && user.username && user.fullName) {
-        return Promise.resolve(ApplicationResponse.success(Date.now()));
+        const newId = nextId++;
+        return Promise.resolve(Result.ok(newId));
       }
       // Simular error de duplicado
       if (user.email === mockUser.email) {
         return Promise.resolve(
-          ApplicationResponse.failure(
-            new ApplicationError("Email ya existe", ErrorCodes.DATABASE_ERROR),
-          ),
+          Result.fail(new Error("Email ya existe"))
         );
       }
-      return Promise.resolve(ApplicationResponse.success(Date.now()));
+      const newId = nextId++;
+      return Promise.resolve(Result.ok(newId));
     }),
 
     updateUser: jest.fn().mockImplementation((id: number, user: Partial<User>) => {
       const existingUser = mockUsers.find((u) => u.id === id);
       if (existingUser) {
-        return Promise.resolve(ApplicationResponse.emptySuccess());
+        return Promise.resolve(Result.ok(undefined));
       }
       return Promise.resolve(
-        ApplicationResponse.failure(
-          new ApplicationError("Usuario no encontrado", ErrorCodes.VALUE_NOT_FOUND),
-        ),
+        Result.fail(new Error("Usuario no encontrado"))
       );
     }),
 
     deleteUser: jest.fn().mockImplementation((id: number) => {
       const existingUser = mockUsers.find((u) => u.id === id);
       if (existingUser) {
-        return Promise.resolve(ApplicationResponse.emptySuccess());
+        return Promise.resolve(Result.ok(undefined));
       }
       return Promise.resolve(
-        ApplicationResponse.failure(
-          new ApplicationError("Usuario no encontrado", ErrorCodes.VALUE_NOT_FOUND),
-        ),
+        Result.fail(new Error("Usuario no encontrado"))
       );
     }),
   };
