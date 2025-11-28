@@ -1,10 +1,10 @@
 import { Router } from "express";
 import multer from "multer";
-import FilesController from "../controller/FilesController";
-import LoggerAdapter from "../adapter/utils/LoggerAdapter";
-import FileService from "../../application/services/FileService";
-import FileAdapter from "../adapter/utils/FileAdapter";
 import authenticateToken from "../middleware/authMiddleware";
+import FileService from "../../../application/services/FileService";
+import FileAdapter from "../../adapter/utils/FileAdapter";
+import LoggerAdapter from "../../adapter/utils/LoggerAdapter";
+import FilesController from "../../controller/FilesController";
 
 const upload = multer({
   storage: multer.memoryStorage(),

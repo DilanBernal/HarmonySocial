@@ -1,8 +1,8 @@
 import { Router } from "express";
-import SongAdapter from "../adapter/data/music/SongAdapter";
-import SongService from "../../application/services/SongService";
+import SongService from "../../../application/services/SongService";
+import SongAdapter from "../../adapter/data/music/SongAdapter";
+import SongController from "../../controller/SongController";
 import authenticateToken from "../middleware/authMiddleware";
-import SongController from "../controller/SongController";
 
 const router = Router();
 const songAdapter: SongAdapter = new SongAdapter();

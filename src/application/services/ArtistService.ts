@@ -5,7 +5,7 @@ import ArtistPort from "../../domain/ports/data/music/ArtistPort";
 import { ArtistSearchFilters } from "../dto/requests/Artist/ArtistSearchFilters";
 import ArtistCreateRequest from "../dto/requests/Artist/ArtistCreateRequest";
 import ArtistUpdateRequest from "../dto/requests/Artist/ArtistUpdateRequest";
-import ArtistResponse from "../dto/responses/ArtistResponse";
+import ArtistResponse from '../dto/responses/ArtistResponse';
 import LoggerPort from "../../domain/ports/utils/LoggerPort";
 import RolePort from "../../domain/ports/data/seg/RolePort";
 import UserRolePort from "../../domain/ports/data/seg/UserRolePort";
@@ -30,19 +30,17 @@ export default class ArtistService {
       );
     }
     try {
-      const now = new Date(Date.now());
-      const artist: Omit<Artist, "id"> = {
-        artist_name: request.artist_name.trim(),
-        biography: request.biography?.trim(),
-        formation_year: request.formation_year,
-        country_code: request.country_code?.trim(),
-        verified: false,
-        status: ArtistStatus.PENDING,
-        created_at: now,
-        updated_at: undefined,
-        artist_user_id: userId,
-      } as any; // verified is present in current domain model
-      return await this.port.create(artist as any);
+      const artist = new Artist(
+        0, // id temporal, será asignado por la BD
+        userId,
+        request.artist_name.trim(),
+        request.biography?.trim(),
+        false,
+        request.formation_year,
+        request.country_code?.trim(),
+        ArtistStatus.PENDING,
+      );
+      return await this.port.create(artist);
     } catch (error) {
       return this.handleUnexpected(error, "crear artista");
     }
@@ -55,19 +53,17 @@ export default class ArtistService {
       );
     }
     try {
-      const now = new Date(Date.now());
-      const artist: Omit<Artist, "id"> = {
-        artist_name: request.artist_name.trim(),
-        biography: request.biography?.trim(),
-        formation_year: request.formation_year,
-        country_code: request.country_code?.trim(),
-        verified: true,
-        status: ArtistStatus.ACTIVE,
-        created_at: now,
-        updated_at: undefined,
-        artist_user_id: undefined,
-      } as any;
-      return await this.port.create(artist as any);
+      const artist = new Artist(
+        0, // id temporal, será asignado por la BD
+        undefined,
+        request.artist_name.trim(),
+        request.biography?.trim(),
+        true,
+        request.formation_year,
+        request.country_code?.trim(),
+        ArtistStatus.ACTIVE,
+      );
+      return await this.port.create(artist);
     } catch (error) {
       return this.handleUnexpected(error, "crear artista por admin");
     }
@@ -91,12 +87,12 @@ export default class ArtistService {
           new ApplicationError("Artista no encontrado", ErrorCodes.VALUE_NOT_FOUND),
         );
       }
-      const updateData: Partial<Artist> = { updated_at: new Date(Date.now()) };
-      if (request.artist_name) updateData.artist_name = request.artist_name.trim();
+      const updateData: Partial<Artist> = { updatedAt: new Date(Date.now()) };
+      if (request.artist_name) updateData.artistName = request.artist_name.trim();
       if (request.biography !== undefined) updateData.biography = request.biography?.trim();
-      if (request.formation_year !== undefined) updateData.formation_year = request.formation_year;
+      if (request.formation_year !== undefined) updateData.formationYear = request.formation_year;
       if (request.country_code !== undefined)
-        updateData.country_code = request.country_code?.trim();
+        updateData.countryCode = request.country_code?.trim();
       // status changes not allowed here
       return await this.port.update(id, updateData);
     } catch (error) {
@@ -128,7 +124,8 @@ export default class ArtistService {
     try {
       const result = await this.port.searchPaginated(filters);
       if (!result.success) return result as any;
-      return ApplicationResponse.success(result.data!);
+
+      return ApplicationResponse.success(result.data! as any);
     } catch (error) {
       return this.handleUnexpected(error, "buscar artistas");
     }
@@ -168,7 +165,7 @@ export default class ArtistService {
       const statusResp = await this.port.updateStatus(id, ArtistStatus.ACTIVE);
       if (!statusResp.success) return statusResp;
       // asignar rol artist si existe user vinculado
-      const userId = artistResp.data.artist_user_id;
+      const userId = artistResp.data.artistUserId;
       if (userId) {
         try {
           const artistRole = await this.rolePort.findByName("artist");
@@ -212,13 +209,13 @@ export default class ArtistService {
 
   private mapToResponse = (artist: Artist): ArtistResponse => ({
     id: artist.id,
-    artist_name: artist.artist_name,
+    artist_name: artist.artistName,
     biography: artist.biography,
-    formation_year: artist.formation_year,
-    country_code: artist.country_code,
+    formation_year: artist.formationYear,
+    country_code: artist.countryCode,
     status: artist.status,
-    created_at: artist.created_at,
-    updated_at: artist.updated_at,
+    created_at: artist.createdAt,
+    updated_at: artist.updatedAt,
   });
 
   private handleUnexpected(error: unknown, context: string): ApplicationResponse<any> {

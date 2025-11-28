@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import envs from "../config/environment-vars";
-import RolePermissionAdapter from "../adapter/data/seg/RolePermissionAdapter";
+import envs from "../../config/environment-vars";
+import RolePermissionAdapter from "../../adapter/data/seg/RolePermissionAdapter";
 
 // Cache simple en memoria (puede mejorarse con TTL)
 const permissionCache = new Map<string, string[]>(); // key: roles sorted joined, value: permissions

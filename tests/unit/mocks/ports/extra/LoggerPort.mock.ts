@@ -14,6 +14,12 @@ const createLoggerPort = (): jest.Mocked<LoggerPort> => {
     flush: jest.fn(),
     level: "info",
     levels: {},
+    appInfo: jest.fn(),
+    appWarn: jest.fn(),
+    appError: jest.fn(),
+    appDebug: jest.fn(),
+    appFatal: jest.fn(),
+    setLevel: jest.fn(),
   } as unknown as jest.Mocked<LoggerPort>;
 }
 

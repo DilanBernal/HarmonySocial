@@ -1,6 +1,6 @@
 import { Response, Request, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import envs from "../config/environment-vars";
+import envs from "../../config/environment-vars";
 import { RequestHandler } from "express";
 
 const authenticateToken = (request: Request, response: Response, next: NextFunction): void => {

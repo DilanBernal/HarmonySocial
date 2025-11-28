@@ -1,13 +1,15 @@
+import { RoleUpdateData } from './../../../domain/ports/data/seg/RolePort';
 import { Router } from "express";
-import RoleAdapter from "../adapter/data/seg/RoleAdapter";
-import UserRoleAdapter from "../adapter/data/seg/UserRoleAdapter";
-import LoggerAdapter from "../adapter/utils/LoggerAdapter";
-import RoleController from "../controller/RoleController";
-import { validateRequest } from "../middleware/validateRequest";
-import roleCreateSchema from "../validator/seg/role/RoleCreateValidator";
-import roleUpdateSchema from "../validator/seg/role/RoleUpdateValidator";
+import RoleService from "../../../application/services/seg/role/RoleService";
+import RoleAdapter from "../../adapter/data/seg/RoleAdapter";
+import UserRoleAdapter from "../../adapter/data/seg/UserRoleAdapter";
+import LoggerAdapter from "../../adapter/utils/LoggerAdapter";
+import RoleController from "../../controller/RoleController";
 import authenticateToken from "../middleware/authMiddleware";
-import RoleService from "../../application/services/seg/role/RoleService";
+import { validateRequest } from "../middleware/validateRequest";
+import roleCreateSchema from "../../validator/seg/role/RoleCreateValidator";
+import roleUpdateSchema from "../../validator/seg/role/RoleUpdateValidator";
+
 
 const router = Router();
 const roleAdapter = new RoleAdapter();

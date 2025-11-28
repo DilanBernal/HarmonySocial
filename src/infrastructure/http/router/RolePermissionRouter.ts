@@ -1,8 +1,7 @@
 import { Router } from "express";
-import RolePermissionAdapter from "../adapter/data/seg/RolePermissionAdapter";
-import RolePermissionService from "../../application/services/RolePermissionService";
-import RolePermissionController from "../controller/RolePermissionController";
-
+import RolePermissionService from "../../../application/services/RolePermissionService";
+import RolePermissionAdapter from "../../adapter/data/seg/RolePermissionAdapter";
+import RolePermissionController from "../../controller/RolePermissionController";
 const adapter = new RolePermissionAdapter();
 const service = new RolePermissionService(adapter);
 const controller = new RolePermissionController(service);
