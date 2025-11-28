@@ -1,16 +1,13 @@
-import { ApplicationResponse } from "../../../../../../src/application/shared/ApplicationReponse";
 import {
   ApplicationError,
   ErrorCodes,
 } from "../../../../../../src/application/shared/errors/ApplicationError";
-import NotFoundResponse from "../../../../../../src/application/shared/responses/NotFoundResponse";
-import UserBasicDataResponse from "../../../../../../src/application/dto/responses/seg/user/UserBasicDataResponse";
 import PaginationRequest from "../../../../../../src/application/dto/utils/PaginationRequest";
-import PaginationResponse from "../../../../../../src/application/dto/utils/PaginationResponse";
 import UserSearchParamsRequest from "../../../../../../src/application/dto/requests/User/UserSearchParamsRequest";
 import User, { UserStatus, UserInstrument } from "../../../../../../src/domain/models/seg/User";
 import UserQueryPort from "../../../../../../src/domain/ports/data/seg/query/UserQueryPort";
 import UserFilters from '../../../../../../src/domain/valueObjects/UserFilters';
+import Result from "../../../../../../src/domain/shared/Result";
 
 // Mock data para las pruebas
 const mockUser: User = new User(
@@ -31,25 +28,37 @@ const mockUser: User = new User(
 
 const mockUsers: User[] = [
   mockUser,
-  {
-    ...mockUser,
-    id: 2,
-    email: "user2@example.com",
-    normalizedEmail: "USER2@EXAMPLE.COM",
-    username: "user2",
-    normalizedUsername: "USER2",
-    fullName: "User Two",
-  },
-  {
-    ...mockUser,
-    id: 3,
-    email: "user3@example.com",
-    normalizedEmail: "USER3@EXAMPLE.COM",
-    username: "user3",
-    normalizedUsername: "USER3",
-    fullName: "User Three",
-  },
-] as User[];
+  new User(
+    2,
+    "User Two",
+    "user2@example.com",
+    "user2",
+    "$2b$10$hashedPassword2",
+    "default2.jpg",
+    50,
+    UserStatus.ACTIVE,
+    UserInstrument.PIANO,
+    "mock-concurrency-stamp-2",
+    "mock-security-stamp-2",
+    new Date("2023-01-02"),
+    new Date("2023-01-02"),
+  ),
+  new User(
+    3,
+    "User Three",
+    "user3@example.com",
+    "user3",
+    "$2b$10$hashedPassword3",
+    "default3.jpg",
+    75,
+    UserStatus.ACTIVE,
+    UserInstrument.BASS,
+    "mock-concurrency-stamp-3",
+    "mock-security-stamp-3",
+    new Date("2023-01-03"),
+    new Date("2023-01-03"),
+  ),
+];
 
 
 function applyFilters(filters: UserFilters): boolean {
@@ -71,204 +80,141 @@ function applyFilters(filters: UserFilters): boolean {
   return response;
 }
 
-function applyUserSearchParams(params: UserSearchParamsRequest): boolean {
-  let response: boolean = false;
-
-  return response;
-}
-
 
 const createUserQueryPortMock = (): jest.Mocked<UserQueryPort> => {
   return {
     getUserById: jest.fn().mockImplementation((id: number) => {
       const user = mockUsers.find((u) => u.id === id);
       if (user) {
-        return Promise.resolve(ApplicationResponse.success(user));
+        return Promise.resolve(Result.ok(user));
       }
       return Promise.resolve(
-        ApplicationResponse.failure(
-          new ApplicationError("Usuario no encontrado", ErrorCodes.VALUE_NOT_FOUND),
-        ),
+        Result.fail(new Error("Usuario no encontrado"))
       );
     }),
-    getUserByFilters: jest.fn().mockImplementation(),
-    searchUsersByFilters: jest.fn().mockImplementation(),
-    searchUsersByIds: jest.fn().mockImplementation(),
-    existsUserById: jest.fn().mockImplementation(),
-    existsUserByFilters: jest.fn().mockImplementation(),
-    getActiveUserById: jest.fn().mockImplementation(),
-    getActiveUserByFilters: jest.fn().mockImplementation(),
-    searchActiveUserByFilters: jest.fn().mockImplementation((req: PaginationRequest<UserSearchParamsRequest>) => {
-      const users = mockUsers.find((u) => true);
-      return Promise.resolve(ApplicationResponse.success(users));
+
+    getUserByFilters: jest.fn().mockImplementation((filters: UserFilters) => {
+      // Find user matching filters
+      const user = mockUsers.find((u) => {
+        if (filters.email && (u.email.toLowerCase() === filters.email.toLowerCase() || 
+            u.normalizedEmail === filters.email.toUpperCase())) {
+          return true;
+        }
+        if (filters.username && (u.username.toLowerCase() === filters.username.toLowerCase() ||
+            u.normalizedUsername === filters.username.toUpperCase())) {
+          return true;
+        }
+        if (filters.id && u.id === filters.id) {
+          return true;
+        }
+        return false;
+      });
+
+      if (user) {
+        return Promise.resolve(Result.ok(user));
+      }
+      return Promise.resolve(Result.fail(new Error("Usuario no encontrado")));
     }),
-    searchActiveUsersByIds: jest.fn().mockImplementation(),
-    existsActiveUserById: jest.fn().mockImplementation(),
-    existsActiveUserByFilters: jest.fn().mockImplementation(),
-    // getAllUsers: jest.fn().mockImplementation(() => {
-    //   return Promise.resolve(ApplicationResponse.success(mockUsers));
-    // }),
 
-    // getUserById: jest.fn().mockImplementation((id: number) => {
-    //   const user = mockUsers.find((u) => u.id === id);
-    //   if (user) {
-    //     return Promise.resolve(ApplicationResponse.success(user));
-    //   }
-    //   return Promise.resolve(
-    //     ApplicationResponse.failure(
-    //       new ApplicationError("Usuario no encontrado", ErrorCodes.VALUE_NOT_FOUND),
-    //     ),
-    //   );
-    // }),
+    searchUsersByFilters: jest.fn().mockImplementation((filters: UserFilters) => {
+      let filteredUsers = [...mockUsers];
+      
+      if (filters.email) {
+        filteredUsers = filteredUsers.filter(u => 
+          u.email.toLowerCase().includes(filters.email!.toLowerCase())
+        );
+      }
+      if (filters.username) {
+        filteredUsers = filteredUsers.filter(u => 
+          u.username.toLowerCase().includes(filters.username!.toLowerCase())
+        );
+      }
+      if (filters.status) {
+        filteredUsers = filteredUsers.filter(u => u.status === filters.status);
+      }
+      
+      return Promise.resolve(Result.ok(filteredUsers));
+    }),
 
-    // getUserByEmail: jest.fn().mockImplementation((email: string) => {
-    //   const user = mockUsers.find((u) => u.email === email);
-    //   if (user) {
-    //     return Promise.resolve(ApplicationResponse.success(user));
-    //   }
-    //   return Promise.resolve(
-    //     ApplicationResponse.failure(
-    //       new ApplicationError("Usuario no encontrado", ErrorCodes.VALUE_NOT_FOUND),
-    //     ),
-    //   );
-    // }),
+    searchUsersByIds: jest.fn().mockImplementation((ids: number[]) => {
+      const users = mockUsers.filter(u => ids.includes(u.id));
+      return Promise.resolve(Result.ok(users));
+    }),
 
-    // getUserByLoginRequest: jest.fn().mockImplementation((userOrEmail: string) => {
-    //   const query = userOrEmail.toLowerCase().trim();
-    //   const user = mockUsers.find(
-    //     (u) => u.email.toLowerCase() === query || u.username.toLowerCase() === query,
-    //   );
-    //   if (user) {
-    //     return Promise.resolve(ApplicationResponse.success(user));
-    //   }
-    //   return Promise.resolve(
-    //     ApplicationResponse.failure(
-    //       new ApplicationError("Usuario no encontrado", ErrorCodes.VALUE_NOT_FOUND),
-    //     ),
-    //   );
-    // }),
+    existsUserById: jest.fn().mockImplementation((id: number) => {
+      const exists = mockUsers.some(u => u.id === id);
+      return Promise.resolve(Result.ok(exists));
+    }),
 
-    // getUserByEmailOrUsername: jest.fn().mockImplementation((email: string, username: string) => {
-    //   const user = mockUsers.find((u) => u.email === email || u.username === username);
-    //   if (user) {
-    //     return Promise.resolve(ApplicationResponse.success(user));
-    //   }
-    //   return Promise.resolve(
-    //     ApplicationResponse.failure(
-    //       new ApplicationError("Usuario no encontrado", ErrorCodes.VALUE_NOT_FOUND),
-    //     ),
-    //   );
-    // }),
+    existsUserByFilters: jest.fn().mockImplementation((filters: UserFilters) => {
+      const exists = mockUsers.some((u) => {
+        if (filters.email && (u.email.toLowerCase() === filters.email.toLowerCase() || 
+            u.normalizedEmail === filters.email.toUpperCase())) {
+          return true;
+        }
+        if (filters.username && (u.username.toLowerCase() === filters.username.toLowerCase() ||
+            u.normalizedUsername === filters.username.toUpperCase())) {
+          return true;
+        }
+        return false;
+      });
+      return Promise.resolve(Result.ok(exists));
+    }),
 
-    // getUsersByIds: jest.fn().mockImplementation((ids: number[]) => {
-    //   if (!ids.length) {
-    //     return Promise.resolve(ApplicationResponse.success([]));
-    //   }
-    //   const users = mockUsers.filter((u) => ids.includes(u.id));
-    //   return Promise.resolve(ApplicationResponse.success(users));
-    // }),
+    getActiveUserById: jest.fn().mockImplementation((id: number) => {
+      const user = mockUsers.find(u => u.id === id && u.status === UserStatus.ACTIVE);
+      if (user) {
+        return Promise.resolve(Result.ok(user));
+      }
+      return Promise.resolve(Result.fail(new Error("Usuario activo no encontrado")));
+    }),
 
-    // getUserBasicDataById: jest.fn().mockImplementation((id: number) => {
-    //   const user = mockUsers.find((u) => u.id === id);
-    //   if (user) {
-    //     const basicData: UserBasicDataResponse = {
-    //       id: user.id,
-    //       fullName: user.fullName,
-    //       email: user.email,
-    //       activeFrom: user.createdAt.getFullYear(),
-    //       profileImage: user.profileImage,
-    //       username: user.username,
-    //       learningPoints: user.learningPoints,
-    //       favoriteInstrument: user.favoriteInstrument,
-    //     };
-    //     return Promise.resolve(ApplicationResponse.success(basicData));
-    //   }
-    //   return Promise.resolve(new NotFoundResponse({ message: "El usuario no existe" }));
-    // }),
+    getActiveUserByFilters: jest.fn().mockImplementation((filters: Omit<UserFilters, "status">) => {
+      const user = mockUsers.find((u) => {
+        if (u.status !== UserStatus.ACTIVE) return false;
+        if (filters.email && u.email.toLowerCase() === filters.email.toLowerCase()) {
+          return true;
+        }
+        if (filters.username && u.username.toLowerCase() === filters.username.toLowerCase()) {
+          return true;
+        }
+        return false;
+      });
 
-    // getUserStampsAndUserInfoByUserOrEmail: jest.fn().mockImplementation((userOrEmail: string) => {
-    //   const query = userOrEmail.toUpperCase();
-    //   const user = mockUsers.find(
-    //     (u) => u.normalizedEmail === query || u.normalizedUsername === query,
-    //   );
-    //   if (user) {
-    //     const result: [string, string, number, string, string] = [
-    //       user.concurrencyStamp,
-    //       user.securityStamp,
-    //       user.id,
-    //       user.profileImage,
-    //       user.password,
-    //     ];
-    //     return Promise.resolve(ApplicationResponse.success(result));
-    //   }
-    //   return Promise.resolve(new NotFoundResponse({ entity: "usuario" }));
-    // }),
+      if (user) {
+        return Promise.resolve(Result.ok(user));
+      }
+      return Promise.resolve(Result.fail(new Error("Usuario activo no encontrado")));
+    }),
 
-    // existsUserByLoginRequest: jest.fn().mockImplementation((userOrEmail: string) => {
-    //   const query = userOrEmail.toLowerCase().trim();
-    //   const exists = mockUsers.some(
-    //     (u) => u.email.toLowerCase() === query || u.username.toLowerCase() === query,
-    //   );
-    //   return Promise.resolve(ApplicationResponse.success(exists));
-    // }),
+    searchActiveUserByFilters: jest.fn().mockImplementation((filters: Omit<UserFilters, "status">) => {
+      const activeUsers = mockUsers.filter(u => u.status === UserStatus.ACTIVE);
+      return Promise.resolve(Result.ok(activeUsers));
+    }),
 
-    // existsUserById: jest.fn().mockImplementation((id: number) => {
-    //   const exists = mockUsers.some((u) => u.id === id);
-    //   return Promise.resolve(ApplicationResponse.success(exists));
-    // }),
+    searchActiveUsersByIds: jest.fn().mockImplementation((ids: number[]) => {
+      const users = mockUsers.filter(u => ids.includes(u.id) && u.status === UserStatus.ACTIVE);
+      return Promise.resolve(Result.ok(users));
+    }),
 
-    // existsUserByEmailOrUsername: jest.fn().mockImplementation((email: string, username: string) => {
-    //   const exists = mockUsers.some((u) => u.email === email || u.username === username);
-    //   return Promise.resolve(ApplicationResponse.success(exists));
-    // }),
+    existsActiveUserById: jest.fn().mockImplementation((id: number) => {
+      const exists = mockUsers.some(u => u.id === id && u.status === UserStatus.ACTIVE);
+      return Promise.resolve(Result.ok(exists));
+    }),
 
-    // searchUsers: jest.fn().mockImplementation((req: PaginationRequest<UserSearchParamsRequest>) => {
-    //   let filteredUsers = mockUsers.filter((u) => u.status === UserStatus.ACTIVE);
-
-    //   // Aplicar filtros
-    //   if (req.filters) {
-    //     if (req.filters.email) {
-    //       filteredUsers = filteredUsers.filter((u) =>
-    //         u.normalizedEmail.startsWith((req.filters?.email ?? "").toUpperCase()),
-    //       );
-    //     }
-    //     if (req.filters.username) {
-    //       filteredUsers = filteredUsers.filter((u) =>
-    //         u.normalizedUsername.startsWith((req.filters?.username ?? "").toUpperCase()),
-    //       );
-    //     }
-    //     if (req.filters.full_name) {
-    //       filteredUsers = filteredUsers.filter((u) =>
-    //         u.fullName.toLowerCase().includes((req.filters?.full_name ?? "").toLowerCase()),
-    //       );
-    //     }
-    //   }
-
-    //   // Aplicar filtro general
-    //   if (req.general_filter) {
-    //     const generalQuery = req.general_filter.toLowerCase();
-    //     filteredUsers = filteredUsers.filter(
-    //       (u) =>
-    //         u.email.toLowerCase().includes(generalQuery) ||
-    //         u.username.toLowerCase().includes(generalQuery) ||
-    //         (u.fullName?.toLowerCase() ?? "").includes(generalQuery),
-    //     );
-    //   }
-
-    //   const pageSize = req.page_size || 5;
-    //   const totalRows = filteredUsers.length;
-    //   const paginatedUsers = filteredUsers.slice(0, pageSize);
-
-    //   const response = PaginationResponse.create(paginatedUsers, paginatedUsers.length, totalRows);
-
-    //   return Promise.resolve(ApplicationResponse.success(response));
-    // }),
-
-    // listUsers: jest.fn().mockImplementation((limit: number) => {
-    //   const limitedUsers = mockUsers.slice(0, Math.min(limit, mockUsers.length));
-    //   return Promise.resolve(ApplicationResponse.success(limitedUsers));
-    // }),
-
+    existsActiveUserByFilters: jest.fn().mockImplementation((filters: Omit<UserFilters, "status">) => {
+      const exists = mockUsers.some((u) => {
+        if (u.status !== UserStatus.ACTIVE) return false;
+        if (filters.email && u.email.toLowerCase() === filters.email.toLowerCase()) {
+          return true;
+        }
+        if (filters.username && u.username.toLowerCase() === filters.username.toLowerCase()) {
+          return true;
+        }
+        return false;
+      });
+      return Promise.resolve(Result.ok(exists));
+    }),
   };
 };
 export default createUserQueryPortMock;
