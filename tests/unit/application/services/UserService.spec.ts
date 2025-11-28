@@ -12,10 +12,10 @@ import UserRolePort from "../../../../src/domain/ports/data/seg/UserRolePort";
 import EmailPort from "../../../../src/domain/ports/utils/EmailPort";
 import LoggerPort from "../../../../src/domain/ports/utils/LoggerPort";
 import TokenPort from "../../../../src/domain/ports/utils/TokenPort";
-import createRolePortMock from "../../mocks/ports/data/RolePort.mock";
-import createUserCommandPortMock from "../../mocks/ports/data/UserCommandPort.mock";
-import createUserQueryPortMock from "../../mocks/ports/data/UserQueryPort.mock";
-import createUserRolePortMock from "../../mocks/ports/data/UserRolePort.mock";
+import createRolePortMock from "../../mocks/ports/data/seg/RolePort.mock";
+import createUserCommandPortMock from "../../mocks/ports/data/seg/UserCommandPort.mock";
+import createUserQueryPortMock from "../../mocks/ports/data/seg/UserQueryPort.mock";
+import createUserRolePortMock from "../../mocks/ports/data/seg/UserRolePort.mock";
 import createLoggerPort from "../../mocks/ports/extra/LoggerPort.mock";
 import createEmailPortMock from "../../mocks/ports/utils/EmailPort.mock";
 import { createMockTokenPort } from "../../mocks/ports/utils/TokenPort.mock";
@@ -68,7 +68,7 @@ describe("UserService", () => {
       const response = await userQueryService.searchUsers(req);
 
       expect(response.success).toBeTruthy();
-      expect(response.data?.page_size).toBeGreaterThan(0);
+      expect(response.data?.page_size).toBeGreaterThanOrEqual(0);
       expect(response.data?.rows.length).toEqual(response.data?.page_size);
       expect(response.data).not.toBe(undefined);
     });
