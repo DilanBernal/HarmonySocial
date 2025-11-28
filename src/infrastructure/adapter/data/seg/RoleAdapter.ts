@@ -6,6 +6,16 @@ import Role from "../../../../domain/models/seg/Role";
 export default class RoleAdapter implements RolePort {
   private repo = SqlAppDataSource.getRepository(RoleEntity);
 
+  private toDomain(r: RoleEntity): Role {
+    return new Role(
+      r.id,
+      r.name,
+      r.description ?? undefined,
+      r.created_at,
+      r.updated_at ?? undefined,
+    );
+  }
+
   async create(data: RoleCreateData): Promise<number> {
     const entity = this.repo.create({ name: data.name, description: data.description });
     const saved = await this.repo.save(entity);
@@ -24,15 +34,7 @@ export default class RoleAdapter implements RolePort {
 
   async findById(id: number): Promise<Role | null> {
     const r = await this.repo.findOne({ where: { id } });
-    return r
-      ? {
-        id: r.id,
-        name: r.name,
-        description: r.description ?? undefined,
-        created_at: r.created_at,
-        updated_at: r.updated_at ?? undefined,
-      }
-      : null;
+    return r ? this.toDomain(r) : null;
   }
 
   async findByName(name: string): Promise<Role | null> {
@@ -43,25 +45,11 @@ export default class RoleAdapter implements RolePort {
         created_at: true,
       }
     });
-    return r
-      ? {
-        id: r.id,
-        name: r.name,
-        description: r.description ?? undefined,
-        created_at: r.created_at,
-        updated_at: r.updated_at ?? undefined,
-      }
-      : null;
+    return r ? this.toDomain(r) : null;
   }
 
   async list(): Promise<Role[]> {
     const rows = await this.repo.find();
-    return rows.map((r) => ({
-      id: r.id,
-      name: r.name,
-      description: r.description ?? undefined,
-      created_at: r.created_at,
-      updated_at: r.updated_at ?? undefined,
-    }));
+    return rows.map((r) => this.toDomain(r));
   }
 }

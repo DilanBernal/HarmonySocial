@@ -6,57 +6,60 @@ import { ApplicationError, ErrorCodes } from "../../../../../../src/application/
 import PaginationRequest from "../../../../../../src/application/dto/utils/PaginationRequest";
 import PaginationResponse from "../../../../../../src/application/dto/utils/PaginationResponse";
 
+// Helper function to create mock Artist instances
+const createMockArtist = (
+  id: number,
+  artistUserId: number | undefined,
+  artistName: string,
+  biography: string | undefined,
+  verified: boolean,
+  formationYear: number,
+  countryCode: string | undefined,
+  status: ArtistStatus,
+  createdAt: Date,
+  updatedAt?: Date
+): Artist => {
+  return new Artist(
+    id,
+    artistUserId,
+    artistName,
+    biography,
+    verified,
+    formationYear,
+    countryCode,
+    status,
+    createdAt,
+    updatedAt,
+  );
+};
+
 // Mock data for artists
-const mockArtists: Artist[] = [
-  {
-    id: 1,
-    artist_user_id: 1,
-    artist_name: "Test Artist",
-    biography: "A test artist biography",
-    verified: true,
-    formation_year: 2020,
-    country_code: "US",
-    status: ArtistStatus.ACTIVE,
-    created_at: new Date("2023-01-01"),
-    updated_at: new Date("2023-06-01"),
-  },
-  {
-    id: 2,
-    artist_user_id: 2,
-    artist_name: "Pending Artist",
-    biography: "Waiting for approval",
-    verified: false,
-    formation_year: 2021,
-    country_code: "MX",
-    status: ArtistStatus.PENDING,
-    created_at: new Date("2023-02-01"),
-    updated_at: undefined,
-  },
-  {
-    id: 3,
-    artist_user_id: undefined,
-    artist_name: "Admin Created Artist",
-    biography: "Created by admin",
-    verified: true,
-    formation_year: 2019,
-    country_code: "CO",
-    status: ArtistStatus.ACTIVE,
-    created_at: new Date("2023-03-01"),
-    updated_at: new Date("2023-07-01"),
-  },
+const createMockArtists = (): Artist[] => [
+  createMockArtist(
+    1, 1, "Test Artist", "A test artist biography", true, 2020, "US", ArtistStatus.ACTIVE,
+    new Date("2023-01-01"), new Date("2023-06-01")
+  ),
+  createMockArtist(
+    2, 2, "Pending Artist", "Waiting for approval", false, 2021, "MX", ArtistStatus.PENDING,
+    new Date("2023-02-01"), undefined
+  ),
+  createMockArtist(
+    3, undefined, "Admin Created Artist", "Created by admin", true, 2019, "CO", ArtistStatus.ACTIVE,
+    new Date("2023-03-01"), new Date("2023-07-01")
+  ),
 ];
 
 let nextId = 4;
 
 const createArtistPortMock = (): jest.Mocked<ArtistPort> => {
   // Clone the array to avoid mutation between tests
-  let artists = [...mockArtists];
+  let artists = createMockArtists();
 
   return {
     create: jest.fn().mockImplementation(
-      async (artist: Omit<Artist, "id" | "created_at" | "updated_at">): Promise<ApplicationResponse<number>> => {
+      async (artist: Omit<Artist, "id" | "createdAt" | "updatedAt">): Promise<ApplicationResponse<number>> => {
         // Validate required fields
-        if (!artist.artist_name || !artist.formation_year) {
+        if (!artist.artistName || !artist.formationYear) {
           return ApplicationResponse.failure(
             new ApplicationError("Datos de artista inválidos", ErrorCodes.VALIDATION_ERROR)
           );
@@ -64,7 +67,7 @@ const createArtistPortMock = (): jest.Mocked<ArtistPort> => {
 
         // Check for duplicate artist name
         const exists = artists.some(
-          (a) => a.artist_name.toLowerCase() === artist.artist_name.toLowerCase()
+          (a) => a.artistName.toLowerCase() === artist.artistName.toLowerCase()
         );
         if (exists) {
           return ApplicationResponse.failure(
@@ -73,12 +76,18 @@ const createArtistPortMock = (): jest.Mocked<ArtistPort> => {
         }
 
         // Create new artist
-        const newArtist: Artist = {
-          ...artist,
-          id: nextId++,
-          created_at: new Date(),
-          updated_at: undefined,
-        };
+        const newArtist = createMockArtist(
+          nextId++,
+          artist.artistUserId,
+          artist.artistName,
+          artist.biography,
+          artist.verified,
+          artist.formationYear,
+          artist.countryCode,
+          artist.status,
+          new Date(),
+          undefined
+        );
 
         artists.push(newArtist);
         return ApplicationResponse.success(newArtist.id);
@@ -94,12 +103,14 @@ const createArtistPortMock = (): jest.Mocked<ArtistPort> => {
           );
         }
 
-        // Update artist
-        artists[index] = {
-          ...artists[index],
-          ...artist,
-          updated_at: new Date(),
-        };
+        // Update artist properties
+        const existing = artists[index];
+        if (artist.artistName !== undefined) existing.artistName = artist.artistName;
+        if (artist.biography !== undefined) existing.biography = artist.biography;
+        if (artist.formationYear !== undefined) existing.formationYear = artist.formationYear;
+        if (artist.countryCode !== undefined) existing.countryCode = artist.countryCode;
+        if (artist.verified !== undefined) existing.verified = artist.verified;
+        existing.updatedAt = new Date();
 
         return ApplicationResponse.emptySuccess();
       }
@@ -115,7 +126,7 @@ const createArtistPortMock = (): jest.Mocked<ArtistPort> => {
         }
 
         artist.status = ArtistStatus.DELETED;
-        artist.updated_at = new Date();
+        artist.updatedAt = new Date();
         return ApplicationResponse.emptySuccess();
       }
     ),
@@ -143,7 +154,7 @@ const createArtistPortMock = (): jest.Mocked<ArtistPort> => {
         if (filters.filters) {
           if (filters.filters.name) {
             filteredArtists = filteredArtists.filter((a) =>
-              a.artist_name.toLowerCase().includes(filters.filters!.name!.toLowerCase())
+              a.artistName.toLowerCase().includes(filters.filters!.name!.toLowerCase())
             );
           }
           if (filters.filters.verified !== undefined) {
@@ -151,7 +162,7 @@ const createArtistPortMock = (): jest.Mocked<ArtistPort> => {
           }
           if (filters.filters.country) {
             filteredArtists = filteredArtists.filter(
-              (a) => a.country_code === filters.filters!.country
+              (a) => a.countryCode === filters.filters!.country
             );
           }
         }
@@ -189,7 +200,7 @@ const createArtistPortMock = (): jest.Mocked<ArtistPort> => {
         }
 
         artist.status = status;
-        artist.updated_at = new Date();
+        artist.updatedAt = new Date();
         return ApplicationResponse.emptySuccess();
       }
     ),

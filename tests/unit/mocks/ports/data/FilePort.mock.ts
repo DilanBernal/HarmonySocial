@@ -168,7 +168,8 @@ const createFilePortMock = (): jest.Mocked<FilePort> => {
 
         return ApplicationResponse.success({
           stream: mockStream,
-          contentType: file.mimeType,
+          filename: file.filename,
+          mimeType: file.mimeType,
           contentLength: file.data.length,
         } as FileStream);
       }
