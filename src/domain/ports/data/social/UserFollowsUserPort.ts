@@ -1,5 +1,5 @@
 
-import { UserFollowsUser } from "../../../models/social/UserFollowsUser";
+import UserFollowsUser from "../../../models/social/UserFollowsUser";
 
 export interface UserFollowRepository {
   follow(followerId: number, followedId: number): Promise<UserFollowsUser>;

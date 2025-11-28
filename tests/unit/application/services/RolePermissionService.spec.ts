@@ -6,25 +6,22 @@ import Permission, { CorePermission } from "../../../../src/domain/models/seg/Pe
 
 import createRolePermissionPortMock from "../../mocks/ports/data/seg/RolePermissionPort.mock";
 
+// Helper function to create test Permission instances
+const createTestPermission = (
+  id: number,
+  name: string,
+  description?: string
+): Permission => {
+  return new Permission(id, name, description, new Date("2023-01-01"), new Date("2023-01-01"));
+};
+
 describe("RolePermissionService", () => {
   let rolePermissionService: RolePermissionService;
   let mockRolePermissionPort: jest.Mocked<RolePermissionPort>;
 
   const mockPermissions: Permission[] = [
-    {
-      id: 1,
-      name: CorePermission.USER_READ,
-      description: "Can read user information",
-      created_at: new Date("2023-01-01"),
-      updated_at: new Date("2023-01-01"),
-    },
-    {
-      id: 2,
-      name: CorePermission.FILE_OWN_DELETE,
-      description: "Can delete own files",
-      created_at: new Date("2023-01-01"),
-      updated_at: new Date("2023-01-01"),
-    },
+    createTestPermission(1, CorePermission.USER_READ, "Can read user information"),
+    createTestPermission(2, CorePermission.FILE_OWN_DELETE, "Can delete own files"),
   ];
 
   beforeEach(() => {

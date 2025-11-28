@@ -1,35 +1,30 @@
 import RolePort, { RoleCreateData, RoleUpdateData } from "../../../../../../src/domain/ports/data/seg/RolePort";
 import Role from "../../../../../../src/domain/models/seg/Role";
 
+// Helper function to create Role instances
+const createMockRole = (
+  id: number,
+  name: string,
+  description?: string,
+  createdAt?: Date,
+  updatedAt?: Date
+): Role => {
+  return new Role(id, name, description, createdAt ?? new Date("2023-01-01"), updatedAt ?? new Date("2023-01-01"));
+};
+
 // Mock data para roles basados en el seed y la estructura real
-const mockRoles: Role[] = [
-  {
-    id: 1,
-    name: "common_user",
-    description: "Usuario común con permisos básicos",
-    created_at: new Date("2023-01-01"),
-    updated_at: new Date("2023-01-01"),
-  },
-  {
-    id: 2,
-    name: "artist",
-    description: "Artista con permisos de creación de contenido",
-    created_at: new Date("2023-01-01"),
-    updated_at: new Date("2023-01-01"),
-  },
-  {
-    id: 3,
-    name: "admin",
-    description: "Administrador con todos los permisos",
-    created_at: new Date("2023-01-01"),
-    updated_at: new Date("2023-01-01"),
-  },
+const createMockRoles = (): Role[] => [
+  createMockRole(1, "common_user", "Usuario común con permisos básicos"),
+  createMockRole(2, "artist", "Artista con permisos de creación de contenido"),
+  createMockRole(3, "admin", "Administrador con todos los permisos"),
 ];
 
 // Contador para simular auto-increment de IDs
 let nextId = 4;
 
 const createRolePortMock = (): jest.Mocked<RolePort> => {
+  const mockRoles = createMockRoles();
+  
   return {
     create: jest.fn().mockImplementation(async (data: RoleCreateData): Promise<number> => {
       // Verificar si ya existe un rol con ese nombre
@@ -39,13 +34,7 @@ const createRolePortMock = (): jest.Mocked<RolePort> => {
       }
 
       // Crear nuevo rol
-      const newRole: Role = {
-        id: nextId++,
-        name: data.name,
-        description: data.description,
-        created_at: new Date(),
-        updated_at: new Date(),
-      };
+      const newRole = createMockRole(nextId++, data.name, data.description);
 
       // Agregarlo al mock data
       mockRoles.push(newRole);
@@ -71,14 +60,11 @@ const createRolePortMock = (): jest.Mocked<RolePort> => {
       }
 
       // Actualizar el rol
-      const updatedRole = {
-        ...mockRoles[roleIndex],
-        ...(data.name && { name: data.name }),
-        ...(data.description !== undefined && { description: data.description }),
-        updated_at: new Date(),
-      };
+      const existing = mockRoles[roleIndex];
+      if (data.name) existing.name = data.name;
+      if (data.description !== undefined) existing.description = data.description;
+      existing.updatedAt = new Date();
 
-      mockRoles[roleIndex] = updatedRole;
       return true;
     }),
 
@@ -96,47 +82,16 @@ const createRolePortMock = (): jest.Mocked<RolePort> => {
 
     findById: jest.fn().mockImplementation(async (id: number): Promise<Role | null> => {
       const role = mockRoles.find(r => r.id === id);
-
-      if (!role) {
-        return null;
-      }
-
-      // Retornar copia del rol para evitar mutaciones
-      return {
-        id: role.id,
-        name: role.name,
-        description: role.description,
-        created_at: role.created_at,
-        updated_at: role.updated_at,
-      };
+      return role ?? null;
     }),
 
     findByName: jest.fn().mockImplementation(async (name: string): Promise<Role | null> => {
       const role = mockRoles.find(r => r.name.toLowerCase() === name.toLowerCase());
-
-      if (!role) {
-        return null;
-      }
-
-      // Retornar copia del rol para evitar mutaciones
-      return {
-        id: role.id,
-        name: role.name,
-        description: role.description,
-        created_at: role.created_at,
-        updated_at: role.updated_at,
-      };
+      return role ?? null;
     }),
 
     list: jest.fn().mockImplementation(async (): Promise<Role[]> => {
-      // Retornar copia de todos los roles
-      return mockRoles.map(role => ({
-        id: role.id,
-        name: role.name,
-        description: role.description,
-        created_at: role.created_at,
-        updated_at: role.updated_at,
-      }));
+      return [...mockRoles];
     }),
   };
 }

@@ -10,6 +10,7 @@ import LoggerPort from "../../../../src/domain/ports/utils/LoggerPort";
 import RegisterRequest from "../../../../src/application/dto/requests/User/RegisterRequest";
 import UpdateUserRequest from "../../../../src/application/dto/requests/User/UpdateUserRequest";
 import { UserInstrument, UserStatus } from "../../../../src/domain/models/seg/User";
+import Role from "../../../../src/domain/models/seg/Role";
 import { ApplicationResponse } from "../../../../src/application/shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes } from "../../../../src/application/shared/errors/ApplicationError";
 import Result from "../../../../src/domain/shared/Result";
@@ -22,6 +23,15 @@ import createAuthPortMock from "../../mocks/ports/data/seg/AuthPort.mock";
 import createEmailPortMock from "../../mocks/ports/utils/EmailPort.mock";
 import { createMockTokenPort } from "../../mocks/ports/utils/TokenPort.mock";
 import createLoggerPort from "../../mocks/ports/extra/LoggerPort.mock";
+
+// Helper function to create test Role instances
+const createTestRole = (
+  id: number,
+  name: string,
+  description?: string
+): Role => {
+  return new Role(id, name, description, new Date(), new Date());
+};
 
 describe("UserCommandService", () => {
   let userCommandService: UserCommandService;
@@ -79,13 +89,7 @@ describe("UserCommandService", () => {
     describe("Casos Exitosos", () => {
       it("debe registrar un usuario exitosamente", async () => {
         mockUserQueryPort.existsActiveUserByFilters.mockResolvedValue(Result.ok(false));
-        mockRolePort.findByName.mockResolvedValue({
-          id: 1,
-          name: "common_user",
-          description: "Regular user",
-          created_at: new Date(),
-          updated_at: new Date(),
-        });
+        mockRolePort.findByName.mockResolvedValue(createTestRole(1, "common_user", "Regular user"));
         mockAuthPort.encryptPassword.mockResolvedValue("$2b$10$hashedPassword");
         mockTokenPort.generateStamp.mockReturnValue("mock-stamp");
         mockUserCommandPort.createUser.mockResolvedValue(Result.ok(4));
@@ -104,13 +108,7 @@ describe("UserCommandService", () => {
 
       it("debe crear usuario con status SUSPENDED", async () => {
         mockUserQueryPort.existsActiveUserByFilters.mockResolvedValue(Result.ok(false));
-        mockRolePort.findByName.mockResolvedValue({
-          id: 1,
-          name: "common_user",
-          description: "Regular user",
-          created_at: new Date(),
-          updated_at: new Date(),
-        });
+        mockRolePort.findByName.mockResolvedValue(createTestRole(1, "common_user", "Regular user"));
         mockAuthPort.encryptPassword.mockResolvedValue("$2b$10$hashedPassword");
         mockTokenPort.generateStamp.mockReturnValue("mock-stamp");
         mockUserCommandPort.createUser.mockResolvedValue(Result.ok(5));
@@ -173,13 +171,7 @@ describe("UserCommandService", () => {
     describe("Casos de Error - Error al Crear Usuario", () => {
       it("debe fallar cuando createUser retorna error", async () => {
         mockUserQueryPort.existsActiveUserByFilters.mockResolvedValue(Result.ok(false));
-        mockRolePort.findByName.mockResolvedValue({
-          id: 1,
-          name: "common_user",
-          description: "Regular user",
-          created_at: new Date(),
-          updated_at: new Date(),
-        });
+        mockRolePort.findByName.mockResolvedValue(createTestRole(1, "common_user", "Regular user"));
         mockAuthPort.encryptPassword.mockResolvedValue("$2b$10$hashedPassword");
         mockTokenPort.generateStamp.mockReturnValue("mock-stamp");
         mockUserCommandPort.createUser.mockResolvedValue(
@@ -195,13 +187,7 @@ describe("UserCommandService", () => {
 
       it("debe fallar cuando falla la asignación de rol", async () => {
         mockUserQueryPort.existsActiveUserByFilters.mockResolvedValue(Result.ok(false));
-        mockRolePort.findByName.mockResolvedValue({
-          id: 1,
-          name: "common_user",
-          description: "Regular user",
-          created_at: new Date(),
-          updated_at: new Date(),
-        });
+        mockRolePort.findByName.mockResolvedValue(createTestRole(1, "common_user", "Regular user"));
         mockAuthPort.encryptPassword.mockResolvedValue("$2b$10$hashedPassword");
         mockTokenPort.generateStamp.mockReturnValue("mock-stamp");
         mockUserCommandPort.createUser.mockResolvedValue(Result.ok(4));

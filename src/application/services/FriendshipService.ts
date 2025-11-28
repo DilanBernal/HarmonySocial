@@ -76,7 +76,7 @@ export default class FriendshipService {
 
           case FrienshipStatus.PENDING:
             // Verificamos si el usuario actual es quien recibió la solicitud
-            if (existingRelationship.friend_id === friendRequest.user_id) {
+            if (existingRelationship.friendId === friendRequest.user_id) {
               return ApplicationResponse.success<string>(
                 "El otro usuario ya te envió una solicitud de amistad pendiente. Puedes aceptarla o rechazarla.",
               );

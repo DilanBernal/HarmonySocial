@@ -1,4 +1,4 @@
-import * as joi from 'Joi';
+import * as joi from 'joi';
 import { findRegex } from '../../../../application/shared/utils/regexIndex';
 import { artistValidations } from '../../../../application/shared/utils/regex/artistValidations';
 

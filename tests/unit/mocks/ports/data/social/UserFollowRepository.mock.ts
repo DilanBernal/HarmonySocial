@@ -1,33 +1,28 @@
 import { UserFollowRepository } from "../../../../../../src/domain/ports/data/social/UserFollowsUserPort";
-import { UserFollowsUser } from "../../../../../../src/domain/models/social/UserFollowsUser";
+import UserFollowsUser from "../../../../../../src/domain/models/social/UserFollowsUser";
+
+// Helper function to create UserFollowsUser instances
+const createMockFollow = (
+  id: number,
+  followerId: number,
+  followedId: number,
+  createdAt?: Date
+): UserFollowsUser => {
+  return new UserFollowsUser(id, followerId, followedId, createdAt ?? new Date());
+};
 
 // Mock data for follows
-const mockFollows: UserFollowsUser[] = [
-  {
-    id: 1,
-    userIdFollower: 1,
-    userIdFollowed: 2,
-    createdAt: Date.now() - 86400000, // 1 day ago
-  },
-  {
-    id: 2,
-    userIdFollower: 1,
-    userIdFollowed: 3,
-    createdAt: Date.now() - 43200000, // 12 hours ago
-  },
-  {
-    id: 3,
-    userIdFollower: 2,
-    userIdFollowed: 1,
-    createdAt: Date.now() - 3600000, // 1 hour ago
-  },
+const createMockFollows = (): UserFollowsUser[] => [
+  createMockFollow(1, 1, 2, new Date(Date.now() - 86400000)), // 1 day ago
+  createMockFollow(2, 1, 3, new Date(Date.now() - 43200000)), // 12 hours ago
+  createMockFollow(3, 2, 1, new Date(Date.now() - 3600000)), // 1 hour ago
 ];
 
 let nextId = 4;
 
 const createUserFollowRepositoryMock = (): jest.Mocked<UserFollowRepository> => {
   // Clone the array to avoid mutation between tests
-  let follows = [...mockFollows];
+  let follows = createMockFollows();
 
   return {
     follow: jest.fn().mockImplementation(
@@ -47,12 +42,7 @@ const createUserFollowRepositoryMock = (): jest.Mocked<UserFollowRepository> => 
         }
 
         // Create new follow
-        const newFollow: UserFollowsUser = {
-          id: nextId++,
-          userIdFollower: followerId,
-          userIdFollowed: followedId,
-          createdAt: Date.now(),
-        };
+        const newFollow = createMockFollow(nextId++, followerId, followedId);
 
         follows.push(newFollow);
         return newFollow;

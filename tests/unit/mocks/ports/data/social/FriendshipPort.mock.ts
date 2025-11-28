@@ -5,39 +5,30 @@ import FriendshipsResponse from "../../../../../../src/application/dto/responses
 import { ApplicationResponse } from "../../../../../../src/application/shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes } from "../../../../../../src/application/shared/errors/ApplicationError";
 
+// Helper function to create Friendship instances
+const createMockFriendship = (
+  id: number,
+  userId: number,
+  friendId: number,
+  status: FrienshipStatus,
+  createdAt?: Date,
+  updatedAt?: Date
+): Friendship => {
+  return new Friendship(id, userId, friendId, status, createdAt ?? new Date(), updatedAt);
+};
+
 // Mock data for friendships
-const mockFriendships: Friendship[] = [
-  {
-    id: 1,
-    user_id: 1,
-    friend_id: 2,
-    status: FrienshipStatus.ACCEPTED,
-    created_at: new Date("2023-01-15"),
-    updated_at: new Date("2023-01-16"),
-  },
-  {
-    id: 2,
-    user_id: 1,
-    friend_id: 3,
-    status: FrienshipStatus.PENDING,
-    created_at: new Date("2023-02-01"),
-    updated_at: undefined,
-  },
-  {
-    id: 3,
-    user_id: 2,
-    friend_id: 3,
-    status: FrienshipStatus.REJECTED,
-    created_at: new Date("2023-02-10"),
-    updated_at: new Date("2023-02-11"),
-  },
+const createMockFriendships = (): Friendship[] => [
+  createMockFriendship(1, 1, 2, FrienshipStatus.ACCEPTED, new Date("2023-01-15"), new Date("2023-01-16")),
+  createMockFriendship(2, 1, 3, FrienshipStatus.PENDING, new Date("2023-02-01"), undefined),
+  createMockFriendship(3, 2, 3, FrienshipStatus.REJECTED, new Date("2023-02-10"), new Date("2023-02-11")),
 ];
 
 let nextId = 4;
 
 const createFriendshipPortMock = (): jest.Mocked<FriendshipPort> => {
   // Clone the array to avoid mutation between tests
-  let friendships = [...mockFriendships];
+  let friendships = createMockFriendships();
 
   return {
     createFriendship: jest.fn().mockImplementation(
@@ -45,8 +36,8 @@ const createFriendshipPortMock = (): jest.Mocked<FriendshipPort> => {
         // Check if friendship already exists
         const existing = friendships.find(
           (f) =>
-            (f.user_id === req.user_id && f.friend_id === req.friend_id) ||
-            (f.user_id === req.friend_id && f.friend_id === req.user_id)
+            (f.userId === req.user_id && f.friendId === req.friend_id) ||
+            (f.userId === req.friend_id && f.friendId === req.user_id)
         );
 
         if (existing) {
@@ -56,14 +47,12 @@ const createFriendshipPortMock = (): jest.Mocked<FriendshipPort> => {
         }
 
         // Create new friendship
-        const newFriendship: Friendship = {
-          id: nextId++,
-          user_id: req.user_id,
-          friend_id: req.friend_id,
-          status: FrienshipStatus.PENDING,
-          created_at: new Date(),
-          updated_at: undefined,
-        };
+        const newFriendship = createMockFriendship(
+          nextId++,
+          req.user_id,
+          req.friend_id,
+          FrienshipStatus.PENDING
+        );
 
         friendships.push(newFriendship);
         return ApplicationResponse.success(true);
@@ -87,11 +76,16 @@ const createFriendshipPortMock = (): jest.Mocked<FriendshipPort> => {
     getAllFriendshipsByUser: jest.fn().mockImplementation(
       async (id: number): Promise<ApplicationResponse<FriendshipsResponse>> => {
         const userFriendships = friendships.filter(
-          (f) => (f.user_id === id || f.friend_id === id) && f.status === FrienshipStatus.ACCEPTED
+          (f) => (f.userId === id || f.friendId === id) && f.status === FrienshipStatus.ACCEPTED
         );
 
         return ApplicationResponse.success({
-          friendships: userFriendships,
+          friendships: userFriendships.map(f => ({
+            id: f.id,
+            user_id: f.userId,
+            friend_id: f.friendId,
+            status: f.status,
+          })),
           total: userFriendships.length,
         } as FriendshipsResponse);
       }
@@ -103,30 +97,35 @@ const createFriendshipPortMock = (): jest.Mocked<FriendshipPort> => {
         const user1Friends = friendships
           .filter(
             (f) =>
-              (f.user_id === req.user_id || f.friend_id === req.user_id) &&
+              (f.userId === req.user_id || f.friendId === req.user_id) &&
               f.status === FrienshipStatus.ACCEPTED
           )
-          .map((f) => (f.user_id === req.user_id ? f.friend_id : f.user_id));
+          .map((f) => (f.userId === req.user_id ? f.friendId : f.userId));
 
         // Get friends of user 2
         const user2Friends = friendships
           .filter(
             (f) =>
-              (f.user_id === req.friend_id || f.friend_id === req.friend_id) &&
+              (f.userId === req.friend_id || f.friendId === req.friend_id) &&
               f.status === FrienshipStatus.ACCEPTED
           )
-          .map((f) => (f.user_id === req.friend_id ? f.friend_id : f.user_id));
+          .map((f) => (f.userId === req.friend_id ? f.friendId : f.userId));
 
         // Find common friends
         const commonFriendIds = user1Friends.filter((id) => user2Friends.includes(id));
         const commonFriendships = friendships.filter(
           (f) =>
-            commonFriendIds.includes(f.user_id) ||
-            commonFriendIds.includes(f.friend_id)
+            commonFriendIds.includes(f.userId) ||
+            commonFriendIds.includes(f.friendId)
         );
 
         return ApplicationResponse.success({
-          friendships: commonFriendships,
+          friendships: commonFriendships.map(f => ({
+            id: f.id,
+            user_id: f.userId,
+            friend_id: f.friendId,
+            status: f.status,
+          })),
           total: commonFriendships.length,
         } as FriendshipsResponse);
       }
@@ -136,11 +135,16 @@ const createFriendshipPortMock = (): jest.Mocked<FriendshipPort> => {
       async (id: number, name: string): Promise<ApplicationResponse<FriendshipsResponse>> => {
         // Return all friendships for the user (name filtering would require user data)
         const userFriendships = friendships.filter(
-          (f) => (f.user_id === id || f.friend_id === id) && f.status === FrienshipStatus.ACCEPTED
+          (f) => (f.userId === id || f.friendId === id) && f.status === FrienshipStatus.ACCEPTED
         );
 
         return ApplicationResponse.success({
-          friendships: userFriendships,
+          friendships: userFriendships.map(f => ({
+            id: f.id,
+            user_id: f.userId,
+            friend_id: f.friendId,
+            status: f.status,
+          })),
           total: userFriendships.length,
         } as FriendshipsResponse);
       }
@@ -150,8 +154,8 @@ const createFriendshipPortMock = (): jest.Mocked<FriendshipPort> => {
       async (req: FriendshipUsersIdsRequest): Promise<ApplicationResponse<Friendship | null>> => {
         const friendship = friendships.find(
           (f) =>
-            (f.user_id === req.user_id && f.friend_id === req.friend_id) ||
-            (f.user_id === req.friend_id && f.friend_id === req.user_id)
+            (f.userId === req.user_id && f.friendId === req.friend_id) ||
+            (f.userId === req.friend_id && f.friendId === req.user_id)
         );
 
         return ApplicationResponse.success(friendship || null);
@@ -183,8 +187,8 @@ const createFriendshipPortMock = (): jest.Mocked<FriendshipPort> => {
       async (req: FriendshipUsersIdsRequest): Promise<ApplicationResponse> => {
         const index = friendships.findIndex(
           (f) =>
-            (f.user_id === req.user_id && f.friend_id === req.friend_id) ||
-            (f.user_id === req.friend_id && f.friend_id === req.user_id)
+            (f.userId === req.user_id && f.friendId === req.friend_id) ||
+            (f.userId === req.friend_id && f.friendId === req.user_id)
         );
 
         if (index === -1) {
@@ -213,8 +217,7 @@ const createFriendshipPortMock = (): jest.Mocked<FriendshipPort> => {
           );
         }
 
-        friendship.status = FrienshipStatus.ACCEPTED;
-        friendship.updated_at = new Date();
+        friendship.accept();
         return ApplicationResponse.emptySuccess();
       }
     ),
@@ -234,8 +237,7 @@ const createFriendshipPortMock = (): jest.Mocked<FriendshipPort> => {
           );
         }
 
-        friendship.status = FrienshipStatus.REJECTED;
-        friendship.updated_at = new Date();
+        friendship.reject();
         return ApplicationResponse.emptySuccess();
       }
     ),

@@ -3,7 +3,7 @@ import FriendshipPort from "../../../../src/domain/ports/data/social/FriendshipP
 import UserQueryPort from "../../../../src/domain/ports/data/seg/query/UserQueryPort";
 import EmailPort from "../../../../src/domain/ports/utils/EmailPort";
 import LoggerPort from "../../../../src/domain/ports/utils/LoggerPort";
-import { FrienshipStatus } from "../../../../src/domain/models/social/Friendship";
+import Friendship, { FrienshipStatus } from "../../../../src/domain/models/social/Friendship";
 import FriendshipUsersIdsRequest from "../../../../src/application/dto/requests/Friendship/FriendshipUsersIdsRequest";
 import { ApplicationResponse } from "../../../../src/application/shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes } from "../../../../src/application/shared/errors/ApplicationError";
@@ -13,6 +13,17 @@ import createFriendshipPortMock from "../../mocks/ports/data/social/FriendshipPo
 import createUserQueryPortMock from "../../mocks/ports/data/seg/UserQueryPort.mock";
 import createEmailPortMock from "../../mocks/ports/utils/EmailPort.mock";
 import createLoggerPort from "../../mocks/ports/extra/LoggerPort.mock";
+
+// Helper function to create test Friendship instances
+const createTestFriendship = (
+  id: number,
+  userId: number,
+  friendId: number,
+  status: FrienshipStatus,
+  createdAt?: Date
+): Friendship => {
+  return new Friendship(id, userId, friendId, status, createdAt ?? new Date());
+};
 
 describe("FriendshipService", () => {
   let friendshipService: FriendshipService;
@@ -68,13 +79,7 @@ describe("FriendshipService", () => {
 
         mockUserQueryPort.existsUserById.mockResolvedValue(Result.ok(true));
         mockFriendshipPort.getFriendshipByUsersIds.mockResolvedValue(
-          ApplicationResponse.success({
-            id: 1,
-            user_id: 1,
-            friend_id: 2,
-            status: FrienshipStatus.ACCEPTED,
-            created_at: new Date(),
-          })
+          ApplicationResponse.success(createTestFriendship(1, 1, 2, FrienshipStatus.ACCEPTED))
         );
 
         const result = await friendshipService.createNewFriendship(request);
@@ -91,13 +96,7 @@ describe("FriendshipService", () => {
 
         mockUserQueryPort.existsUserById.mockResolvedValue(Result.ok(true));
         mockFriendshipPort.getFriendshipByUsersIds.mockResolvedValue(
-          ApplicationResponse.success({
-            id: 2,
-            user_id: 1,
-            friend_id: 3,
-            status: FrienshipStatus.PENDING,
-            created_at: new Date(),
-          })
+          ApplicationResponse.success(createTestFriendship(2, 1, 3, FrienshipStatus.PENDING))
         );
 
         const result = await friendshipService.createNewFriendship(request);
@@ -116,13 +115,7 @@ describe("FriendshipService", () => {
 
         mockUserQueryPort.existsUserById.mockResolvedValue(Result.ok(true));
         mockFriendshipPort.getFriendshipByUsersIds.mockResolvedValue(
-          ApplicationResponse.success({
-            id: 2,
-            user_id: 1,
-            friend_id: 3,
-            status: FrienshipStatus.PENDING,
-            created_at: new Date(),
-          })
+          ApplicationResponse.success(createTestFriendship(2, 1, 3, FrienshipStatus.PENDING))
         );
 
         const result = await friendshipService.createNewFriendship(request);
@@ -141,13 +134,7 @@ describe("FriendshipService", () => {
 
         mockUserQueryPort.existsUserById.mockResolvedValue(Result.ok(true));
         mockFriendshipPort.getFriendshipByUsersIds.mockResolvedValue(
-          ApplicationResponse.success({
-            id: 3,
-            user_id: 2,
-            friend_id: 3,
-            status: FrienshipStatus.REJECTED,
-            created_at: new Date(),
-          })
+          ApplicationResponse.success(createTestFriendship(3, 2, 3, FrienshipStatus.REJECTED))
         );
         mockFriendshipPort.removeFriendshipById.mockResolvedValue(
           ApplicationResponse.emptySuccess()
@@ -206,13 +193,7 @@ describe("FriendshipService", () => {
 
         mockUserQueryPort.existsUserById.mockResolvedValue(Result.ok(true));
         mockFriendshipPort.getFriendshipByUsersIds.mockResolvedValue(
-          ApplicationResponse.success({
-            id: 3,
-            user_id: 2,
-            friend_id: 3,
-            status: FrienshipStatus.REJECTED,
-            created_at: new Date(),
-          })
+          ApplicationResponse.success(createTestFriendship(3, 2, 3, FrienshipStatus.REJECTED))
         );
         mockFriendshipPort.removeFriendshipById.mockResolvedValue(
           ApplicationResponse.failure(
@@ -247,13 +228,7 @@ describe("FriendshipService", () => {
     describe("Casos Exitosos", () => {
       it("debe aceptar una solicitud pendiente exitosamente", async () => {
         mockFriendshipPort.getFriendshipById.mockResolvedValue(
-          ApplicationResponse.success({
-            id: 2,
-            user_id: 1,
-            friend_id: 3,
-            status: FrienshipStatus.PENDING,
-            created_at: new Date(),
-          })
+          ApplicationResponse.success(createTestFriendship(2, 1, 3, FrienshipStatus.PENDING))
         );
         mockFriendshipPort.aproveFrienshipRequest.mockResolvedValue(
           ApplicationResponse.emptySuccess()
@@ -268,13 +243,7 @@ describe("FriendshipService", () => {
 
       it("debe informar cuando la solicitud ya fue aceptada", async () => {
         mockFriendshipPort.getFriendshipById.mockResolvedValue(
-          ApplicationResponse.success({
-            id: 1,
-            user_id: 1,
-            friend_id: 2,
-            status: FrienshipStatus.ACCEPTED,
-            created_at: new Date(),
-          })
+          ApplicationResponse.success(createTestFriendship(1, 1, 2, FrienshipStatus.ACCEPTED))
         );
 
         const result = await friendshipService.aceptFriendship(1);
@@ -285,13 +254,7 @@ describe("FriendshipService", () => {
 
       it("debe informar cuando la solicitud ya fue rechazada", async () => {
         mockFriendshipPort.getFriendshipById.mockResolvedValue(
-          ApplicationResponse.success({
-            id: 3,
-            user_id: 2,
-            friend_id: 3,
-            status: FrienshipStatus.REJECTED,
-            created_at: new Date(),
-          })
+          ApplicationResponse.success(createTestFriendship(3, 2, 3, FrienshipStatus.REJECTED))
         );
 
         const result = await friendshipService.aceptFriendship(3);
@@ -341,13 +304,7 @@ describe("FriendshipService", () => {
     describe("Casos Exitosos", () => {
       it("debe rechazar una solicitud pendiente exitosamente", async () => {
         mockFriendshipPort.getFriendshipById.mockResolvedValue(
-          ApplicationResponse.success({
-            id: 2,
-            user_id: 1,
-            friend_id: 3,
-            status: FrienshipStatus.PENDING,
-            created_at: new Date(),
-          })
+          ApplicationResponse.success(createTestFriendship(2, 1, 3, FrienshipStatus.PENDING))
         );
         mockFriendshipPort.rejectFrienshipRequest.mockResolvedValue(
           ApplicationResponse.emptySuccess()
@@ -362,13 +319,7 @@ describe("FriendshipService", () => {
 
       it("debe informar cuando la solicitud ya fue aceptada", async () => {
         mockFriendshipPort.getFriendshipById.mockResolvedValue(
-          ApplicationResponse.success({
-            id: 1,
-            user_id: 1,
-            friend_id: 2,
-            status: FrienshipStatus.ACCEPTED,
-            created_at: new Date(),
-          })
+          ApplicationResponse.success(createTestFriendship(1, 1, 2, FrienshipStatus.ACCEPTED))
         );
 
         const result = await friendshipService.rejectFriendship(1);
@@ -381,13 +332,7 @@ describe("FriendshipService", () => {
 
       it("debe informar cuando la solicitud ya fue rechazada", async () => {
         mockFriendshipPort.getFriendshipById.mockResolvedValue(
-          ApplicationResponse.success({
-            id: 3,
-            user_id: 2,
-            friend_id: 3,
-            status: FrienshipStatus.REJECTED,
-            created_at: new Date(),
-          })
+          ApplicationResponse.success(createTestFriendship(3, 2, 3, FrienshipStatus.REJECTED))
         );
 
         const result = await friendshipService.rejectFriendship(3);
@@ -570,13 +515,7 @@ describe("FriendshipService", () => {
   describe("getFriendshipById", () => {
     it("debe obtener una amistad por ID exitosamente", async () => {
       mockFriendshipPort.getFriendshipById.mockResolvedValue(
-        ApplicationResponse.success({
-          id: 1,
-          user_id: 1,
-          friend_id: 2,
-          status: FrienshipStatus.ACCEPTED,
-          created_at: new Date(),
-        })
+        ApplicationResponse.success(createTestFriendship(1, 1, 2, FrienshipStatus.ACCEPTED))
       );
 
       const result = await friendshipService.getFriendshipById(1);
