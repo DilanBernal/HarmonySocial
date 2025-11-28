@@ -4,6 +4,7 @@ import LoggerPort from "../../../../src/domain/ports/utils/LoggerPort";
 import RolePort from "../../../../src/domain/ports/data/seg/RolePort";
 import UserRolePort from "../../../../src/domain/ports/data/seg/UserRolePort";
 import Artist, { ArtistStatus } from "../../../../src/domain/models/music/Artist";
+import Role from "../../../../src/domain/models/seg/Role";
 import ArtistCreateRequest from "../../../../src/application/dto/requests/Artist/ArtistCreateRequest";
 import ArtistUpdateRequest from "../../../../src/application/dto/requests/Artist/ArtistUpdateRequest";
 import { ApplicationResponse } from "../../../../src/application/shared/ApplicationReponse";
@@ -41,6 +42,17 @@ const createTestArtist = (
     createdAt ?? new Date(),
     updatedAt,
   );
+};
+
+// Helper function to create Role instances for tests
+const createTestRole = (
+  id: number,
+  name: string,
+  description?: string,
+  createdAt?: Date,
+  updatedAt?: Date
+): Role => {
+  return new Role(id, name, description, createdAt ?? new Date(), updatedAt ?? new Date());
 };
 
 describe("ArtistService", () => {
@@ -406,7 +418,7 @@ describe("ArtistService", () => {
         );
         mockArtistPort.updateStatus.mockResolvedValue(ApplicationResponse.emptySuccess());
         mockRolePort.findByName.mockResolvedValue(
-          new (require("../../../../src/domain/models/seg/Role").default)(2, "artist", "Artist role", new Date(), new Date())
+          createTestRole(2, "artist", "Artist role")
         );
         mockUserRolePort.assignRoleToUser.mockResolvedValue(true);
 
