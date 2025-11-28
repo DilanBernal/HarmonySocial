@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { ObjectSchema } from "joi";
-import paginatedRequestValidator from "../validator/util/paginatedRequest";
+import paginatedRequestValidator from "../../validator/util/paginatedRequest";
 
 export function validatePaginatedRequest<T>(schema: ObjectSchema) {
   return (req: Request, res: Response, next: NextFunction) => {

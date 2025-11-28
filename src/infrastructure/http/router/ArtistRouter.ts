@@ -1,23 +1,22 @@
 import { Router } from "express";
-import ArtistAdapter from "../adapter/data/music/ArtistAdapter";
-import ArtistService from "../../application/services/ArtistService";
-import RoleAdapter from "../adapter/data/seg/RoleAdapter";
-import UserRoleAdapter from "../adapter/data/seg/UserRoleAdapter";
-import LoggerAdapter from "../adapter/utils/LoggerAdapter";
-import ArtistController from "../controller/ArtistController";
-import { validateRequest } from "../middleware/validateRequest";
-import authenticateToken from "../middleware/authMiddleware";
-import artistCreateSchema from "../validator/music/artist/ArtistCreateValidator";
-import artistUpdateSchema from "../validator/music/artist/ArtistUpdateValidator";
 import {
   requirePermissions,
   enrichPermissionsFromToken,
 } from "../middleware/authorizationMiddleware";
-import { CorePermission } from "../../domain/models/seg/Permission";
+import ArtistService from "../../../application/services/ArtistService";
+import { CorePermission } from "../../../domain/models/seg/Permission";
+import ArtistAdapter from "../../adapter/data/music/ArtistAdapter";
+import RoleAdapter from "../../adapter/data/seg/RoleAdapter";
+import UserRoleAdapter from "../../adapter/data/seg/UserRoleAdapter";
+import LoggerAdapter from "../../adapter/utils/LoggerAdapter";
+import ArtistController from "../../controller/ArtistController";
+import artistCreateSchema from "../../validator/music/artist/ArtistCreateValidator";
+import artistPaginatedRequestValidator from "../../validator/music/artist/ArtistPaginatedRequestValidator";
+import artistUpdateSchema from "../../validator/music/artist/ArtistUpdateValidator";
+import authenticateToken from "../middleware/authMiddleware";
 import parseNestedQuery from "../middleware/parseNestedQuery";
 import { validatePaginatedRequest } from "../middleware/validatePaginatedRequest";
-import userSearchParamsSchema from "../validator/seg/user/UserPaginatedValidator";
-import artistPaginatedRequestValidator from "../validator/music/artist/ArtistPaginatedRequestValidator";
+import { validateRequest } from "../middleware/validateRequest";
 
 const router = Router();
 const adapter = new ArtistAdapter();

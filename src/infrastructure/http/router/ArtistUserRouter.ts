@@ -1,10 +1,10 @@
 import { Router } from "express";
 import authenticateToken from "../middleware/authMiddleware";
-import LoggerAdapter from "../adapter/utils/LoggerAdapter";
-import UserRoleAdapter from "../adapter/data/seg/UserRoleAdapter";
-import ArtistUserService from "../../application/services/ArtistUserService";
-import ArtistUserController from "../controller/ArtistUserController";
-import UserQueryAdapter from "../adapter/data/seg/queries/UserQueryAdapter";
+import ArtistUserService from "../../../application/services/ArtistUserService";
+import UserQueryAdapter from "../../adapter/data/seg/queries/UserQueryAdapter";
+import UserRoleAdapter from "../../adapter/data/seg/UserRoleAdapter";
+import LoggerAdapter from "../../adapter/utils/LoggerAdapter";
+import ArtistUserController from "../../controller/ArtistUserController";
 
 const router = Router();
 const logger = new LoggerAdapter();

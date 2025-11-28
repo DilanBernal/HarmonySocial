@@ -17,33 +17,33 @@ export default class ArtistAdapter implements ArtistPort {
   }
 
   private toDomain(e: ArtistEntity): Artist {
-    return {
-      id: e.id,
-      artist_name: e.artist_name,
-      biography: e.biography,
-      verified: e.verified,
-      formation_year: e.formation_year,
-      country_code: e.country_code,
-      status: e.status,
-      created_at: e.created_at,
-      updated_at: e.updated_at,
-      artist_user_id: e.user_id,
-    } as Artist;
+    return new Artist(
+      e.id,
+      e.user_id,
+      e.artist_name,
+      e.biography,
+      e.verified,
+      e.formation_year,
+      e.country_code,
+      e.status,
+      e.created_at,
+      e.updated_at,
+    );
   }
 
   async create(
-    artist: Omit<Artist, "id" | "created_at" | "updated_at">,
+    artist: Omit<Artist, "id" | "createdAt" | "updatedAt">,
   ): Promise<ApplicationResponse<number>> {
     try {
       const entity = new ArtistEntity();
-      entity.artist_name = artist.artist_name;
+      entity.artist_name = artist.artistName;
       entity.biography = artist.biography;
-      entity.formation_year = artist.formation_year;
-      entity.country_code = artist.country_code;
+      entity.formation_year = artist.formationYear;
+      entity.country_code = artist.countryCode;
       entity.verified = artist.verified ?? false;
       entity.status = artist.status;
       entity.created_at = new Date(Date.now());
-      if ((artist as any).artist_user_id) entity.user_id = artist.artist_user_id;
+      if (artist.artistUserId) entity.user_id = artist.artistUserId;
       const saved = await this.repo.save(entity);
       return ApplicationResponse.success(saved.id);
     } catch (error: any) {
@@ -66,10 +66,10 @@ export default class ArtistAdapter implements ArtistPort {
           new ApplicationError("Artista no encontrado", ErrorCodes.VALUE_NOT_FOUND),
         );
       }
-      if (artist.artist_name !== undefined) existing.artist_name = artist.artist_name;
+      if (artist.artistName !== undefined) existing.artist_name = artist.artistName;
       if (artist.biography !== undefined) existing.biography = artist.biography;
-      if (artist.formation_year !== undefined) existing.formation_year = artist.formation_year;
-      if (artist.country_code !== undefined) existing.country_code = artist.country_code;
+      if (artist.formationYear !== undefined) existing.formation_year = artist.formationYear;
+      if (artist.countryCode !== undefined) existing.country_code = artist.countryCode;
       existing.updated_at = new Date(Date.now());
       await this.repo.save(existing);
       return ApplicationResponse.emptySuccess();
