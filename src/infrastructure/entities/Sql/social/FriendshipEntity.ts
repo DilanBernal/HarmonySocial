@@ -7,7 +7,7 @@ import {
   JoinColumn,
   RelationId,
 } from "typeorm";
-import { FrienshipStatus } from "../../../../domain/models/social/Friendship";
+import Friendship, { FrienshipStatus } from "../../../../domain/models/social/Friendship";
 import UserEntity from "../seg/UserEntity";
 
 @Entity({ name: "friendships", schema: "social" })
@@ -38,4 +38,33 @@ export default class FriendshipEntity {
 
   @Column({ type: "timestamp", nullable: true })
   updated_at?: Date;
+
+  /**
+   * Converts this entity to a domain object
+   */
+  toDomain(): Friendship {
+    return new Friendship(
+      this.id,
+      this.user_id,
+      this.friend_id,
+      this.status,
+      this.created_at,
+      this.updated_at,
+    );
+  }
+
+  /**
+   * Creates an entity from a domain object
+   */
+  static fromDomain(domain: Friendship): FriendshipEntity {
+    const entity = new FriendshipEntity();
+    entity.id = domain.id;
+    // Set the relation objects which will populate the foreign keys
+    entity.user = { id: domain.userId } as UserEntity;
+    entity.friend = { id: domain.friendId } as UserEntity;
+    entity.status = domain.status;
+    entity.created_at = domain.createdAt;
+    entity.updated_at = domain.updatedAt;
+    return entity;
+  }
 }
