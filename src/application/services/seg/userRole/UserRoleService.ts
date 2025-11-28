@@ -42,8 +42,8 @@ export default class UserRoleService {
           id: r.id,
           name: r.name,
           description: r.description,
-          created_at: r.created_at,
-          updated_at: r.updated_at,
+          created_at: r.createdAt,
+          updated_at: r.updatedAt,
         })),
       );
     } catch (e) {

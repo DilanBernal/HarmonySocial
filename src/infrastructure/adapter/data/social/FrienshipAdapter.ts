@@ -16,33 +16,31 @@ export default class FriendshipAdapter implements FriendshipPort {
     this.frienshipRepository = SqlAppDataSource.getRepository(FriendshipEntity);
   }
   private toDomain(friendship: FriendshipEntity): Friendship {
-    const friendshipDomain: Friendship = {
-      id: friendship.id,
-      user_id: friendship.user_id,
-      friend_id: friendship.friend_id,
-      status: friendship.status,
-      created_at: friendship.created_at,
-      updated_at: friendship.updated_at,
-    };
-    return friendshipDomain;
+    return new Friendship(
+      friendship.id,
+      friendship.user_id,
+      friendship.friend_id,
+      friendship.status,
+      friendship.created_at,
+      friendship.updated_at,
+    );
   }
-  private toEntity(friendship: Omit<Friendship, "id">) {
+  private toEntity(userId: number, friendId: number, status: FrienshipStatus) {
     const friendshipEntity: FriendshipEntity = new FriendshipEntity();
-    friendshipEntity.user_id = friendship.user_id;
-    friendshipEntity.friend_id = friendship.friend_id;
-    friendshipEntity.status = friendship.status;
-    friendshipEntity.created_at = friendship.created_at;
-    friendshipEntity.updated_at = friendship.updated_at;
-    friendshipEntity.friend.id = friendship.friend_id;
-    friendshipEntity.user.id = friendship.user_id;
+    friendshipEntity.user_id = userId;
+    friendshipEntity.friend_id = friendId;
+    friendshipEntity.status = status;
+    friendshipEntity.created_at = new Date();
+    friendshipEntity.friend = { id: friendId } as any;
+    friendshipEntity.user = { id: userId } as any;
     return friendshipEntity;
   }
   private toFriendshipsResponse(list: Array<Friendship>): FriendshipsResponse {
     let friendshipResponse: FriendshipsResponse = {
       friendships: list.map((x) => ({
         id: x.id,
-        user_id: x.user_id,
-        friend_id: x.friend_id,
+        user_id: x.userId,
+        friend_id: x.friendId,
         status: x.status,
       }))
     };
@@ -51,12 +49,11 @@ export default class FriendshipAdapter implements FriendshipPort {
 
   async createFriendship(req: FriendshipUsersIdsRequest): Promise<ApplicationResponse<boolean>> {
     try {
-      const frienshipEntity = this.toEntity({
-        user_id: req.user_id,
-        friend_id: req.friend_id,
-        status: FrienshipStatus.PENDING,
-        created_at: new Date(),
-      });
+      const frienshipEntity = this.toEntity(
+        req.user_id,
+        req.friend_id,
+        FrienshipStatus.PENDING,
+      );
 
       const result = await this.frienshipRepository.save(frienshipEntity);
       if (result) {
@@ -180,9 +177,9 @@ export default class FriendshipAdapter implements FriendshipPort {
       const whereCondition: FindOptionsWhere<FriendshipEntity>[] = [
         { user_id: id, status: FrienshipStatus.ACCEPTED },
       ];
-      const friendships = await this.frienshipRepository.find({ where: whereCondition });
+      const entities = await this.frienshipRepository.find({ where: whereCondition });
 
-      const response = this.toFriendshipsResponse(friendships);
+      const response = this.toFriendshipsResponse(entities.map(e => this.toDomain(e)));
       return ApplicationResponse.success(response);
     } catch (error) {
       return ApplicationResponse.failure(new ApplicationError("", ErrorCodes.SERVER_ERROR));
@@ -202,15 +199,14 @@ export default class FriendshipAdapter implements FriendshipPort {
       }
 
       // Mapear filas a modelos de dominio (Friendship)
-      const domainList: Friendship[] = rows.map((r: Friendship) => ({
-        id: Number(r.id),
-        user_id: Number(r.user_id),
-        friend_id: Number(r.friend_id),
-        // conservar el valor tal cual, el enum en TS puede aceptar la string si coincide
-        status: (r.status as FrienshipStatus) ?? FrienshipStatus.ACCEPTED,
-        created_at: new Date(r.created_at),
-        updated_at: r.updated_at ? new Date(r.updated_at) : new Date(r.created_at),
-      }));
+      const domainList: Friendship[] = rows.map((r: any) => new Friendship(
+        Number(r.id),
+        Number(r.user_id),
+        Number(r.friend_id),
+        (r.status as FrienshipStatus) ?? FrienshipStatus.ACCEPTED,
+        new Date(r.created_at),
+        r.updated_at ? new Date(r.updated_at) : undefined,
+      ));
 
       const response = this.toFriendshipsResponse(domainList);
       return ApplicationResponse.success(response);
@@ -228,9 +224,9 @@ export default class FriendshipAdapter implements FriendshipPort {
       const whereCondition: FindOptionsWhere<FriendshipEntity>[] = [
         { user_id: id, status: FrienshipStatus.ACCEPTED },
       ];
-      const friendships = await this.frienshipRepository.find({ where: whereCondition });
+      const entities = await this.frienshipRepository.find({ where: whereCondition });
 
-      const response = this.toFriendshipsResponse(friendships);
+      const response = this.toFriendshipsResponse(entities.map(e => this.toDomain(e)));
       return ApplicationResponse.success(response);
     } catch (error) {
       return ApplicationResponse.failure(new ApplicationError("", ErrorCodes.SERVER_ERROR));

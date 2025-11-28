@@ -3,36 +3,23 @@ import { ApplicationResponse } from "../../../../../../src/application/shared/Ap
 import { ApplicationError, ErrorCodes } from "../../../../../../src/application/shared/errors/ApplicationError";
 import Permission, { CorePermission, DefaultRolePermissionMapping } from "../../../../../../src/domain/models/seg/Permission";
 
+// Helper function to create Permission instances
+const createMockPermission = (
+  id: number,
+  name: string,
+  description?: string,
+  createdAt?: Date,
+  updatedAt?: Date
+): Permission => {
+  return new Permission(id, name, description, createdAt ?? new Date("2023-01-01"), updatedAt ?? new Date("2023-01-01"));
+};
+
 // Mock data for permissions based on seed structure
-const mockPermissions: Permission[] = [
-  {
-    id: 1,
-    name: CorePermission.USER_READ,
-    description: "Can read user information",
-    created_at: new Date("2023-01-01"),
-    updated_at: new Date("2023-01-01"),
-  },
-  {
-    id: 2,
-    name: CorePermission.FILE_OWN_DELETE,
-    description: "Can delete own files",
-    created_at: new Date("2023-01-01"),
-    updated_at: new Date("2023-01-01"),
-  },
-  {
-    id: 3,
-    name: CorePermission.FILE_OWN_UPDATE,
-    description: "Can update own files",
-    created_at: new Date("2023-01-01"),
-    updated_at: new Date("2023-01-01"),
-  },
-  {
-    id: 4,
-    name: CorePermission.ARTIST_UPDATE,
-    description: "Can update artist",
-    created_at: new Date("2023-01-01"),
-    updated_at: new Date("2023-01-01"),
-  },
+const createMockPermissions = (): Permission[] => [
+  createMockPermission(1, CorePermission.USER_READ, "Can read user information"),
+  createMockPermission(2, CorePermission.FILE_OWN_DELETE, "Can delete own files"),
+  createMockPermission(3, CorePermission.FILE_OWN_UPDATE, "Can update own files"),
+  createMockPermission(4, CorePermission.ARTIST_UPDATE, "Can update artist"),
 ];
 
 // Role to permissions mapping
@@ -43,6 +30,8 @@ const rolePermissionsMap = new Map<number, number[]>([
 ]);
 
 const createRolePermissionPortMock = (): jest.Mocked<RolePermissionPort> => {
+  const mockPermissions = createMockPermissions();
+  
   return {
     assign: jest.fn().mockImplementation(async (roleId: number, permissionId: number) => {
       // Verify permission exists

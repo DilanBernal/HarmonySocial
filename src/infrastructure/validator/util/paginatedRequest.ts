@@ -1,4 +1,4 @@
-import * as joi from 'Joi';
+import * as joi from 'joi';
 
 const paginatedRequestValidator = joi.object({
   filters: joi.object().optional().messages({

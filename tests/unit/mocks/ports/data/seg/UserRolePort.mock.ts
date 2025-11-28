@@ -2,29 +2,22 @@ import UserRolePort from "../../../../../../src/domain/ports/data/seg/UserRolePo
 import Role from "../../../../../../src/domain/models/seg/Role";
 import { CorePermission } from "../../../../../../src/domain/models/seg/Permission";
 
+// Helper function to create Role instances
+const createMockRole = (
+  id: number,
+  name: string,
+  description?: string,
+  createdAt?: Date,
+  updatedAt?: Date
+): Role => {
+  return new Role(id, name, description, createdAt ?? new Date("2023-01-01"), updatedAt ?? new Date("2023-01-01"));
+};
+
 // Mock data para roles basados en el seed
-const mockRoles: Role[] = [
-  {
-    id: 1,
-    name: "common_user",
-    description: "Usuario común con permisos básicos",
-    created_at: new Date("2023-01-01"),
-    updated_at: new Date("2023-01-01"),
-  },
-  {
-    id: 2,
-    name: "artist",
-    description: "Artista con permisos de creación de contenido",
-    created_at: new Date("2023-01-01"),
-    updated_at: new Date("2023-01-01"),
-  },
-  {
-    id: 3,
-    name: "admin",
-    description: "Administrador con todos los permisos",
-    created_at: new Date("2023-01-01"),
-    updated_at: new Date("2023-01-01"),
-  },
+const createMockRoles = (): Role[] => [
+  createMockRole(1, "common_user", "Usuario común con permisos básicos"),
+  createMockRole(2, "artist", "Artista con permisos de creación de contenido"),
+  createMockRole(3, "admin", "Administrador con todos los permisos"),
 ];
 
 // Mock data para relaciones usuario-rol
@@ -43,6 +36,8 @@ const mockRoleUsers = new Map<string, number[]>([
 ]);
 
 const createUserRolePortMock = (): jest.Mocked<UserRolePort> => {
+  const mockRoles = createMockRoles();
+  
   return {
     assignRoleToUser: jest.fn().mockImplementation(async (userId: number, roleId: number): Promise<boolean> => {
       // Verificar que el rol existe
@@ -100,16 +95,7 @@ const createUserRolePortMock = (): jest.Mocked<UserRolePort> => {
 
     listRolesForUser: jest.fn().mockImplementation(async (userId: number): Promise<Role[]> => {
       const userRoleIds = mockUserRoles.get(userId) || [];
-      const userRoles = mockRoles.filter(role => userRoleIds.includes(role.id));
-
-      // Retornar roles en el formato esperado por el adapter
-      return userRoles.map(role => ({
-        id: role.id,
-        name: role.name,
-        description: role.description,
-        created_at: role.created_at,
-        updated_at: role.updated_at,
-      }));
+      return mockRoles.filter(role => userRoleIds.includes(role.id));
     }),
 
     listUsersForRole: jest.fn().mockImplementation(async (roleName: string): Promise<number[]> => {

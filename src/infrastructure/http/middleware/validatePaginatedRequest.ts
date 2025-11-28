@@ -12,7 +12,7 @@ export function validatePaginatedRequest<T>(schema: ObjectSchema) {
     if (errorPagSchema) {
       return res.status(400).json({
         message: "Validation error",
-        details: errorPagSchema.details.map((d) => d.message),
+        details: errorPagSchema.details.map((d: any) => d.message),
       });
     }
 
@@ -21,7 +21,7 @@ export function validatePaginatedRequest<T>(schema: ObjectSchema) {
     if (errorFilters) {
       return res.status(400).json({
         message: "Validation error",
-        details: errorFilters.details.map((d) => d.message),
+        details: errorFilters.details.map((d: any) => d.message),
       });
     }
 

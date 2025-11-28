@@ -37,7 +37,11 @@ export default class Artist {
     this.formationYear = formationYear;
     this.countryCode = countryCode;
     this.status = status;
-    this.createdAt = createdAt ?? new Date();
+    // For new entities (id=0), createdAt will be set by the database
+    // For existing entities (id>0), set createdAt directly to avoid validation
+    if (id > 0 || createdAt !== undefined) {
+      this._createdAt = createdAt ?? new Date();
+    }
     this.updatedAt = updatedAt;
   }
 

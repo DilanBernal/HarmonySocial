@@ -21,6 +21,7 @@ import Result from "../../../../src/domain/shared/Result";
 import createUserCommandPortMock from "../../mocks/ports/data/seg/UserCommandPort.mock";
 import createUserRolePortMock from "../../mocks/ports/data/seg/UserRolePort.mock";
 import User, { UserInstrument, UserStatus } from "../../../../src/domain/models/seg/User";
+import Role from "../../../../src/domain/models/seg/Role";
 import createUserQueryPortMock from "../../mocks/ports/data/seg/UserQueryPort.mock";
 import createRolePermissionPortMock from "../../mocks/ports/data/seg/RolePermissionPort.mock";
 
@@ -92,19 +93,14 @@ describe("AuthService", () => {
     permissions: ["read_posts"],
   } as any;
 
+  // Helper function to create Role instances
+  const createTestRole = (id: number, name: string, description: string): Role => {
+    return new Role(id, name, description, new Date("2024-01-01"), new Date("2024-01-01"));
+  };
+
   const mockRoles = [
-    {
-      id: 1,
-      name: "user",
-      description: "Regular user",
-      created_at: new Date("2024-01-01")
-    },
-    {
-      id: 2,
-      name: "admin",
-      description: "Administrator user",
-      created_at: new Date("2024-01-01")
-    }
+    createTestRole(1, "user", "Regular user"),
+    createTestRole(2, "admin", "Administrator user"),
   ];
 
   beforeEach(() => {

@@ -1,13 +1,8 @@
 import Role from "../../../models/seg/Role";
+import RoleCreateData from "./command/RoleCreateData";
+import RoleUpdateData from "./command/RoleUpdateData";
 
-export interface RoleCreateData {
-  name: string;
-  description?: string;
-}
-export interface RoleUpdateData {
-  name?: string;
-  description?: string;
-}
+export { RoleCreateData, RoleUpdateData };
 
 export default interface RolePort {
   create(data: RoleCreateData): Promise<number>;
