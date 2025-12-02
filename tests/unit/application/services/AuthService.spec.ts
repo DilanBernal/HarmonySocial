@@ -159,7 +159,7 @@ describe("AuthService", () => {
         );
         expect(mockUserRolePort.listRolesForUser).toHaveBeenCalledWith(1);
         expect(mockUserCommandPort.updateUser).toHaveBeenCalledWith(1, {
-          concurrency_stamp: "new_concurrency_stamp"
+          concurrencyStamp: "new_concurrency_stamp"
         });
       });
 

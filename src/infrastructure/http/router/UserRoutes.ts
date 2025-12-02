@@ -140,7 +140,6 @@ router.get(
 
 router.get(
   "/basic-info",
-  authenticateToken,
   enrichPermissionsFromToken,
   async (req, res) => {
     try {

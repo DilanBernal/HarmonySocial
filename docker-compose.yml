@@ -1,3 +1,5 @@
+name: backend
+
 services:
   pgadmin:
     image: dpage/pgadmin4
@@ -30,8 +32,8 @@ services:
     image: axllent/mailpit:edge
     container_name: mailpit-docker
     ports:
-      - "8025:8025" # Puerto externo corregido
-      - "1025:1025" # Puerto externo corregido
+      - "8025:8025"
+      - "1025:1025"
     networks:
       - harmony-network
 
@@ -68,9 +70,9 @@ services:
     container_name: harmony-mongo-express
     restart: always
     ports:
-      - "8081:8081"
+      - "8015:8015"
     environment:
-      ME_CONFIG_MONGODB_SERVER: mongo_db # ← Nombre del servicio de MongoDB
+      ME_CONFIG_MONGODB_SERVER: mongo_db
       ME_CONFIG_MONGODB_PORT: 27017
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example

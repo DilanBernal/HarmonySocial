@@ -82,25 +82,29 @@ export default class UserPublicProfileQueryAdapter implements UserPublicProfileQ
 
   private applyFilters(filters: UserFilters): SelectQueryBuilder<UserEntity> {
     const queryBuilder: SelectQueryBuilder<UserEntity> =
-      this.userRepository.createQueryBuilder("user");
+      this.userRepository
+        .createQueryBuilder("user")
+        .limit(50)
+        .innerJoin("user_roles", "ur", "user.id = ur.user_id")
+        .andWhere("ur.role_id = 1");
 
     if (filters.includeFilters) {
       if (filters.id) queryBuilder.andWhere("user.id = :id", { id: filters.id });
 
-      if (filters.email) queryBuilder.andWhere("user.email = :email", { email: filters.email });
+      if (filters.email) queryBuilder.andWhere("user.normalized_email = :email", { email: filters.email });
 
       if (filters.username)
-        queryBuilder.andWhere("user.username = :username", { username: filters.username });
+        queryBuilder.andWhere("user.normalized_username like :username", { username: `${filters.username.toUpperCase()}%` });
 
       if (filters.status)
         queryBuilder.andWhere("user.status = :status", { status: filters.status });
     } else {
       if (filters.id) queryBuilder.orWhere("user.id = :id", { id: filters.id });
 
-      if (filters.email) queryBuilder.orWhere("user.email = :email", { email: filters.email });
+      if (filters.email) queryBuilder.orWhere("user.normalized_email = :email", { email: filters.email });
 
       if (filters.username)
-        queryBuilder.orWhere("user.username = :username", { username: filters.username });
+        queryBuilder.orWhere("user.normalized_username like :username", { username: `${filters.username.toUpperCase()}%` });
 
       if (filters.status) queryBuilder.orWhere("user.status = :status", { status: filters.status });
     }
