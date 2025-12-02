@@ -1,5 +1,5 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
-import { ArtistStatus } from "../../../../domain/models/music/Artist";
+import Artist, { ArtistStatus } from "../../../../domain/models/music/Artist";
 
 @Entity({ name: "artists", schema: "music" })
 @Index("IDX_artist_name_status", ["artist_name", "status"])
@@ -32,5 +32,9 @@ export default class ArtistEntity {
   updated_at?: Date;
 
   @Column({ type: "int", name: "user_id", nullable: true })
-  user_id?: number; // usuario propietario que solicitó el perfil
+  user_id?: number;
+
+  public toDomain(): Artist {
+    return new Artist(this.id, this.user_id, this.artist_name, this.biography, this.verified, this.formation_year, this.country_code, this.status);
+  }
 }

@@ -289,7 +289,7 @@ export default class UserController {
               return res.status(500).json({ message: "Error desconocido" });
           }
         }
-        console.error(userResponse.error!.message);
+        this.logger.error(userResponse.error!.message);
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -302,7 +302,10 @@ export default class UserController {
   }
 
   async getBasicUserData(req: Request, res: Response) {
-    const { id } = req.query;
+    const id = Number(req.query.id);
+    if (!id || isNaN(Number(id))) {
+      return res.status(400).json({ message: "No se proporcio un ID Valido" });
+    }
     try {
       const response = await this.userQueryService.getUserData(Number(id));
       if (response.success) {

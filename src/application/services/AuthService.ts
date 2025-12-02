@@ -76,7 +76,7 @@ export default class AuthService {
         email: q,
         username: q,
         includeFilters: false,
-      } as any);
+      });
       const userInfo = userResp.isSuccess ? userResp.value! : undefined;
       if (!userInfo) {
         return ApplicationResponse.failure(
@@ -112,9 +112,9 @@ export default class AuthService {
 
       const newConcurrencyStamp = this.tokenPort.generateStamp();
 
-      await this.userCommandPort.updateUser(userId, {
-        concurrency_stamp: newConcurrencyStamp,
-      } as any);
+      this.userCommandPort.updateUser(userId, {
+        concurrencyStamp: newConcurrencyStamp,
+      }).catch((err) => { this.loggerPort.error("Ocurrio un error al actualizar el stamp del usuario") });
       const payload = { id: userId, roles: roleNames, permissions };
       const authResponse: AuthResponse = await this.authPort.loginUser(requests, payload, {
         profile_image: userInfo.profileImage,
@@ -152,6 +152,8 @@ export default class AuthService {
       return ApplicationResponse.failure(
         new ApplicationError("Ocurrió un error inesperado", ErrorCodes.SERVER_ERROR),
       );
+    } finally {
+      console.timeEnd("Tiempo en peticion de login")
     }
   }
 

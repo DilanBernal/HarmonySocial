@@ -43,7 +43,7 @@ export const connectSqlDB = async () => {
     await SqlAppDataSource.initialize();
     loggerAdapter.info("Se inicio correctamente la base de datos SQL");
   } catch (error) {
-    console.error("Error connecting to the DB", error);
+    loggerAdapter.error("Error connecting to the DB", error);
     process.exit(1);
   }
 };
@@ -68,7 +68,7 @@ export const connectMongoDB = async (): Promise<Db> => {
 
     return mongoDb;
   } catch (error) {
-    console.error("Error conectando a MongoDB:", error);
+    loggerAdapter.error("Error conectando a MongoDB:", error);
     process.exit(1);
   }
 }

@@ -7,5 +7,4 @@ export default interface ArtistFilters extends BasicFilters {
   countryCode?: string;
   formationYear?: number;
   verified?: boolean;
-  status?: ArtistStatus;
 }

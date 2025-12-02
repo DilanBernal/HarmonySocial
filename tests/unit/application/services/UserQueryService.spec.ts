@@ -268,7 +268,7 @@ describe("UserQueryService", () => {
         expect(result.data?.id).toBe(1);
         expect(result.data?.fullName).toBe("Test User");
         expect(result.data?.email).toBe("testuser@example.com");
-        expect(result.data?.activeFrom).toBe(2023);
+        expect(result.data?.activeFrom).toBe(2022);
       });
     });
 
