@@ -104,8 +104,8 @@ export default class Artist {
     return this._countryCode;
   }
   public set countryCode(value: string | undefined) {
-    if (value !== undefined && (value.length !== 2 || !/^[A-Z]{2}$/.test(value))) {
-      throw new Error("El código de país debe ser un código ISO de 2 letras mayúsculas");
+    if (value !== undefined && (value.length !== 3 || !/^[A-Z]{3}$/.test(value))) {
+      throw new Error("El código de país debe ser un código ISO de 3 letras mayúsculas");
     }
     this._countryCode = value;
   }

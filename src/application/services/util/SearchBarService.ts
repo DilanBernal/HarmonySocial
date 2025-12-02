@@ -14,7 +14,7 @@ export default class SearchBarService {
     try {
       const promises: Promise<any>[] = [
         this.userQueryPort.searchUsersPublicProfileByFilters({ username: req, includeFilters: false }),
-        this.artistQueryPort.searchByFilters({ includeFilters: false, artistName: req })
+        this.artistQueryPort.searchByFilters({ includeFilters: false, artistName: req }),
       ];
 
       const [userResult, artistResult] = await Promise.allSettled(promises);
@@ -25,8 +25,10 @@ export default class SearchBarService {
       if (userResult.status === "fulfilled" && userResult.value.isSuccess === true) {
         users = userResult.value.value;
       }
-      if (artistResult.status === "fulfilled" && artistResult.value) {
-        artists = artistResult.value;
+
+      console.log(artistResult);
+      if (artistResult.status === "fulfilled" && artistResult.value.isSuccess === true) {
+        artists = artistResult.value.value;
       }
       let results: {
         users: UserPublicProfile[],
@@ -38,6 +40,7 @@ export default class SearchBarService {
         songs: []
       };
       results.users = users;
+      results.artists = artists;
       return results;
     } catch (error) {
       console.log(error);

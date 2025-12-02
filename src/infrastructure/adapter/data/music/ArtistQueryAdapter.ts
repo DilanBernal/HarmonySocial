@@ -5,6 +5,7 @@ import Result from "../../../../domain/shared/Result";
 import ArtistFilters from "../../../../domain/valueObjects/ArtistFilters";
 import { ArtistEntity } from "../../../entities/Sql/music";
 import { SqlAppDataSource } from "../../../config/con_database";
+import DomainError from "../../../../domain/errors/DomainError";
 
 export default class ArtistQueryAdapter implements ArtistQueryPort {
   private artistRepository: Repository<ArtistEntity>;
@@ -18,10 +19,17 @@ export default class ArtistQueryAdapter implements ArtistQueryPort {
     throw new Error("Method not implemented.");
   }
   async searchByFilters(filters: ArtistFilters): Promise<Result<Artist[]>> {
+    try {
 
-    const result = await this.artistRepository.find();
+      const result = await this.artistRepository.find();
+      console.log(result);
 
-    return Result.ok(result.map(x => x.toDomain()));
+      return Result.ok(result.map(x => x.toDomain()));
+    } catch (error) {
+      if (error instanceof Error)
+        return Result.fail(error);
+      throw error;
+    }
   }
   existsById(id: number): Promise<Result<boolean>> {
     throw new Error("Method not implemented.");
