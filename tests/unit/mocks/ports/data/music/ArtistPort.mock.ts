@@ -36,15 +36,15 @@ const createMockArtist = (
 // Mock data for artists
 const createMockArtists = (): Artist[] => [
   createMockArtist(
-    1, 1, "Test Artist", "A test artist biography", true, 2020, "US", ArtistStatus.ACTIVE,
+    1, 1, "Test Artist", "A test artist biography", true, 2020, "USA", ArtistStatus.ACTIVE,
     new Date("2023-01-01"), new Date("2023-06-01")
   ),
   createMockArtist(
-    2, 2, "Pending Artist", "Waiting for approval", false, 2021, "MX", ArtistStatus.PENDING,
+    2, 2, "Pending Artist", "Waiting for approval", false, 2021, "MEX", ArtistStatus.PENDING,
     new Date("2023-02-01"), undefined
   ),
   createMockArtist(
-    3, undefined, "Admin Created Artist", "Created by admin", true, 2019, "CO", ArtistStatus.ACTIVE,
+    3, undefined, "Admin Created Artist", "Created by admin", true, 2019, "COL", ArtistStatus.ACTIVE,
     new Date("2023-03-01"), new Date("2023-07-01")
   ),
 ];

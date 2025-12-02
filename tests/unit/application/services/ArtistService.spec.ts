@@ -85,7 +85,7 @@ describe("ArtistService", () => {
           artist_name: "New Artist",
           biography: "A new artist biography",
           formation_year: 2022,
-          country_code: "US",
+          country_code: "USA",
         };
 
         mockArtistPort.create.mockResolvedValue(ApplicationResponse.success(4));
@@ -99,7 +99,7 @@ describe("ArtistService", () => {
             artistName: "New Artist",
             biography: "A new artist biography",
             formationYear: 2022,
-            countryCode: "US",
+            countryCode: "USA",
             verified: false,
             status: ArtistStatus.PENDING,
             artistUserId: 1,
@@ -112,7 +112,7 @@ describe("ArtistService", () => {
           artist_name: "Artist Without User",
           biography: "No user linked",
           formation_year: 2021,
-          country_code: "MX",
+          country_code: "MXX",
         };
 
         mockArtistPort.create.mockResolvedValue(ApplicationResponse.success(5));
@@ -132,7 +132,7 @@ describe("ArtistService", () => {
           artist_name: "  Spaced Artist  ",
           biography: "  Biography with spaces  ",
           formation_year: 2020,
-          country_code: "  CO  ",
+          country_code: "  COL  ",
         };
 
         mockArtistPort.create.mockResolvedValue(ApplicationResponse.success(6));
@@ -143,7 +143,7 @@ describe("ArtistService", () => {
           expect.objectContaining({
             artistName: "Spaced Artist",
             biography: "Biography with spaces",
-            countryCode: "CO",
+            countryCode: "COL",
           })
         );
       });
@@ -205,7 +205,7 @@ describe("ArtistService", () => {
           artist_name: "Admin Created Artist",
           biography: "Created by admin",
           formation_year: 2020,
-          country_code: "US",
+          country_code: "USA",
         };
 
         mockArtistPort.create.mockResolvedValue(ApplicationResponse.success(7));
@@ -316,7 +316,7 @@ describe("ArtistService", () => {
       it("debe obtener un artista por ID exitosamente", async () => {
         mockArtistPort.findById.mockResolvedValue(
           ApplicationResponse.success(
-            createTestArtist(1, "Test Artist", true, 2020, ArtistStatus.ACTIVE, undefined, "Test bio", "US", new Date("2023-01-01"), new Date("2023-06-01"))
+            createTestArtist(1, "Test Artist", true, 2020, ArtistStatus.ACTIVE, undefined, "Test bio", "USA", new Date("2023-01-01"), new Date("2023-06-01"))
           )
         );
 
@@ -357,7 +357,7 @@ describe("ArtistService", () => {
         ApplicationResponse.success(
           PaginationResponse.create(
             [
-              createTestArtist(1, "Artist 1", true, 2020, ArtistStatus.ACTIVE, undefined, "Bio", "US"),
+              createTestArtist(1, "Artist 1", true, 2020, ArtistStatus.ACTIVE, undefined, "Bio", "USA"),
             ],
             1,
             1
@@ -413,7 +413,7 @@ describe("ArtistService", () => {
       it("debe aceptar un artista pendiente y asignar rol", async () => {
         mockArtistPort.findById.mockResolvedValue(
           ApplicationResponse.success(
-            createTestArtist(2, "Pending Artist", false, 2021, ArtistStatus.PENDING, 2, "Bio", "MX")
+            createTestArtist(2, "Pending Artist", false, 2021, ArtistStatus.PENDING, 2, "Bio", "MEX")
           )
         );
         mockArtistPort.updateStatus.mockResolvedValue(ApplicationResponse.emptySuccess());
@@ -432,7 +432,7 @@ describe("ArtistService", () => {
       it("debe aceptar artista sin usuario vinculado", async () => {
         mockArtistPort.findById.mockResolvedValue(
           ApplicationResponse.success(
-            createTestArtist(3, "Admin Artist", false, 2019, ArtistStatus.PENDING, undefined, "Bio", "CO")
+            createTestArtist(3, "Admin Artist", false, 2019, ArtistStatus.PENDING, undefined, "Bio", "COL")
           )
         );
         mockArtistPort.updateStatus.mockResolvedValue(ApplicationResponse.emptySuccess());
@@ -459,7 +459,7 @@ describe("ArtistService", () => {
       it("debe fallar si el artista no está pendiente", async () => {
         mockArtistPort.findById.mockResolvedValue(
           ApplicationResponse.success(
-            createTestArtist(1, "Active Artist", true, 2020, ArtistStatus.ACTIVE, undefined, "Bio", "US", new Date(), new Date())
+            createTestArtist(1, "Active Artist", true, 2020, ArtistStatus.ACTIVE, undefined, "Bio", "USA", new Date(), new Date())
           )
         );
 
@@ -473,7 +473,7 @@ describe("ArtistService", () => {
       it("debe manejar caso cuando rol artist no existe", async () => {
         mockArtistPort.findById.mockResolvedValue(
           ApplicationResponse.success(
-            createTestArtist(2, "Pending Artist", false, 2021, ArtistStatus.PENDING, 2, "Bio", "MX")
+            createTestArtist(2, "Pending Artist", false, 2021, ArtistStatus.PENDING, 2, "Bio", "MEX")
           )
         );
         mockArtistPort.updateStatus.mockResolvedValue(ApplicationResponse.emptySuccess());
@@ -494,7 +494,7 @@ describe("ArtistService", () => {
       it("debe rechazar un artista pendiente", async () => {
         mockArtistPort.findById.mockResolvedValue(
           ApplicationResponse.success(
-            createTestArtist(2, "Pending Artist", false, 2021, ArtistStatus.PENDING, undefined, "Bio", "MX")
+            createTestArtist(2, "Pending Artist", false, 2021, ArtistStatus.PENDING, undefined, "Bio", "MXZ")
           )
         );
         mockArtistPort.updateStatus.mockResolvedValue(ApplicationResponse.emptySuccess());
@@ -521,7 +521,7 @@ describe("ArtistService", () => {
       it("debe fallar si el artista no está pendiente", async () => {
         mockArtistPort.findById.mockResolvedValue(
           ApplicationResponse.success(
-            createTestArtist(1, "Active Artist", true, 2020, ArtistStatus.ACTIVE, undefined, "Bio", "US", new Date(), new Date())
+            createTestArtist(1, "Active Artist", true, 2020, ArtistStatus.ACTIVE, undefined, "Bio", "USA", new Date(), new Date())
           )
         );
 

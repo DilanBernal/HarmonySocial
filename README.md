@@ -18,7 +18,6 @@ La API está completamente documentada en los siguientes archivos:
 
 - [Documentación de la API](./docs/API_DOCUMENTATION.md)
 - [Guía de Pruebas](./docs/TESTING_GUIDE.md)
-- [Guía para Crear Endpoints](./docs/CREAR_ENPOINT_GUIUDE.md)
 
 ## Principales Endpoints
 
