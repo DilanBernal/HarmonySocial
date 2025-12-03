@@ -148,7 +148,7 @@ export default class ArtistService {
         countryCode: filters.filters?.country,
         formationYear: filters.filters?.formationYear ? parseInt(filters.filters.formationYear, 10) : undefined,
       };
-      
+
       const result = await this.queryPort.searchByFilters(artistFilters);
       if (!result.isSuccess) {
         return ApplicationResponse.failure(
@@ -161,7 +161,7 @@ export default class ArtistService {
       const pageNumber = filters.page_number ?? 0;
       const start = pageNumber * pageSize;
       const paginatedArtists = artists.slice(start, start + pageSize);
-      
+
       const response = PaginationResponse.create(
         paginatedArtists.map(a => this.mapToResponse(a)),
         paginatedArtists.length,

@@ -45,6 +45,7 @@ export default class SearchBarService {
       };
       results.users = users;
       results.artists = artists;
+      results.songs = songs;
       return results;
     } catch (error) {
       console.log(error);
