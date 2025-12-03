@@ -9,7 +9,7 @@ import DomainEntityNotFoundError from "../../../../domain/errors/EntityNotFoundE
 import { ArtistStatus } from "../../../../domain/models/music/Artist";
 
 export default class ArtistPublicInfoQueryAdapter implements ArtistPublicInfoQueryPort {
-  private artistRepository: Repository<ArtistEntity>;
+  private readonly artistRepository: Repository<ArtistEntity>;
 
   constructor() {
     this.artistRepository = SqlAppDataSource.getRepository(ArtistEntity);
