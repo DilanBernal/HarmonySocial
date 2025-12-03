@@ -104,6 +104,12 @@ export default class SongQueryAdapter implements SongQueryPort {
     }
   }
 
+  /**
+   * Aplica los filtros a la consulta de canciones.
+   * Si includeFilters es true, aplica los filtros con AND (todas las condiciones deben cumplirse).
+   * Si includeFilters es false, aplica los filtros con OR (cualquiera de las condiciones debe cumplirse).
+   * @param filters Filtros a aplicar
+   */
   private applyFilters(filters: SongFilters): SelectQueryBuilder<SongEntity> {
     const queryBuilder = this.songRepository.createQueryBuilder("song");
 

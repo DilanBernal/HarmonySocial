@@ -159,7 +159,7 @@ export default class ArtistService {
       const artists = result.getValue();
       const pageSize = filters.page_size ?? 5;
       const pageNumber = filters.page_number ?? 0;
-      const start = pageNumber;
+      const start = pageNumber * pageSize;
       const paginatedArtists = artists.slice(start, start + pageSize);
       
       const response = PaginationResponse.create(

@@ -25,7 +25,7 @@ export default class ArtistCommandAdapter implements ArtistCommandPort {
       entity.country_code = artist.countryCode;
       entity.verified = artist.verified ?? false;
       entity.status = artist.status;
-      entity.created_at = new Date(Date.now());
+      entity.created_at = new Date();
       if (artist.artistUserId) {
         entity.user_id = artist.artistUserId;
       }
@@ -57,7 +57,7 @@ export default class ArtistCommandAdapter implements ArtistCommandPort {
       if (artist.formationYear !== undefined) existing.formation_year = artist.formationYear;
       if (artist.countryCode !== undefined) existing.country_code = artist.countryCode;
       if (artist.verified !== undefined) existing.verified = artist.verified;
-      existing.updated_at = new Date(Date.now());
+      existing.updated_at = new Date();
 
       await this.artistRepository.save(existing);
       return Result.ok(undefined);
@@ -82,7 +82,7 @@ export default class ArtistCommandAdapter implements ArtistCommandPort {
       }
 
       existing.status = status;
-      existing.updated_at = new Date(Date.now());
+      existing.updated_at = new Date();
       await this.artistRepository.save(existing);
       return Result.ok(undefined);
     } catch (error) {
@@ -105,7 +105,7 @@ export default class ArtistCommandAdapter implements ArtistCommandPort {
       }
 
       existing.status = ArtistStatus.DELETED;
-      existing.updated_at = new Date(Date.now());
+      existing.updated_at = new Date();
       await this.artistRepository.save(existing);
       return Result.ok(undefined);
     } catch (error) {
