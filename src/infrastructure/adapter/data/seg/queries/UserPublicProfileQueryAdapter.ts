@@ -1,4 +1,4 @@
-import { Repository, SelectQueryBuilder } from "typeorm";
+import { Repository, SelectQueryBuilder, Brackets } from "typeorm";
 import UserPublicProfileQueryPort from "../../../../../domain/ports/data/seg/query/UserPublicProfileQueryPort";
 import Result from "../../../../../domain/shared/Result";
 import UserFilters from "../../../../../domain/valueObjects/UserFilters";
@@ -6,6 +6,7 @@ import UserPublicProfile from "../../../../../domain/valueObjects/UserPublicProf
 import { SqlAppDataSource } from "../../../../config/con_database";
 import { UserEntity } from "../../../../entities/Sql/seg";
 import DomainEntityNotFoundError from "../../../../../domain/errors/EntityNotFoundError";
+import { UserStatus } from "../../../../../domain/models/seg/User";
 
 export default class UserPublicProfileQueryAdapter implements UserPublicProfileQueryPort {
   private userRepository: Repository<UserEntity>;
@@ -17,7 +18,7 @@ export default class UserPublicProfileQueryAdapter implements UserPublicProfileQ
   async getUserPublicProfileById(id: number): Promise<Result<UserPublicProfile>> {
     try {
       const response: UserEntity = await this.userRepository.findOneOrFail({
-        where: { id: id },
+        where: { id: id, status: UserStatus.ACTIVE },
         select: {
           id: true,
           username: true,
@@ -86,7 +87,8 @@ export default class UserPublicProfileQueryAdapter implements UserPublicProfileQ
         .createQueryBuilder("user")
         .limit(50)
         .innerJoin("user_roles", "ur", "user.id = ur.user_id")
-        .andWhere("ur.role_id = 1");
+        .andWhere("ur.role_id = 1")
+        .andWhere("user.status = :status", { status: UserStatus.ACTIVE });
 
     if (filters.includeFilters) {
       if (filters.id) queryBuilder.andWhere("user.id = :id", { id: filters.id });
@@ -96,17 +98,16 @@ export default class UserPublicProfileQueryAdapter implements UserPublicProfileQ
       if (filters.username)
         queryBuilder.andWhere("user.normalized_username like :username", { username: `${filters.username.toUpperCase()}%` });
 
-      if (filters.status)
-        queryBuilder.andWhere("user.status = :status", { status: filters.status });
     } else {
-      if (filters.id) queryBuilder.orWhere("user.id = :id", { id: filters.id });
+      queryBuilder.andWhere(new Brackets(qb => {
+        if (filters.id) qb.orWhere("user.id = :id", { id: filters.id });
 
-      if (filters.email) queryBuilder.orWhere("user.normalized_email = :email", { email: filters.email });
+        if (filters.email) qb.orWhere("user.normalized_email = :email", { email: filters.email });
 
-      if (filters.username)
-        queryBuilder.orWhere("user.normalized_username like :username", { username: `${filters.username.toUpperCase()}%` });
+        if (filters.username)
+          qb.orWhere("user.normalized_username like :username", { username: `${filters.username.toUpperCase()}%` });
 
-      if (filters.status) queryBuilder.orWhere("user.status = :status", { status: filters.status });
+      }));
     }
     return queryBuilder;
   }

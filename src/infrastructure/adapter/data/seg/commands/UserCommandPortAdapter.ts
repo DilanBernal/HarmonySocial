@@ -6,7 +6,7 @@ import Result from "../../../../../domain/shared/Result";
 import UserCommandPort from "../../../../../domain/ports/data/seg/command/UserCommandPort";
 import DomainEntityNotFoundError from "../../../../../domain/errors/EntityNotFoundError";
 
-export default class UserCommandPortAdapter implements UserCommandPort {
+export default class UserCommandAdapter implements UserCommandPort {
   private userRepository: Repository<UserEntity>;
 
   constructor() {

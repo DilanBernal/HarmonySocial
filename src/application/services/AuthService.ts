@@ -61,7 +61,7 @@ export default class AuthService {
       }
 
       const q = (requests.userOrEmail || "").trim();
-      const userExistsResponse = await this.userQueryPort.existsUserByFilters({
+      const userExistsResponse = await this.userQueryPort.existsActiveUserByFilters({
         email: q,
         username: q,
         includeFilters: false,
@@ -72,7 +72,7 @@ export default class AuthService {
         );
       }
 
-      const userResp = await this.userQueryPort.getUserByFilters({
+      const userResp = await this.userQueryPort.getActiveUserByFilters({
         email: q,
         username: q,
         includeFilters: false,

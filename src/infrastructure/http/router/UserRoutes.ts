@@ -7,7 +7,7 @@ import UserCommandPort from "../../../domain/ports/data/seg/command/UserCommandP
 import UserPublicProfileQueryPort from "../../../domain/ports/data/seg/query/UserPublicProfileQueryPort";
 import UserQueryPort from "../../../domain/ports/data/seg/query/UserQueryPort";
 import AuthAdapter from "../../adapter/data/seg/AuthAdapter";
-import UserCommandPortAdapter from "../../adapter/data/seg/commands/UserCommandPortAdapter";
+import UserCommandAdapter from "../../adapter/data/seg/commands/UserCommandPortAdapter";
 import UserPublicProfileQueryAdapter from "../../adapter/data/seg/queries/UserPublicProfileQueryAdapter";
 import UserQueryAdapter from "../../adapter/data/seg/queries/UserQueryAdapter";
 import RoleAdapter from "../../adapter/data/seg/RoleAdapter";
@@ -28,7 +28,7 @@ import { validateRequest } from "../middleware/validateRequest";
 
 const router = Router();
 
-const userCommandAdapter: UserCommandPort = new UserCommandPortAdapter();
+const userCommandAdapter: UserCommandPort = new UserCommandAdapter();
 const userQueryAdapter: UserQueryPort = new UserQueryAdapter();
 const userPubliProfileAtapter: UserPublicProfileQueryPort = new UserPublicProfileQueryAdapter();
 const authAdapter = new AuthAdapter();
@@ -68,6 +68,7 @@ const userController = new UserController(
 
 router.post("/login", validateRequest(loginSchema), async (req: Request, res: Response) => {
   try {
+    loggerAdapter.debug(req.body)
     await userController.loginUser(req, res);
   } catch (error: any) {
     console.error("Error en login: ", error);
@@ -76,7 +77,9 @@ router.post("/login", validateRequest(loginSchema), async (req: Request, res: Re
 });
 
 router.post("/register", validateRequest(registerSchema), async (request, response) => {
+
   try {
+    loggerAdapter.debug(request.body)
     await userController.registerUser(request, response);
   } catch (error: any) {
     console.error("Error en usuario: ", error);

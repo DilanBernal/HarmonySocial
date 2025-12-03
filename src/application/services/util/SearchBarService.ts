@@ -13,22 +13,26 @@ export default class SearchBarService {
   async search(req: string) {
     try {
       const promises: Promise<any>[] = [
-        this.userQueryPort.searchUsersPublicProfileByFilters({ username: req, includeFilters: false }),
-        this.artistQueryPort.searchByFilters({ includeFilters: false, artistName: req }),
+        this.userQueryPort.searchUsersPublicProfileByFilters({ username: req, includeFilters: true }),
+        this.artistQueryPort.searchByFilters({ includeFilters: true, artistName: req }),
+        this.songQueryPort.searchByFilters({ includeFilters: false, genre: req, title: req })
       ];
 
-      const [userResult, artistResult] = await Promise.allSettled(promises);
+      const [userResult, artistResult, songResult] = await Promise.allSettled(promises);
 
       let users: UserPublicProfile[] = [];
       let artists: Artist[] = [];
+      let songs: Song[] = [];
 
       if (userResult.status === "fulfilled" && userResult.value.isSuccess === true) {
         users = userResult.value.value;
       }
 
-      console.log(artistResult);
       if (artistResult.status === "fulfilled" && artistResult.value.isSuccess === true) {
         artists = artistResult.value.value;
+      }
+      if (songResult.status === "fulfilled" && songResult.value.isSuccess === true) {
+        songs = songResult.value.value;
       }
       let results: {
         users: UserPublicProfile[],
