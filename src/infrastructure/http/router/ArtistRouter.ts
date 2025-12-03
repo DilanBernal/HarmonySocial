@@ -5,7 +5,8 @@ import {
 } from "../middleware/authorizationMiddleware";
 import ArtistService from "../../../application/services/ArtistService";
 import { CorePermission } from "../../../domain/models/seg/Permission";
-import ArtistAdapter from "../../adapter/data/music/ArtistAdapter";
+import ArtistQueryAdapter from "../../adapter/data/music/ArtistQueryAdapter";
+import ArtistCommandAdapter from "../../adapter/data/music/ArtistCommandAdapter";
 import RoleAdapter from "../../adapter/data/seg/RoleAdapter";
 import UserRoleAdapter from "../../adapter/data/seg/UserRoleAdapter";
 import LoggerAdapter from "../../adapter/utils/LoggerAdapter";
@@ -19,11 +20,12 @@ import { validatePaginatedRequest } from "../middleware/validatePaginatedRequest
 import { validateRequest } from "../middleware/validateRequest";
 
 const router = Router();
-const adapter = new ArtistAdapter();
+const queryAdapter = new ArtistQueryAdapter();
+const commandAdapter = new ArtistCommandAdapter();
 const logger = new LoggerAdapter();
 const roleAdapter = new RoleAdapter();
 const userRoleAdapter = new UserRoleAdapter();
-const service = new ArtistService(adapter, logger, roleAdapter, userRoleAdapter);
+const service = new ArtistService(queryAdapter, commandAdapter, logger, roleAdapter, userRoleAdapter);
 const controller = new ArtistController(service, logger);
 
 // Public endpoint: allows anyone to submit an artist request (stays PENDING)

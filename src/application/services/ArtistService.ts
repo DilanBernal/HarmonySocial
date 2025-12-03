@@ -1,7 +1,8 @@
 import { ApplicationResponse } from "../shared/ApplicationReponse";
 import { ApplicationError, ErrorCodes } from "../shared/errors/ApplicationError";
 import Artist, { ArtistStatus } from "../../domain/models/music/Artist";
-import ArtistPort from "../../domain/ports/data/music/ArtistPort";
+import ArtistQueryPort from "../../domain/ports/data/music/query/ArtistQueryPort";
+import ArtistCommandPort from "../../domain/ports/data/music/command/ArtistCommandPort";
 import { ArtistSearchFilters } from "../dto/requests/Artist/ArtistSearchFilters";
 import ArtistCreateRequest from "../dto/requests/Artist/ArtistCreateRequest";
 import ArtistUpdateRequest from "../dto/requests/Artist/ArtistUpdateRequest";
@@ -11,10 +12,12 @@ import RolePort from "../../domain/ports/data/seg/RolePort";
 import UserRolePort from "../../domain/ports/data/seg/UserRolePort";
 import PaginationRequest from "../dto/utils/PaginationRequest";
 import PaginationResponse from "../dto/utils/PaginationResponse";
+import ArtistFilters from "../../domain/valueObjects/ArtistFilters";
 
 export default class ArtistService {
   constructor(
-    private port: ArtistPort,
+    private queryPort: ArtistQueryPort,
+    private commandPort: ArtistCommandPort,
     private logger: LoggerPort,
     private rolePort: RolePort,
     private userRolePort: UserRolePort,
@@ -40,7 +43,13 @@ export default class ArtistService {
         request.country_code?.trim(),
         ArtistStatus.PENDING,
       );
-      return await this.port.create(artist);
+      const result = await this.commandPort.create(artist);
+      if (!result.isSuccess) {
+        return ApplicationResponse.failure(
+          new ApplicationError("Error al crear artista", ErrorCodes.DATABASE_ERROR, undefined, result.error),
+        );
+      }
+      return ApplicationResponse.success(result.getValue());
     } catch (error) {
       return this.handleUnexpected(error, "crear artista");
     }
@@ -63,7 +72,13 @@ export default class ArtistService {
         request.country_code?.trim(),
         ArtistStatus.ACTIVE,
       );
-      return await this.port.create(artist);
+      const result = await this.commandPort.create(artist);
+      if (!result.isSuccess) {
+        return ApplicationResponse.failure(
+          new ApplicationError("Error al crear artista", ErrorCodes.DATABASE_ERROR, undefined, result.error),
+        );
+      }
+      return ApplicationResponse.success(result.getValue());
     } catch (error) {
       return this.handleUnexpected(error, "crear artista por admin");
     }
@@ -81,8 +96,8 @@ export default class ArtistService {
       );
     }
     try {
-      const exists = await this.port.existsById(id);
-      if (!exists.success || !exists.data) {
+      const existsResult = await this.queryPort.existsById(id);
+      if (!existsResult.isSuccess || !existsResult.getValue()) {
         return ApplicationResponse.failure(
           new ApplicationError("Artista no encontrado", ErrorCodes.VALUE_NOT_FOUND),
         );
@@ -94,7 +109,13 @@ export default class ArtistService {
       if (request.country_code !== undefined)
         updateData.countryCode = request.country_code?.trim();
       // status changes not allowed here
-      return await this.port.update(id, updateData);
+      const result = await this.commandPort.update(id, updateData);
+      if (!result.isSuccess) {
+        return ApplicationResponse.failure(
+          new ApplicationError("Error al actualizar artista", ErrorCodes.DATABASE_ERROR, undefined, result.error),
+        );
+      }
+      return ApplicationResponse.emptySuccess();
     } catch (error) {
       return this.handleUnexpected(error, "actualizar artista");
     }
@@ -107,14 +128,13 @@ export default class ArtistService {
       );
     }
     try {
-      const result = await this.port.findById(id);
-      if (!result.success) return result as any;
-      if (!result.data) {
+      const result = await this.queryPort.findById(id);
+      if (!result.isSuccess) {
         return ApplicationResponse.failure(
           new ApplicationError("Artista no encontrado", ErrorCodes.VALUE_NOT_FOUND),
         );
       }
-      return ApplicationResponse.success(this.mapToResponse(result.data));
+      return ApplicationResponse.success(this.mapToResponse(result.getValue()));
     } catch (error) {
       return this.handleUnexpected(error, "obtener artista");
     }
@@ -122,10 +142,33 @@ export default class ArtistService {
 
   async search(filters: PaginationRequest<ArtistSearchFilters>): Promise<ApplicationResponse<PaginationResponse<ArtistResponse>>> {
     try {
-      const result = await this.port.searchPaginated(filters);
-      if (!result.success) return result as any;
+      const artistFilters: ArtistFilters = {
+        includeFilters: false,
+        artistName: filters.filters?.name,
+        countryCode: filters.filters?.country,
+        formationYear: filters.filters?.formationYear ? parseInt(filters.filters.formationYear, 10) : undefined,
+      };
+      
+      const result = await this.queryPort.searchByFilters(artistFilters);
+      if (!result.isSuccess) {
+        return ApplicationResponse.failure(
+          new ApplicationError("Error al buscar artistas", ErrorCodes.DATABASE_ERROR, undefined, result.error),
+        );
+      }
 
-      return ApplicationResponse.success(result.data! as any);
+      const artists = result.getValue();
+      const pageSize = filters.page_size ?? 5;
+      const pageNumber = filters.page_number ?? 0;
+      const start = pageNumber * pageSize;
+      const paginatedArtists = artists.slice(start, start + pageSize);
+      
+      const response = PaginationResponse.create(
+        paginatedArtists.map(a => this.mapToResponse(a)),
+        paginatedArtists.length,
+        artists.length
+      );
+
+      return ApplicationResponse.success(response);
     } catch (error) {
       return this.handleUnexpected(error, "buscar artistas");
     }
@@ -133,13 +176,19 @@ export default class ArtistService {
 
   async logicalDelete(id: number): Promise<ApplicationResponse> {
     try {
-      const exists = await this.port.existsById(id);
-      if (!exists.success || !exists.data) {
+      const existsResult = await this.queryPort.existsById(id);
+      if (!existsResult.isSuccess || !existsResult.getValue()) {
         return ApplicationResponse.failure(
           new ApplicationError("Artista no encontrado", ErrorCodes.VALUE_NOT_FOUND),
         );
       }
-      return await this.port.updateStatus(id, ArtistStatus.DELETED);
+      const result = await this.commandPort.logicalDelete(id);
+      if (!result.isSuccess) {
+        return ApplicationResponse.failure(
+          new ApplicationError("Error al eliminar artista", ErrorCodes.DATABASE_ERROR, undefined, result.error),
+        );
+      }
+      return ApplicationResponse.emptySuccess();
     } catch (error) {
       return this.handleUnexpected(error, "eliminar artista");
     }
@@ -147,14 +196,14 @@ export default class ArtistService {
 
   async accept(id: number): Promise<ApplicationResponse> {
     try {
-      const artistResp = await this.port.findById(id);
-      if (!artistResp.success) return artistResp as any;
-      if (!artistResp.data) {
+      const artistResult = await this.queryPort.findById(id);
+      if (!artistResult.isSuccess) {
         return ApplicationResponse.failure(
           new ApplicationError("Artista no encontrado", ErrorCodes.VALUE_NOT_FOUND),
         );
       }
-      if (artistResp.data.status !== ArtistStatus.PENDING) {
+      const artist = artistResult.getValue();
+      if (artist.status !== ArtistStatus.PENDING) {
         return ApplicationResponse.failure(
           new ApplicationError(
             "Solo se puede aceptar un artista en estado PENDING",
@@ -162,10 +211,14 @@ export default class ArtistService {
           ),
         );
       }
-      const statusResp = await this.port.updateStatus(id, ArtistStatus.ACTIVE);
-      if (!statusResp.success) return statusResp;
+      const statusResult = await this.commandPort.updateStatus(id, ArtistStatus.ACTIVE);
+      if (!statusResult.isSuccess) {
+        return ApplicationResponse.failure(
+          new ApplicationError("Error al aceptar artista", ErrorCodes.DATABASE_ERROR, undefined, statusResult.error),
+        );
+      }
       // asignar rol artist si existe user vinculado
-      const userId = artistResp.data.artistUserId;
+      const userId = artist.artistUserId;
       if (userId) {
         try {
           const artistRole = await this.rolePort.findByName("artist");
@@ -178,7 +231,7 @@ export default class ArtistService {
           this.logger.error("Error asignando rol artist tras aceptación", [(e as any)?.message]);
         }
       }
-      return statusResp;
+      return ApplicationResponse.emptySuccess();
     } catch (error) {
       return this.handleUnexpected(error, "aceptar artista");
     }
@@ -186,14 +239,14 @@ export default class ArtistService {
 
   async reject(id: number): Promise<ApplicationResponse> {
     try {
-      const artistResp = await this.port.findById(id);
-      if (!artistResp.success) return artistResp as any;
-      if (!artistResp.data) {
+      const artistResult = await this.queryPort.findById(id);
+      if (!artistResult.isSuccess) {
         return ApplicationResponse.failure(
           new ApplicationError("Artista no encontrado", ErrorCodes.VALUE_NOT_FOUND),
         );
       }
-      if (artistResp.data.status !== ArtistStatus.PENDING) {
+      const artist = artistResult.getValue();
+      if (artist.status !== ArtistStatus.PENDING) {
         return ApplicationResponse.failure(
           new ApplicationError(
             "Solo se puede rechazar un artista en estado PENDING",
@@ -201,7 +254,13 @@ export default class ArtistService {
           ),
         );
       }
-      return await this.port.updateStatus(id, ArtistStatus.REJECTED);
+      const result = await this.commandPort.updateStatus(id, ArtistStatus.REJECTED);
+      if (!result.isSuccess) {
+        return ApplicationResponse.failure(
+          new ApplicationError("Error al rechazar artista", ErrorCodes.DATABASE_ERROR, undefined, result.error),
+        );
+      }
+      return ApplicationResponse.emptySuccess();
     } catch (error) {
       return this.handleUnexpected(error, "rechazar artista");
     }
