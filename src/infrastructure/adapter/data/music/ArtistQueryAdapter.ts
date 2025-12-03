@@ -5,35 +5,57 @@ import Result from "../../../../domain/shared/Result";
 import ArtistFilters from "../../../../domain/valueObjects/ArtistFilters";
 import { SqlAppDataSource } from "../../../config/con_database";
 import { ArtistEntity } from "../../../entities/Sql/music";
-``
+
 export default class ArtistQueryAdapter implements ArtistQueryPort {
   private artistRepository: Repository<ArtistEntity>;
   constructor() {
     this.artistRepository = SqlAppDataSource.getRepository(ArtistEntity);
   }
-  findById(id: number): Promise<Result<Artist>> {
 
-    /**
-     * @todo 
-     * * Implementar la busqueda por ID de un artista en especifico manejando los errores
+  /**
+   * Busca un artista por su ID
+   * @param id ID del artista
+   */
+  async findById(id: number): Promise<Result<Artist>> {
+    try {
+      const entity = await this.artistRepository.findOne({ where: { id } });
+      if (!entity) {
+        return Result.fail(new Error("Artista no encontrado"));
+      }
+      return Result.ok(entity.toDomain());
+    } catch (error) {
+      if (error instanceof Error) {
+        return Result.fail(error);
+      }
+      throw error;
+    }
+  }
 
-     */
-    throw new Error("Method not implemented.");
+  /**
+   * Busca un artista individual siguiendo los parámetros de los filtros
+   * @param filters Filtros para la búsqueda
+   */
+  async findByFilters(filters: ArtistFilters): Promise<Result<Artist>> {
+    try {
+      const queryBuilder = this.applyFilters(filters);
+      const entity = await queryBuilder.getOne();
+      if (!entity) {
+        return Result.fail(new Error("Artista no encontrado"));
+      }
+      return Result.ok(entity.toDomain());
+    } catch (error) {
+      if (error instanceof Error) {
+        return Result.fail(error);
+      }
+      throw error;
+    }
   }
-  findByFilters(filters: ArtistFilters): Promise<Result<Artist>> {
-    /**
-     * @todo
-     * * Implementar la busqueda de una cancion individual siguiendo los parametros de los filtros
-     */
-    throw new Error("Method not implemented.");
-  }
+
+  /**
+   * Busca artistas aplicando los filtros especificados
+   * @param filters Filtros para la búsqueda
+   */
   async searchByFilters(filters: ArtistFilters): Promise<Result<Artist[]>> {
-    /**
-  * @todo
-  * * Mejorar el manejo de errores
-  * * crear un valueObject en el domain para mostrar la informacion publica de el artista, se podria llamar ArtistPublicInfo, los campos que NO irian serian created_at, updated_at, user_id y status
-  *   * En base a el value object crear un puerto especifico para traer la informacion publica como se hace ya con la informacion publica del usuario con UserPublicProfileQueryPort, en el adaptador se van a buscar los artistas unicamente que esten con el status en 'ACTIVE'
-  */
     try {
       const qb = this.applyFilters(filters);
       const result = await qb.getMany();
@@ -45,20 +67,38 @@ export default class ArtistQueryAdapter implements ArtistQueryPort {
       throw error;
     }
   }
-  existsById(id: number): Promise<Result<boolean>> {
 
-    /**
-     * @todo
-     * * Logica para validar si la cancion existe por un id especifico
-     */
-    throw new Error("Method not implemented.");
+  /**
+   * Valida si un artista existe por un ID específico
+   * @param id ID del artista
+   */
+  async existsById(id: number): Promise<Result<boolean>> {
+    try {
+      const count = await this.artistRepository.count({ where: { id } });
+      return Result.ok(count > 0);
+    } catch (error) {
+      if (error instanceof Error) {
+        return Result.fail(error);
+      }
+      throw error;
+    }
   }
-  existsByFilters(filters: ArtistFilters): Promise<Result<boolean>> {
-    /**
-     * @todo
-     * * Logica para validar si la cancion existe por un os filtros especificos
-     */
-    throw new Error("Method not implemented.");
+
+  /**
+   * Valida si un artista existe según los filtros especificados
+   * @param filters Filtros para la búsqueda
+   */
+  async existsByFilters(filters: ArtistFilters): Promise<Result<boolean>> {
+    try {
+      const queryBuilder = this.applyFilters(filters);
+      const count = await queryBuilder.getCount();
+      return Result.ok(count > 0);
+    } catch (error) {
+      if (error instanceof Error) {
+        return Result.fail(error);
+      }
+      throw error;
+    }
   }
 
 

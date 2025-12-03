@@ -1,5 +1,6 @@
 import ArtistService from "../../../../src/application/services/ArtistService";
-import ArtistPort from "../../../../src/domain/ports/data/music/ArtistPort";
+import ArtistQueryPort from "../../../../src/domain/ports/data/music/query/ArtistQueryPort";
+import ArtistCommandPort from "../../../../src/domain/ports/data/music/command/ArtistCommandPort";
 import LoggerPort from "../../../../src/domain/ports/utils/LoggerPort";
 import RolePort from "../../../../src/domain/ports/data/seg/RolePort";
 import UserRolePort from "../../../../src/domain/ports/data/seg/UserRolePort";
@@ -7,12 +8,12 @@ import Artist, { ArtistStatus } from "../../../../src/domain/models/music/Artist
 import Role from "../../../../src/domain/models/seg/Role";
 import ArtistCreateRequest from "../../../../src/application/dto/requests/Artist/ArtistCreateRequest";
 import ArtistUpdateRequest from "../../../../src/application/dto/requests/Artist/ArtistUpdateRequest";
-import { ApplicationResponse } from "../../../../src/application/shared/ApplicationReponse";
-import { ApplicationError, ErrorCodes } from "../../../../src/application/shared/errors/ApplicationError";
+import { ErrorCodes } from "../../../../src/application/shared/errors/ApplicationError";
 import PaginationRequest from "../../../../src/application/dto/utils/PaginationRequest";
-import PaginationResponse from "../../../../src/application/dto/utils/PaginationResponse";
+import Result from "../../../../src/domain/shared/Result";
 
-import createArtistPortMock from "../../mocks/ports/data/music/ArtistPort.mock";
+import createArtistQueryPortMock from "../../mocks/ports/data/music/ArtistQueryPort.mock";
+import createArtistCommandPortMock from "../../mocks/ports/data/music/ArtistCommandPort.mock";
 import createLoggerPort from "../../mocks/ports/extra/LoggerPort.mock";
 import createRolePortMock from "../../mocks/ports/data/seg/RolePort.mock";
 import createUserRolePortMock from "../../mocks/ports/data/seg/UserRolePort.mock";
@@ -57,7 +58,8 @@ const createTestRole = (
 
 describe("ArtistService", () => {
   let artistService: ArtistService;
-  let mockArtistPort: jest.Mocked<ArtistPort>;
+  let mockArtistQueryPort: jest.Mocked<ArtistQueryPort>;
+  let mockArtistCommandPort: jest.Mocked<ArtistCommandPort>;
   let mockLoggerPort: jest.Mocked<LoggerPort>;
   let mockRolePort: jest.Mocked<RolePort>;
   let mockUserRolePort: jest.Mocked<UserRolePort>;
@@ -65,13 +67,15 @@ describe("ArtistService", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockArtistPort = createArtistPortMock();
+    mockArtistQueryPort = createArtistQueryPortMock();
+    mockArtistCommandPort = createArtistCommandPortMock();
     mockLoggerPort = createLoggerPort();
     mockRolePort = createRolePortMock();
     mockUserRolePort = createUserRolePortMock();
 
     artistService = new ArtistService(
-      mockArtistPort,
+      mockArtistQueryPort,
+      mockArtistCommandPort,
       mockLoggerPort,
       mockRolePort,
       mockUserRolePort
@@ -88,13 +92,13 @@ describe("ArtistService", () => {
           country_code: "USA",
         };
 
-        mockArtistPort.create.mockResolvedValue(ApplicationResponse.success(4));
+        mockArtistCommandPort.create.mockResolvedValue(Result.ok(4));
 
         const result = await artistService.create(request, 1);
 
         expect(result.success).toBe(true);
         expect(result.data).toBe(4);
-        expect(mockArtistPort.create).toHaveBeenCalledWith(
+        expect(mockArtistCommandPort.create).toHaveBeenCalledWith(
           expect.objectContaining({
             artistName: "New Artist",
             biography: "A new artist biography",
@@ -115,12 +119,12 @@ describe("ArtistService", () => {
           country_code: "MXX",
         };
 
-        mockArtistPort.create.mockResolvedValue(ApplicationResponse.success(5));
+        mockArtistCommandPort.create.mockResolvedValue(Result.ok(5));
 
         const result = await artistService.create(request);
 
         expect(result.success).toBe(true);
-        expect(mockArtistPort.create).toHaveBeenCalledWith(
+        expect(mockArtistCommandPort.create).toHaveBeenCalledWith(
           expect.objectContaining({
             artistUserId: undefined,
           })
@@ -135,11 +139,11 @@ describe("ArtistService", () => {
           country_code: "  COL  ",
         };
 
-        mockArtistPort.create.mockResolvedValue(ApplicationResponse.success(6));
+        mockArtistCommandPort.create.mockResolvedValue(Result.ok(6));
 
         await artistService.create(request, 1);
 
-        expect(mockArtistPort.create).toHaveBeenCalledWith(
+        expect(mockArtistCommandPort.create).toHaveBeenCalledWith(
           expect.objectContaining({
             artistName: "Spaced Artist",
             biography: "Biography with spaces",
@@ -188,7 +192,7 @@ describe("ArtistService", () => {
           formation_year: 2022,
         };
 
-        mockArtistPort.create.mockRejectedValue(new Error("Database error"));
+        mockArtistCommandPort.create.mockRejectedValue(new Error("Database error"));
 
         const result = await artistService.create(request);
 
@@ -208,12 +212,12 @@ describe("ArtistService", () => {
           country_code: "USA",
         };
 
-        mockArtistPort.create.mockResolvedValue(ApplicationResponse.success(7));
+        mockArtistCommandPort.create.mockResolvedValue(Result.ok(7));
 
         const result = await artistService.createAsAdmin(request);
 
         expect(result.success).toBe(true);
-        expect(mockArtistPort.create).toHaveBeenCalledWith(
+        expect(mockArtistCommandPort.create).toHaveBeenCalledWith(
           expect.objectContaining({
             verified: true,
             status: ArtistStatus.ACTIVE,
@@ -241,13 +245,13 @@ describe("ArtistService", () => {
           biography: "Updated biography",
         };
 
-        mockArtistPort.existsById.mockResolvedValue(ApplicationResponse.success(true));
-        mockArtistPort.update.mockResolvedValue(ApplicationResponse.emptySuccess());
+        mockArtistQueryPort.existsById.mockResolvedValue(Result.ok(true));
+        mockArtistCommandPort.update.mockResolvedValue(Result.ok(undefined));
 
         const result = await artistService.update(1, request);
 
         expect(result.success).toBe(true);
-        expect(mockArtistPort.update).toHaveBeenCalledWith(
+        expect(mockArtistCommandPort.update).toHaveBeenCalledWith(
           1,
           expect.objectContaining({
             artistName: "Updated Artist Name",
@@ -261,12 +265,12 @@ describe("ArtistService", () => {
           biography: "Only biography updated",
         };
 
-        mockArtistPort.existsById.mockResolvedValue(ApplicationResponse.success(true));
-        mockArtistPort.update.mockResolvedValue(ApplicationResponse.emptySuccess());
+        mockArtistQueryPort.existsById.mockResolvedValue(Result.ok(true));
+        mockArtistCommandPort.update.mockResolvedValue(Result.ok(undefined));
 
         await artistService.update(1, request);
 
-        expect(mockArtistPort.update).toHaveBeenCalledWith(
+        expect(mockArtistCommandPort.update).toHaveBeenCalledWith(
           1,
           expect.objectContaining({
             biography: "Only biography updated",
@@ -300,7 +304,7 @@ describe("ArtistService", () => {
       });
 
       it("debe fallar si el artista no existe", async () => {
-        mockArtistPort.existsById.mockResolvedValue(ApplicationResponse.success(false));
+        mockArtistQueryPort.existsById.mockResolvedValue(Result.ok(false));
 
         const result = await artistService.update(999, { artist_name: "Test" });
 
@@ -314,8 +318,8 @@ describe("ArtistService", () => {
   describe("getById", () => {
     describe("Casos Exitosos", () => {
       it("debe obtener un artista por ID exitosamente", async () => {
-        mockArtistPort.findById.mockResolvedValue(
-          ApplicationResponse.success(
+        mockArtistQueryPort.findById.mockResolvedValue(
+          Result.ok(
             createTestArtist(1, "Test Artist", true, 2020, ArtistStatus.ACTIVE, undefined, "Test bio", "USA", new Date("2023-01-01"), new Date("2023-06-01"))
           )
         );
@@ -337,8 +341,8 @@ describe("ArtistService", () => {
       });
 
       it("debe fallar si el artista no existe", async () => {
-        mockArtistPort.findById.mockResolvedValue(
-          ApplicationResponse.success(null as any)
+        mockArtistQueryPort.findById.mockResolvedValue(
+          Result.fail(new Error("Artista no encontrado"))
         );
 
         const result = await artistService.getById(999);
@@ -353,16 +357,10 @@ describe("ArtistService", () => {
     it("debe buscar artistas con paginación", async () => {
       const filters = PaginationRequest.create({}, 10);
 
-      mockArtistPort.searchPaginated.mockResolvedValue(
-        ApplicationResponse.success(
-          PaginationResponse.create(
-            [
-              createTestArtist(1, "Artist 1", true, 2020, ArtistStatus.ACTIVE, undefined, "Bio", "USA"),
-            ],
-            1,
-            1
-          )
-        )
+      mockArtistQueryPort.searchByFilters.mockResolvedValue(
+        Result.ok([
+          createTestArtist(1, "Artist 1", true, 2020, ArtistStatus.ACTIVE, undefined, "Bio", "USA"),
+        ])
       );
 
       const result = await artistService.search(filters);
@@ -374,7 +372,7 @@ describe("ArtistService", () => {
     it("debe manejar excepciones inesperadas", async () => {
       const filters = PaginationRequest.create({}, 10);
 
-      mockArtistPort.searchPaginated.mockRejectedValue(new Error("DB error"));
+      mockArtistQueryPort.searchByFilters.mockRejectedValue(new Error("DB error"));
 
       const result = await artistService.search(filters);
 
@@ -386,19 +384,19 @@ describe("ArtistService", () => {
   describe("logicalDelete", () => {
     describe("Casos Exitosos", () => {
       it("debe eliminar lógicamente un artista", async () => {
-        mockArtistPort.existsById.mockResolvedValue(ApplicationResponse.success(true));
-        mockArtistPort.updateStatus.mockResolvedValue(ApplicationResponse.emptySuccess());
+        mockArtistQueryPort.existsById.mockResolvedValue(Result.ok(true));
+        mockArtistCommandPort.logicalDelete.mockResolvedValue(Result.ok(undefined));
 
         const result = await artistService.logicalDelete(1);
 
         expect(result.success).toBe(true);
-        expect(mockArtistPort.updateStatus).toHaveBeenCalledWith(1, ArtistStatus.DELETED);
+        expect(mockArtistCommandPort.logicalDelete).toHaveBeenCalledWith(1);
       });
     });
 
     describe("Casos de Error", () => {
       it("debe fallar si el artista no existe", async () => {
-        mockArtistPort.existsById.mockResolvedValue(ApplicationResponse.success(false));
+        mockArtistQueryPort.existsById.mockResolvedValue(Result.ok(false));
 
         const result = await artistService.logicalDelete(999);
 
@@ -411,12 +409,12 @@ describe("ArtistService", () => {
   describe("accept", () => {
     describe("Casos Exitosos", () => {
       it("debe aceptar un artista pendiente y asignar rol", async () => {
-        mockArtistPort.findById.mockResolvedValue(
-          ApplicationResponse.success(
+        mockArtistQueryPort.findById.mockResolvedValue(
+          Result.ok(
             createTestArtist(2, "Pending Artist", false, 2021, ArtistStatus.PENDING, 2, "Bio", "MEX")
           )
         );
-        mockArtistPort.updateStatus.mockResolvedValue(ApplicationResponse.emptySuccess());
+        mockArtistCommandPort.updateStatus.mockResolvedValue(Result.ok(undefined));
         mockRolePort.findByName.mockResolvedValue(
           createTestRole(2, "artist", "Artist role")
         );
@@ -425,17 +423,17 @@ describe("ArtistService", () => {
         const result = await artistService.accept(2);
 
         expect(result.success).toBe(true);
-        expect(mockArtistPort.updateStatus).toHaveBeenCalledWith(2, ArtistStatus.ACTIVE);
+        expect(mockArtistCommandPort.updateStatus).toHaveBeenCalledWith(2, ArtistStatus.ACTIVE);
         expect(mockUserRolePort.assignRoleToUser).toHaveBeenCalledWith(2, 2);
       });
 
       it("debe aceptar artista sin usuario vinculado", async () => {
-        mockArtistPort.findById.mockResolvedValue(
-          ApplicationResponse.success(
+        mockArtistQueryPort.findById.mockResolvedValue(
+          Result.ok(
             createTestArtist(3, "Admin Artist", false, 2019, ArtistStatus.PENDING, undefined, "Bio", "COL")
           )
         );
-        mockArtistPort.updateStatus.mockResolvedValue(ApplicationResponse.emptySuccess());
+        mockArtistCommandPort.updateStatus.mockResolvedValue(Result.ok(undefined));
 
         const result = await artistService.accept(3);
 
@@ -446,8 +444,8 @@ describe("ArtistService", () => {
 
     describe("Casos de Error", () => {
       it("debe fallar si el artista no existe", async () => {
-        mockArtistPort.findById.mockResolvedValue(
-          ApplicationResponse.success(null as any)
+        mockArtistQueryPort.findById.mockResolvedValue(
+          Result.fail(new Error("Artista no encontrado"))
         );
 
         const result = await artistService.accept(999);
@@ -457,8 +455,8 @@ describe("ArtistService", () => {
       });
 
       it("debe fallar si el artista no está pendiente", async () => {
-        mockArtistPort.findById.mockResolvedValue(
-          ApplicationResponse.success(
+        mockArtistQueryPort.findById.mockResolvedValue(
+          Result.ok(
             createTestArtist(1, "Active Artist", true, 2020, ArtistStatus.ACTIVE, undefined, "Bio", "USA", new Date(), new Date())
           )
         );
@@ -471,12 +469,12 @@ describe("ArtistService", () => {
       });
 
       it("debe manejar caso cuando rol artist no existe", async () => {
-        mockArtistPort.findById.mockResolvedValue(
-          ApplicationResponse.success(
+        mockArtistQueryPort.findById.mockResolvedValue(
+          Result.ok(
             createTestArtist(2, "Pending Artist", false, 2021, ArtistStatus.PENDING, 2, "Bio", "MEX")
           )
         );
-        mockArtistPort.updateStatus.mockResolvedValue(ApplicationResponse.emptySuccess());
+        mockArtistCommandPort.updateStatus.mockResolvedValue(Result.ok(undefined));
         mockRolePort.findByName.mockResolvedValue(null);
 
         const result = await artistService.accept(2);
@@ -492,24 +490,24 @@ describe("ArtistService", () => {
   describe("reject", () => {
     describe("Casos Exitosos", () => {
       it("debe rechazar un artista pendiente", async () => {
-        mockArtistPort.findById.mockResolvedValue(
-          ApplicationResponse.success(
+        mockArtistQueryPort.findById.mockResolvedValue(
+          Result.ok(
             createTestArtist(2, "Pending Artist", false, 2021, ArtistStatus.PENDING, undefined, "Bio", "MXZ")
           )
         );
-        mockArtistPort.updateStatus.mockResolvedValue(ApplicationResponse.emptySuccess());
+        mockArtistCommandPort.updateStatus.mockResolvedValue(Result.ok(undefined));
 
         const result = await artistService.reject(2);
 
         expect(result.success).toBe(true);
-        expect(mockArtistPort.updateStatus).toHaveBeenCalledWith(2, ArtistStatus.REJECTED);
+        expect(mockArtistCommandPort.updateStatus).toHaveBeenCalledWith(2, ArtistStatus.REJECTED);
       });
     });
 
     describe("Casos de Error", () => {
       it("debe fallar si el artista no existe", async () => {
-        mockArtistPort.findById.mockResolvedValue(
-          ApplicationResponse.success(null as any)
+        mockArtistQueryPort.findById.mockResolvedValue(
+          Result.fail(new Error("Artista no encontrado"))
         );
 
         const result = await artistService.reject(999);
@@ -519,8 +517,8 @@ describe("ArtistService", () => {
       });
 
       it("debe fallar si el artista no está pendiente", async () => {
-        mockArtistPort.findById.mockResolvedValue(
-          ApplicationResponse.success(
+        mockArtistQueryPort.findById.mockResolvedValue(
+          Result.ok(
             createTestArtist(1, "Active Artist", true, 2020, ArtistStatus.ACTIVE, undefined, "Bio", "USA", new Date(), new Date())
           )
         );

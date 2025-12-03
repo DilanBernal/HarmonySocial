@@ -1,4 +1,4 @@
-import { Repository, SelectQueryBuilder } from "typeorm";
+import { Brackets, Repository, SelectQueryBuilder } from "typeorm";
 import Song from "../../../../domain/models/music/Song";
 import SongQueryPort from "../../../../domain/ports/data/music/query/SongQueryPort";
 import Result from "../../../../domain/shared/Result";
@@ -14,36 +14,52 @@ export default class SongQueryAdapter implements SongQueryPort {
   }
 
   /**
-   * 
-   * @param id id de el usuario
-
+   * Busca una canción por su ID
+   * @param id ID de la canción
    */
   async findById(id: number): Promise<Result<Song>> {
-    /**
-     * @todo 
-     * * Implementar la busqueda por ID de una cancion en especifica manejando los errores
-
-     */
-    throw new Error("Method not implemented.");
-  }
-  async findByFilters(filters: SongFilters): Promise<Result<Song>> {
-    /**
-     * @todo
-     * * Implementar la busqueda de una cancion individual siguiendo los parametros de los filtros
-     */
-    throw new Error("Method not implemented.");
-  }
-  async searchByFilters(filters: SongFilters): Promise<Result<Song[]>> {
-    /**
-     * @todo
-     * * Mejorar el manejo de errores
-     * * crear un valueObject en el domain para mostrar la informacion publica de la cancion, se podria llamar PublicSong, los campos que NO irian serian created_at, updated_at
-     * * Aplicar los filtros con el metodo applyFilters de esta clase
-     */
     try {
-      const result = await this.songRepository.find();
-      console.log(result);
+      const entity = await this.songRepository.findOne({ where: { id } });
+      if (!entity) {
+        return Result.fail(new Error("Canción no encontrada"));
+      }
+      return Result.ok(entity.toDomain());
+    } catch (error) {
+      if (error instanceof Error) {
+        return Result.fail(error);
+      }
+      throw error;
+    }
+  }
 
+  /**
+   * Busca una canción individual siguiendo los parámetros de los filtros
+   * @param filters Filtros para la búsqueda
+   */
+  async findByFilters(filters: SongFilters): Promise<Result<Song>> {
+    try {
+      const queryBuilder = this.applyFilters(filters);
+      const entity = await queryBuilder.getOne();
+      if (!entity) {
+        return Result.fail(new Error("Canción no encontrada"));
+      }
+      return Result.ok(entity.toDomain());
+    } catch (error) {
+      if (error instanceof Error) {
+        return Result.fail(error);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Busca canciones aplicando los filtros especificados
+   * @param filters Filtros para la búsqueda
+   */
+  async searchByFilters(filters: SongFilters): Promise<Result<Song[]>> {
+    try {
+      const queryBuilder = this.applyFilters(filters);
+      const result = await queryBuilder.getMany();
       return Result.ok(result.map(x => x.toDomain()));
     } catch (error) {
       if (error instanceof Error) {
@@ -52,19 +68,40 @@ export default class SongQueryAdapter implements SongQueryPort {
       throw error;
     }
   }
+
+  /**
+   * Busca canciones por el ID del usuario
+   * @param userId ID del usuario
+   */
   async searchByUser(userId: number): Promise<Result<Song[]>> {
-    /**
-     * @todo
-     * * Realizar la logica para buscar el usuario por un id de usuario siguiendo la propiedad user_id
-     */
-    throw new Error("Method not implemented.");
+    try {
+      const result = await this.songRepository.find({
+        where: { userId },
+        order: { createdAt: "DESC" }
+      });
+      return Result.ok(result.map(x => x.toDomain()));
+    } catch (error) {
+      if (error instanceof Error) {
+        return Result.fail(error);
+      }
+      throw error;
+    }
   }
+
+  /**
+   * Valida si una canción existe por un ID específico
+   * @param id ID de la canción
+   */
   async existsById(id: number): Promise<Result<boolean>> {
-    /**
-     * @todo
-     * * Logica para validar si la cancion existe por un id especifico
-     */
-    throw new Error("Method not implemented.");
+    try {
+      const count = await this.songRepository.count({ where: { id } });
+      return Result.ok(count > 0);
+    } catch (error) {
+      if (error instanceof Error) {
+        return Result.fail(error);
+      }
+      throw error;
+    }
   }
 
   private applyFilters(filters: SongFilters): SelectQueryBuilder<SongEntity> {
@@ -110,11 +147,49 @@ export default class SongQueryAdapter implements SongQueryPort {
       if (filters.verifiedByUsers !== undefined) {
         queryBuilder.andWhere("song.verifiedByUsers = :verifiedByUsers", { verifiedByUsers: filters.verifiedByUsers });
       }
+    } else {
+      queryBuilder.andWhere(new Brackets(qb => {
+        if (filters.id) {
+          qb.orWhere("song.id = :id", { id: filters.id });
+        }
+
+        if (filters.title) {
+          qb.orWhere("song.title LIKE :title", { title: `%${filters.title}%` });
+        }
+
+        if (filters.genre) {
+          qb.orWhere("song.genre = :genre", { genre: filters.genre });
+        }
+
+        if (filters.artistId) {
+          qb.orWhere("song.artistId = :artistId", { artistId: filters.artistId });
+        }
+
+        if (filters.userId) {
+          qb.orWhere("song.userId = :userId", { userId: filters.userId });
+        }
+
+        if (filters.decade) {
+          qb.orWhere("song.decade = :decade", { decade: filters.decade });
+        }
+
+        if (filters.country) {
+          qb.orWhere("song.country = :country", { country: filters.country });
+        }
+
+        if (filters.difficultyLevel) {
+          qb.orWhere("song.difficultyLevel = :difficultyLevel", { difficultyLevel: filters.difficultyLevel });
+        }
+
+        if (filters.verifiedByArtist !== undefined) {
+          qb.orWhere("song.verifiedByArtist = :verifiedByArtist", { verifiedByArtist: filters.verifiedByArtist });
+        }
+
+        if (filters.verifiedByUsers !== undefined) {
+          qb.orWhere("song.verifiedByUsers = :verifiedByUsers", { verifiedByUsers: filters.verifiedByUsers });
+        }
+      }));
     }
-    /**
-     * @todo
-     * Agregar logica para agregar los filtros sin incluirlos con un orWhere
-     */
 
     return queryBuilder;
   }

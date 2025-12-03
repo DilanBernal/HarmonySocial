@@ -1,12 +1,14 @@
 import { Router } from "express";
 import SongService from "../../../application/services/SongService";
-import SongAdapter from "../../adapter/data/music/SongAdapter";
+import SongQueryAdapter from "../../adapter/data/music/SongQueryAdapter";
+import SongCommandAdapter from "../../adapter/data/music/SongCommandAdapter";
 import SongController from "../../controller/SongController";
 import authenticateToken from "../middleware/authMiddleware";
 
 const router = Router();
-const songAdapter: SongAdapter = new SongAdapter();
-const service = new SongService(songAdapter);
+const songQueryAdapter = new SongQueryAdapter();
+const songCommandAdapter = new SongCommandAdapter();
+const service = new SongService(songQueryAdapter, songCommandAdapter);
 const controller = new SongController(service);
 
 router.get("/", async (req, res) => {
