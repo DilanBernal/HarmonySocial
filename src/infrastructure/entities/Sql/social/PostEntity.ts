@@ -10,12 +10,12 @@ export default class PostEntity {
 
   @Index("IDX_post_user_id")
   @ManyToOne(() => UserEntity, { onDelete: "RESTRICT" })
-  @JoinColumn({ name: "user_id" })
+  @JoinColumn({ name: "user_id", foreignKeyConstraintName: "FK_user_id" })
   user!: UserEntity;
 
   @Index("IDX_post_song_id")
   @ManyToOne(() => SongEntity, { onDelete: "RESTRICT" })
-  @JoinColumn({ name: "song_id" })
+  @JoinColumn({ name: "song_id", foreignKeyConstraintName: "FK_song_id" })
   song!: SongEntity;
 
   @Index("IDX_post_publication_date")

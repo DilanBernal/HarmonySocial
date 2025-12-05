@@ -4,15 +4,15 @@ import UserFollowsUser from "../../../../domain/models/social/UserFollowsUser";
 
 @Entity({ name: "user_follows_user", schema: "social" })
 export default class UserFollowEntity {
-  @PrimaryGeneratedColumn({ type: "bigint" })
+  @PrimaryGeneratedColumn({ type: "bigint", primaryKeyConstraintName: "PK_User_follows_user_id" })
   id!: number;
 
-  @ManyToOne(() => UserEntity, { nullable: false })
-  @JoinColumn({ name: "follower_id" })
+  @ManyToOne(() => UserEntity, { nullable: false, onUpdate: "CASCADE" })
+  @JoinColumn({ name: "follower_id", foreignKeyConstraintName: "FK_user_follower_id" })
   follower!: UserEntity;
 
   @ManyToOne(() => UserEntity, { nullable: false })
-  @JoinColumn({ name: "followed_id" })
+  @JoinColumn({ name: "followed_id", foreignKeyConstraintName: "FK_user_followed_id" })
   followed!: UserEntity;
 
   @CreateDateColumn({ name: "created_at" })
@@ -24,11 +24,11 @@ export default class UserFollowEntity {
   toDomain(): UserFollowsUser {
     const followerId = this.follower?.id;
     const followedId = this.followed?.id;
-    
+
     if (!followerId || !followedId) {
       throw new Error("Cannot convert to domain: follower or followed user is missing");
     }
-    
+
     return new UserFollowsUser(
       this.id,
       followerId,

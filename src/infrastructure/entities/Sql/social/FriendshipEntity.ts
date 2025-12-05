@@ -10,21 +10,21 @@ import {
 import Friendship, { FrienshipStatus } from "../../../../domain/models/social/Friendship";
 import UserEntity from "../seg/UserEntity";
 
-@Entity({ name: "friendships", schema: "social" })
+@Entity({ name: "friendship", schema: "social" })
 @Index(["user", "friend", "status"], { unique: true })
 export default class FriendshipEntity {
-  @PrimaryGeneratedColumn({ type: "bigint" })
+  @PrimaryGeneratedColumn({ type: "bigint", primaryKeyConstraintName: "PK_Friendship_id" })
   id!: number;
 
   @ManyToOne(() => UserEntity, { nullable: false })
-  @JoinColumn({ name: "user_id" })
+  @JoinColumn({ name: "user_id", foreignKeyConstraintName: "FK_user_id" })
   user: UserEntity = new UserEntity();
 
   @RelationId((f: FriendshipEntity) => f.user)
   user_id!: number;
 
   @ManyToOne(() => UserEntity, { nullable: false })
-  @JoinColumn({ name: "friend_id" })
+  @JoinColumn({ name: "friend_id", foreignKeyConstraintName: "FK_friend_id" })
   friend: UserEntity = new UserEntity();
 
   @RelationId((f: FriendshipEntity) => f.friend)

@@ -6,7 +6,7 @@ import UserPublicProfile from "../../../../domain/valueObjects/UserPublicProfile
 @Index("IDX_user_email_status", ["email", "status"], { unique: true })
 @Index("IDX_user_username_status", ["username", "status"], { unique: true })
 export default class UserEntity {
-  @PrimaryGeneratedColumn({ type: "bigint" })
+  @PrimaryGeneratedColumn({ type: "bigint", primaryKeyConstraintName: "PK_User_id" })
   id!: number;
 
   @Column({ type: "varchar", length: 50 })
